@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FURA - Moj profil</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase config -->
+    <script src="../js/firebase-config.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="auth-buttons">
+                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
+                    <a href="create-ride.html" class="btn btn-outline">Vpisi svojo furo</a>
+                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="profile-container">
+            <h2 class="profile-title">Moj profil</h2>
+            
+            <div class="profile-section">
+                <h3>Osebni podatki</h3>
+                
+                <div class="form-container" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label">Ime</label>
+                                <input type="text" class="input-field" id="firstName" placeholder="Vnesite ime">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label">Priimek</label>
+                                <input type="text" class="input-field" id="lastName" placeholder="Vnesite priimek">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Email</label>
+                        <input type="email" class="input-field" id="email" placeholder="Vnesite email" disabled>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Uporabniško ime</label>
+                        <input type="text" class="input-field" id="username" placeholder="Vnesite uporabniško ime">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Telefon</label>
+                        <input type="tel" class="input-field" id="phone" placeholder="Vnesite telefonsko številko">
+                    </div>
+                    
+                    <button class="btn btn-primary" id="updateProfileBtn">Shrani spremembe</button>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3>Moje fure</h3>
+                <div class="profile-rides" id="userRides">
+                    <!-- User rides will be loaded here -->
+                    <div class="loading-indicator">Nalaganje vaših fur...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Ride Details Modal -->
+    <div class="modal" id="rideDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="../placeholder-image.jpg" alt="Ride photo" class="modal-img">
+                <div class="modal-close" onclick="closeModal('rideDetailsModal')">✕</div>
+            </div>
+            <div class="modal-body">
+                <h3 class="modal-title">Informacije o prevozu</h3>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Vrsta prevoza:</div>
+                    <div class="detail-value">Nudim prevoz</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Odhod:</div>
+                    <div class="detail-value">Vuzenica, Slovenija</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Destinacija:</div>
+                    <div class="detail-value">Zavič, Slovenija</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Datum in ura:</div>
+                    <div class="detail-value">13.02.2023 ob 22:00</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Vozilo:</div>
+                    <div class="detail-value">Kombi (3.5m × 1.8m × 1.9m)</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Hladilnik:</div>
+                    <div class="detail-value">Da</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Opis:</div>
+                    <div class="detail-value">Peljemo izdelke za trgovino. Ostalo je približno 5 kubikov prostora za tistega, ki bi potreboval prevoz za svoje stvari.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')">Zapri</button>
+                <button class="btn btn-accent" id="deleteRideBtn">Izbriši furo</button>
+                <button class="btn btn-outline" id="editRideBtn">Uredi furo</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentUserId = null;
+        let currentRideId = null;
+        
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication status
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (!user) {
+                    // Redirect to login page if not logged in
+                    alert('Za dostop do profila se morate prijaviti.');
+                    window.location.href = '../index.html';
+                } else {
+                    currentUserId = user.uid;
+                    // Load user profile data
+                    loadUserProfile(user.uid);
+                    // Load user rides
+                    loadUserRides(user.uid);
+                }
+            });
+            
+            // Logout button handler
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function() {
+                    firebase.auth().signOut()
+                        .then(() => {
+                            alert('Uspešno ste se odjavili.');
+                            window.location.href = '../index.html';
+                        })
+                        .catch(error => {
+                            console.error('Logout error:', error);
+                            alert('Napaka pri odjavi: ' + error.message);
+                        });
+                });
+            }
+            
+            // Save profile changes button handler
+            const updateProfileBtn = document.getElementById('updateProfileBtn');
+            if (updateProfileBtn) {
+                updateProfileBtn.addEventListener('click', updateUserProfile);
+            }
+            
+            // Delete ride button handler
+            const deleteRideBtn = document.getElementById('deleteRideBtn');
+            if (deleteRideBtn) {
+                deleteRideBtn.addEventListener('click', deleteCurrentRide);
+            }
+            
+            // Edit ride button handler
+            const editRideBtn = document.getElementById('editRideBtn');
+            if (editRideBtn) {
+                editRideBtn.addEventListener('click', editCurrentRide);
+            }
+        });
+        
+        // Load user profile data
+        async function loadUserProfile(userId) {
+            try {
+                console.log('Loading profile for user:', userId);
+                
+                // Get user document from Firestore
+                const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    console.log('User data loaded:', userData);
+                    
+                    // Fill form fields with user data
+                    document.getElementById('firstName').value = userData.firstName || '';
+                    document.getElementById('lastName').value = userData.lastName || '';
+                    document.getElementById('email').value = userData.email || firebase.auth().currentUser.email || '';
+                    document.getElementById('username').value = userData.username || '';
+                    document.getElementById('phone').value = userData.phone || '';
+                } else {
+                    console.log('No user data found, using defaults');
+                    // Use default data from Firebase Auth
+                    document.getElementById('email').value = firebase.auth().currentUser.email || '';
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+                alert('Napaka pri nalaganju profila: ' + error.message);
+            }
+        }
+        
+        // Update user profile
+        async function updateUserProfile() {
+            try {
+                const userId = currentUserId;
+                if (!userId) {
+                    throw new Error('User not logged in');
+                }
+                
+                // Get form values
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const username = document.getElementById('username').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                
+                // Validate input
+                if (!firstName || !lastName) {
+                    alert('Prosimo izpolnite ime in priimek.');
+                    return;
+                }
+                
+                // Create user data object
+                const userData = {
+                    firstName,
+                    lastName,
+                    username,
+                    phone,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Update profile in Firestore
+                await firebase.firestore().collection('users').doc(userId).update(userData);
+                
+                alert('Profil uspešno posodobljen!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Napaka pri posodabljanju profila: ' + error.message);
+            }
+        }
+        
+        // Load user rides
+        async function loadUserRides(userId) {
+            try {
+                console.log('Loading rides for user:', userId);
+                const ridesContainer = document.getElementById('userRides');
+                
+                if (!ridesContainer) {
+                    console.error('Rides container not found');
+                    return;
+                }
+                
+                // Clear loading indicator
+                ridesContainer.innerHTML = '';
+                
+                // Get user rides from Firestore
+                const ridesSnapshot = await firebase.firestore().collection('rides')
+                    .where('createdBy', '==', userId)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                if (ridesSnapshot.empty) {
+                    ridesContainer.innerHTML = '<div class="no-rides">Nimate še objavljenih fur.</div>';
+                    return;
+                }
+                
+                // Display rides
+                ridesSnapshot.forEach(doc => {
+                    const ride = doc.data();
+                    ride.id = doc.id;
+                    
+                    const rideCard = document.createElement('div');
+                    rideCard.className = `ride-card ${ride.type === 'offering' ? 'offering-ride' : 'looking-ride'}`;
+                    
+                    const dateDisplay = ride.formattedDate || ride.displayDate || 'Ni datuma';
+                    const timeDisplay = ride.formattedTime || ride.displayTime || '';
+                    const dateTimeDisplay = timeDisplay ? `${dateDisplay} ob ${timeDisplay}` : dateDisplay;
+                    
+                    rideCard.innerHTML = `
+                        <div class="ride-header">
+                            <div class="ride-type">
+                                ${ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz'}
+                            </div>
+                            <div class="ride-date">${dateTimeDisplay}</div>
+                        </div>
+                        <div class="ride-locations">
+                            <div class="ride-location">
+                                <strong>Iz:</strong> ${ride.fromCity}, ${ride.fromCountry}
+                            </div>
+                            <div class="ride-location">
+                                <strong>V:</strong> ${ride.toCity}, ${ride.toCountry}
+                            </div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-vehicle">
+                                ${ride.vehicleTypeDisplay || ride.vehicleType}
+                            </div>
+                            <div class="ride-actions">
+                                <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">Podrobnosti</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    ridesContainer.appendChild(rideCard);
+                    
+                    // Add click event to view button
+                    const viewButton = rideCard.querySelector('.view-ride-btn');
+                    if (viewButton) {
+                        viewButton.addEventListener('click', function() {
+                            const rideId = this.getAttribute('data-ride-id');
+                            showRideDetails(rideId);
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading user rides:', error);
+                const ridesContainer = document.getElementById('userRides');
+                if (ridesContainer) {
+                    ridesContainer.innerHTML = '<div class="error-message">Napaka pri nalaganju fur.</div>';
+                }
+            }
+        }
+        
+        // Show ride details
+        async function showRideDetails(rideId) {
+            try {
+                console.log('Showing details for ride:', rideId);
+                
+                // Store current ride ID for delete/edit operations
+                currentRideId = rideId;
+                
+                // Get ride from Firestore
+                const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
+                
+                if (!rideDoc.exists) {
+                    alert('Fura ne obstaja več.');
+                    return;
+                }
+                
+                const ride = rideDoc.data();
+                console.log('Ride details:', ride);
+                
+                // Populate modal with ride details
+                const modal = document.getElementById('rideDetailsModal');
+                
+                if (modal) {
+                    // Get all detail rows
+                    const detailRows = modal.querySelectorAll('.detail-row');
+                    
+                    if (detailRows.length >= 7) {
+                        // Prvi red: Vrsta prevoza
+                        const typeLabel = detailRows[0].querySelector('.detail-label');
+                        const typeValue = detailRows[0].querySelector('.detail-value');
+                        
+                        if (typeLabel && typeValue) {
+                            typeLabel.textContent = 'Vrsta prevoza:';
+                            typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
+                        }
+                        
+                        // Drugi red: Odhod
+                        const departureLabel = detailRows[1].querySelector('.detail-label');
+                        const departureValue = detailRows[1].querySelector('.detail-value');
+                        
+                        if (departureLabel && departureValue) {
+                            departureLabel.textContent = 'Odhod:';
+                            departureValue.textContent = `${ride.fromCity}, ${ride.fromCountry}`;
+                        }
+                        
+                        // Treći red: Destinacija
+                        const destinationLabel = detailRows[2].querySelector('.detail-label');
+                        const destinationValue = detailRows[2].querySelector('.detail-value');
+                        
+                        if (destinationLabel && destinationValue) {
+                            destinationLabel.textContent = 'Destinacija:';
+                            destinationValue.textContent = `${ride.toCity}, ${ride.toCountry}`;
+                        }
+                        
+                        // Četvrti red: Datum in ura
+                        const dateLabel = detailRows[3].querySelector('.detail-label');
+                        const dateValue = detailRows[3].querySelector('.detail-value');
+                        
+                        if (dateLabel && dateValue) {
+                            dateLabel.textContent = 'Datum in ura:';
+                            const timeDisplay = ride.formattedTime ? `ob ${ride.formattedTime}` : '';
+                            dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
+                        }
+                        
+                        // Peti red: Vozilo
+                        const vehicleLabel = detailRows[4].querySelector('.detail-label');
+                        const vehicleValue = detailRows[4].querySelector('.detail-value');
+                        
+                        if (vehicleLabel && vehicleValue) {
+                            vehicleLabel.textContent = 'Vozilo:';
+                            const dimensions = ride.vehicleDimensions;
+                            vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
+                        }
+                        
+                        // Šesti red: Hladilnik
+                        const refrigeratorLabel = detailRows[5].querySelector('.detail-label');
+                        const refrigeratorValue = detailRows[5].querySelector('.detail-value');
+                        
+                        if (refrigeratorLabel && refrigeratorValue) {
+                            refrigeratorLabel.textContent = 'Hladilnik:';
+                            refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
+                        }
+                        
+                        // Sedmi red: Opis
+                        const descriptionLabel = detailRows[6].querySelector('.detail-label');
+                        const descriptionValue = detailRows[6].querySelector('.detail-value');
+                        
+                        if (descriptionLabel && descriptionValue) {
+                            descriptionLabel.textContent = 'Opis:';
+                            descriptionValue.textContent = ride.description;
+                        }
+                    }
+                    
+                    // Show the modal
+                    showModal('rideDetailsModal');
+                }
+            } catch (error) {
+                console.error('Error showing ride details:', error);
+                alert('Napaka pri prikazu podrobnosti fure: ' + error.message);
+            }
+        }
+        
+        // Delete current ride
+        async function deleteCurrentRide() {
+            try {
+                if (!currentRideId) {
+                    throw new Error('No ride selected');
+                }
+                
+                if (!confirm('Ali ste prepričani, da želite izbrisati to furo?')) {
+                    return;
+                }
+                
+                await firebase.firestore().collection('rides').doc(currentRideId).delete();
+                
+                // Close modal
+                closeModal('rideDetailsModal');
+                
+                // Reload rides
+                loadUserRides(currentUserId);
+                
+                alert('Fura uspešno izbrisana!');
+            } catch (error) {
+                console.error('Error deleting ride:', error);
+                alert('Napaka pri brisanju fure: ' + error.message);
+            }
+        }
+        
+        // Edit current ride
+        function editCurrentRide() {
+            if (!currentRideId) {
+                alert('No ride selected');
+                return;
+            }
+            
+            // Redirect to edit page with ride ID
+            window.location.href = `edit-ride.html?id=${currentRideId}`;
+        }
+        
+        // Show modal helper function
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling while modal is open
+            }
+        }
+        
+        // Close modal helper function
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Re-enable scrolling
+            }
+        }
+    </script>
+    
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 40px auto;
+        }
+        
+        .profile-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .profile-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .profile-section h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+        }
+        
+        .no-rides {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #f44336;
+        }
+        
+        .ride-card {
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .ride-card.offering-ride {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .ride-card.looking-ride {
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .ride-type {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .ride-card.looking-ride .ride-type {
+            color: var(--accent-color);
+        }
+        
+        .ride-date {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .ride-locations {
+            margin-bottom: 10px;
+        }
+        
+        .ride-location {
+            margin-bottom: 5px;
+        }
+        
+        .ride-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .ride-vehicle {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+    </style>
+</body>
+</html>

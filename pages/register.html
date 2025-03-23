@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FURA - Registracija</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="auth-buttons">
+                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
+                    <a href="login.html" class="btn btn-primary">Prijava</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="form-container">
+            <h2 class="form-title">Registracija</h2>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="input-group">
+                        <label class="input-label">Ime</label>
+                        <input type="text" id="firstname" class="input-field" placeholder="Vnesite ime">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="input-group">
+                        <label class="input-label">Priimek</label>
+                        <input type="text" id="lastname" class="input-field" placeholder="Vnesite priimek">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Email</label>
+                <input type="email" id="email" class="input-field" placeholder="Vnesite email">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Uporabniško ime</label>
+                <input type="text" id="username" class="input-field" placeholder="Vnesite uporabniško ime">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Geslo</label>
+                <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Potrdite geslo</label>
+                <input type="password" id="confirm_password" class="input-field" placeholder="Ponovno vnesite geslo">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms">
+                <label for="terms">Strinjam se s <a href="#" style="color: var(--primary-color);">pogoji uporabe</a> in <a href="#" style="color: var(--primary-color);">politiko zasebnosti</a>.</label>
+            </div>
+            
+            <button class="btn btn-primary search-btn" onclick="register()">Registracija</button>
+            
+            <div class="form-footer">
+                <p>Že imate račun? <a href="login.html">Prijavite se</a></p>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        function register() {
+            // Get form values
+            const firstname = document.getElementById('firstname').value;
+            const lastname = document.getElementById('lastname').value;
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // Validate inputs
+            if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
+                alert('Prosimo izpolnite vsa obvezna polja!');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Gesli se ne ujemata!');
+                return;
+            }
+            
+            if (!terms) {
+                alert('Morate se strinjati s pogoji uporabe in politiko zasebnosti!');
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Vnesite veljaven email naslov!');
+                return;
+            }
+            
+            // In a real app, you would send the registration data to the server
+            
+            // For demo purposes, we'll just simulate a successful registration
+            alert('Registracija uspešna! Zdaj se lahko prijavite.');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

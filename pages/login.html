@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FURA - Prijava</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="auth-buttons">
+                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
+                    <a href="register.html" class="btn btn-primary">Registracija</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="form-container">
+            <h2 class="form-title">Prijava</h2>
+            
+            <div class="input-group">
+                <label class="input-label">Email ali uporabniško ime</label>
+                <input type="text" id="username" class="input-field" placeholder="Vnesite email ali uporabniško ime">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Geslo</label>
+                <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+            </div>
+            
+            <button class="btn btn-primary search-btn" onclick="login()">Prijava</button>
+            
+            <div class="form-footer">
+                <p>Nimate računa? <a href="register.html">Registrirajte se</a></p>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Validate inputs
+            if (!username || !password) {
+                alert('Prosimo vnesite uporabniško ime/email in geslo!');
+                return;
+            }
+            
+            // In a real app, you would send these credentials to the server for authentication
+            
+            // For demo purposes, we'll just simulate a successful login
+            alert('Uspešna prijava!');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

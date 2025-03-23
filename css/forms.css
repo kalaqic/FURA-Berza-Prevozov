@@ -1,0 +1,113 @@
+/* Form styles for FURA website */
+
+
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-col {
+    flex: 1;
+    
+    
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-label {
+    position: absolute;
+    align-items: center;
+    left: 15px;
+    top: 12px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.input-field {
+    width: 100%;
+    padding: 25px 15px 10px;
+    border: 1px solid #DDD;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.input-field:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.date-input {
+    display: flex;
+    align-items: center;
+}
+
+.date-input .input-field {
+    flex: 1;
+}
+
+.date-input .calendar-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+/* Form containers */
+.form-container {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 30px;
+    max-width: 600px;
+    margin: 50px auto;
+    box-shadow: var(--box-shadow);
+}
+
+.form-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.form-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.form-footer p {
+    margin-top: 15px;
+    color: var(--text-light);
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Detail items for ride details */
+.detail-row {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.detail-label {
+    font-weight: 600;
+    width: 150px;
+    color: var(--text-light);
+}
+
+.detail-value {
+    flex: 1;
+}

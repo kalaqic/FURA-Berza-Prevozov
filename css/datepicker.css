@@ -1,0 +1,128 @@
+/* Clean date and time picker styles */
+.date-picker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 25px 0;
+}
+
+.date-picker-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 200px;
+}
+
+.date-picker-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.date-picker-button:hover .calendar-icon svg {
+    stroke: white;
+}
+
+.date-picker-button .calendar-icon {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.date-picker-button .calendar-icon svg {
+    stroke: var(--primary-color);
+    transition: var(--transition);
+}
+
+/* Stilizovani checkbox */
+.date-only-option {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+/* Sakrivamo originalni checkbox */
+.date-only-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Kreiramo custom checkbox kontejner */
+.checkbox-container {
+    display: inline-block;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Kreiramo custom checkbox */
+.checkbox-container .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    background-color: #fff;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* Kad je hover preko checkboxa */
+.checkbox-container:hover .checkmark {
+    background-color: #f0f4ff;
+}
+
+/* Kad je checkbox čekiran, mijenjamo boju pozadine */
+.date-only-checkbox:checked ~ .checkmark {
+    background-color: var(--primary-color);
+}
+
+/* Kreiramo kvačicu unutar checkboxa */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Prikazujemo kvačicu kad je checkbox čekiran */
+.date-only-checkbox:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Centrirana kvačica - precizno u sredini */
+.checkbox-container .checkmark:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.date-only-option label {
+    cursor: pointer;
+}
+
+/* Style for flatpickr when time is disabled */
+.flatpickr-time.flatpickr-time-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}

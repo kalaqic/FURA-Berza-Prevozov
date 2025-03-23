@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FURA - Vpisi svoj prevoz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/datepicker.css">
+    
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/sl.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase config (will be loaded first) -->
+    <script src="../js/firebase-config.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="auth-buttons">
+                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
+                    <a href="profile.html" class="btn btn-outline">Moj profil</a>
+                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="form-container">
+            <h2 class="form-title">Vpisi svoj prevoz</h2>
+            
+            <div class="toggle-container">
+                <div class="toggle-option active" data-toggle="offering">Nudim prevoz</div>
+                <div class="toggle-option" data-toggle="looking">Iščem prevoz</div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Slika (opcijsko)</label>
+                <input type="file" class="input-field" accept="image/*" id="rideImage">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="input-group autocomplete-container">
+                        <label class="input-label">Iz države</label>
+                        <input type="text" class="input-field country-input" id="fromCountry" placeholder="Država">
+                        <div class="autocomplete-dropdown" id="fromCountryDropdown"></div>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="input-group autocomplete-container">
+                        <label class="input-label">V državo</label>
+                        <input type="text" class="input-field country-input" id="toCountry" placeholder="Država">
+                        <div class="autocomplete-dropdown" id="toCountryDropdown"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swap-container">
+                <div class="swap-btn" id="swapLocationsBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 3h5v5"></path>
+                        <path d="M4 20l16-16"></path>
+                        <path d="M3 16v5h5"></path>
+                        <path d="M20 3l-16 16"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="input-group autocomplete-container">
+                        <label class="input-label">Iz mesta</label>
+                        <input type="text" class="input-field city-input" id="fromCity" placeholder="Mesto">
+                        <div class="autocomplete-dropdown" id="fromCityDropdown"></div>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="input-group autocomplete-container">
+                        <label class="input-label">V mesto</label>
+                        <input type="text" class="input-field city-input" id="toCity" placeholder="Mesto">
+                        <div class="autocomplete-dropdown" id="toCityDropdown"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date picker with date-only option -->
+            <div class="date-picker-container">
+                <button type="button" class="date-picker-button" id="dateTimePicker">
+                    <span class="calendar-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    Datum in ura
+                </button>
+                <div class="date-only-option">
+                    <label class="checkbox-container">
+                        Brez ure
+                        <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Prevozno sredstvo</label>
+                <select class="input-field" id="vehicleType">
+                    <option value="car">Avto</option>
+                    <option value="van">Kombi</option>
+                    <option value="truck">Tovornjak</option>
+                    <option value="any">Poljubno vozilo</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Dimenzije vozila</label>
+                <select class="input-field" id="vehicleSize">
+                    <option value="small">Male dimenzije (auto)</option>
+                    <option value="medium">Srednje dimenzije (kombi)</option>
+                    <option value="large">Velike dimenzije (kamion)</option>
+                </select>
+            </div>
+            
+            <div class="vehicle-dimensions-display" id="dimensionsDisplay">
+                <!-- Dimensions will be shown here -->
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="hasRefrigerator">
+                <label for="hasRefrigerator">Vozilo ima hladilnik</label>
+            </div>
+            
+            <!-- Price section -->
+            <div class="form-section">
+                <h4 class="section-title">Cena prevoza</h4>
+                
+                <div class="price-options">
+                    <div class="radio-group">
+                        <input type="radio" id="priceFree" name="priceOption" value="free" checked>
+                        <label for="priceFree">Brezplačno</label>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <input type="radio" id="priceNegotiable" name="priceOption" value="negotiable">
+                        <label for="priceNegotiable">Po dogovoru</label>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <input type="radio" id="priceFixed" name="priceOption" value="fixed">
+                        <label for="priceFixed">Fiksna cena</label>
+                    </div>
+                </div>
+                
+                <div class="form-row price-input-row" id="priceInputSection" style="display: none;">
+                    <div class="form-col">
+                        <div class="input-group">
+                            <label class="input-label">Znesek</label>
+                            <input type="number" class="input-field" id="priceAmount" placeholder="Vnesite znesek" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="input-group">
+                            <label class="input-label">Valuta</label>
+                            <select class="input-field" id="priceCurrency">
+                                <option value="EUR">Euro (€)</option>
+                                <option value="BAM">Konvertibilna marka (KM)</option>
+                                <option value="RSD">Srbski dinar (RSD)</option>
+                                <option value="HRK">Hrvatska kuna (HRK)</option>
+                                <option value="MKD">Makedonski denar (MKD)</option>
+                                <option value="ALL">Albanski lek (ALL)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Opis</label>
+                <textarea class="input-field" rows="4" id="rideDescription" placeholder="Vnesite dodatne informacije o prevozu"></textarea>
+            </div>
+            
+            <button class="btn btn-primary search-btn" id="submitRideBtn">Objavi prevoz</button>
+        </div>
+    </main>
+    
+    <!-- Include JavaScript files -->
+    <script src="../js/vehicle-dimensions.js"></script>
+    <script src="../js/firestore-rides.js"></script>
+    <script src="../js/autocomplete.js"></script>
+    <script src="../js/datepicker.js"></script>
+    
+    <script>
+        // Authentication check
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (!user) {
+                    // If not logged in, redirect to login page
+                    alert('Za dodavanje prevozov se morate prijaviti.');
+                    window.location.href = '../index.html';
+                } else {
+                    console.log('User is authenticated:', user.email);
+                }
+            });
+            
+            // Handle price option switching
+            const priceRadios = document.querySelectorAll('input[name="priceOption"]');
+            const priceInputSection = document.getElementById('priceInputSection');
+            
+            if (priceRadios.length > 0 && priceInputSection) {
+                // Add event listeners to radio buttons
+                priceRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.value === 'fixed') {
+                            priceInputSection.style.display = 'flex';
+                        } else {
+                            priceInputSection.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Logout button handler
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function() {
+                    firebase.auth().signOut()
+                        .then(() => {
+                            alert('Uspešno ste se odjavili.');
+                            window.location.href = '../index.html';
+                        })
+                        .catch(error => {
+                            console.error('Logout error:', error);
+                            alert('Napaka pri odjavi: ' + error.message);
+                        });
+                });
+            }
+            
+            // Initialize vehicle dimensions display
+            const vehicleSizeSelect = document.getElementById('vehicleSize');
+            const dimensionsDisplay = document.getElementById('dimensionsDisplay');
+            
+            if (vehicleSizeSelect && dimensionsDisplay) {
+                // Update dimensions display when vehicle size changes
+                function updateDimensionsDisplay() {
+                    const selectedSize = vehicleSizeSelect.value;
+                    const dimensions = getDimensionsBySize(selectedSize);
+                    
+                    dimensionsDisplay.innerHTML = `
+                        <div class="dimensions-info">
+                            <p>Dimenzije: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
+                            <p>Volumen: ${dimensions.cubicMeters} m³</p>
+                        </div>
+                    `;
+                }
+                
+                // Set initial display
+                updateDimensionsDisplay();
+                
+                // Update when selection changes
+                vehicleSizeSelect.addEventListener('change', updateDimensionsDisplay);
+            }
+            
+            // Toggle options for ride type
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            let selectedRideType = 'offering'; // Default value
+            
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedRideType = this.getAttribute('data-toggle');
+                });
+            });
+            
+            // Swap locations button functionality
+            const swapButton = document.getElementById('swapLocationsBtn');
+            if (swapButton) {
+                swapButton.addEventListener('click', function() {
+                    // Swap countries
+                    const fromCountry = document.getElementById('fromCountry');
+                    const toCountry = document.getElementById('toCountry');
+                    
+                    if (fromCountry && toCountry) {
+                        const tempCountry = fromCountry.value;
+                        fromCountry.value = toCountry.value;
+                        toCountry.value = tempCountry;
+                    }
+                    
+                    // Swap cities
+                    const fromCity = document.getElementById('fromCity');
+                    const toCity = document.getElementById('toCity');
+                    
+                    if (fromCity && toCity) {
+                        const tempCity = fromCity.value;
+                        fromCity.value = toCity.value;
+                        toCity.value = tempCity;
+                    }
+                });
+            }
+            
+            // Form submission
+            const submitButton = document.getElementById('submitRideBtn');
+            if (submitButton) {
+                submitButton.addEventListener('click', async function() {
+                    // Create loading overlay
+                    let loadingOverlay = document.getElementById('loadingOverlay');
+                    if (!loadingOverlay) {
+                        loadingOverlay = document.createElement('div');
+                        loadingOverlay.id = 'loadingOverlay';
+                        loadingOverlay.innerHTML = `
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">Objavljanje fure...</div>
+                        `;
+                        document.body.appendChild(loadingOverlay);
+                        
+                        // Add styles for the loading overlay
+                        if (!document.getElementById('loadingOverlayStyles')) {
+                            const style = document.createElement('style');
+                            style.id = 'loadingOverlayStyles';
+                            style.textContent = `
+                                #loadingOverlay {
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: rgba(0, 0, 0, 0.5);
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                    align-items: center;
+                                    z-index: 9999;
+                                }
+                                
+                                .loading-spinner {
+                                    border: 4px solid #f3f3f3;
+                                    border-top: 4px solid var(--primary-color);
+                                    border-radius: 50%;
+                                    width: 50px;
+                                    height: 50px;
+                                    animation: spin 2s linear infinite;
+                                }
+                                
+                                .loading-text {
+                                    color: white;
+                                    margin-top: 20px;
+                                    font-size: 18px;
+                                }
+                                
+                                @keyframes spin {
+                                    0% { transform: rotate(0deg); }
+                                    100% { transform: rotate(360deg); }
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                    }
+                    
+                    // Show loading overlay
+                    loadingOverlay.style.display = 'flex';
+                    
+                    try {
+                        // Get form values
+                        const fromCountry = document.getElementById('fromCountry').value;
+                        const toCountry = document.getElementById('toCountry').value;
+                        const fromCity = document.getElementById('fromCity').value;
+                        const toCity = document.getElementById('toCity').value;
+                        const dateTimeButton = document.getElementById('dateTimePicker');
+                        const dateTimeText = dateTimeButton.innerText.replace(/Datum in ura|Datum/g, '').trim();
+                        
+                        // Extract date and time from the button text
+                        let date = '';
+                        let time = '';
+                        let formattedDate = '';
+                        let displayDate = '';
+                        let displayTime = '';
+                        
+                        if (dateTimeText) {
+                            // Parse the date/time text based on format
+                            if (dateTimeText.includes(' ob ')) {
+                                // Format: "DD.MM.YYYY ob HH:MM"
+                                const parts = dateTimeText.split(' ob ');
+                                const datePart = parts[0].trim(); // DD.MM.YYYY
+                                const timePart = parts[1].trim(); // HH:MM
+                                
+                                // Convert date format
+                                const dateParts = datePart.split('.');
+                                if (dateParts.length === 3) {
+                                    date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                                    formattedDate = datePart;
+                                    displayDate = datePart.replace(/\./g, '/');
+                                }
+                                
+                                time = timePart;
+                                displayTime = timePart;
+                            } else {
+                                // Format: "DD.MM.YYYY" (date only)
+                                const dateParts = dateTimeText.split('.');
+                                if (dateParts.length === 3) {
+                                    date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                                    formattedDate = dateTimeText;
+                                    displayDate = dateTimeText.replace(/\./g, '/');
+                                }
+                            }
+                        }
+                        
+                        const vehicleType = document.getElementById('vehicleType').value;
+                        const vehicleSize = document.getElementById('vehicleSize').value;
+                        const hasRefrigerator = document.getElementById('hasRefrigerator').checked;
+                        const description = document.getElementById('rideDescription').value;
+                        
+                        // Get price information
+                        const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked').value;
+                        let priceInfo = {
+                            type: selectedPriceOption,
+                            amount: null,
+                            currency: null
+                        };
+                        
+                        // If fixed price is selected, get amount and currency
+                        if (selectedPriceOption === 'fixed') {
+                            const priceAmount = document.getElementById('priceAmount').value;
+                            const priceCurrency = document.getElementById('priceCurrency').value;
+                            
+                            if (!priceAmount || isNaN(parseFloat(priceAmount))) {
+                                // Hide loading overlay
+                                loadingOverlay.style.display = 'none';
+                                alert('Prosimo vnesite veljavni znesek.');
+                                return;
+                            }
+                            
+                            priceInfo.amount = parseFloat(priceAmount);
+                            priceInfo.currency = priceCurrency;
+                        }
+                        
+                        // Validation
+                        if (!fromCountry || !toCountry || !fromCity || !toCity || !date) {
+                            // Hide loading overlay
+                            loadingOverlay.style.display = 'none';
+                            alert('Prosimo izpolnite vsa obvezna polja!');
+                            return;
+                        }
+                        
+                        // Get vehicle dimensions based on selected size
+                        const dimensions = getDimensionsBySize(vehicleSize);
+                        
+                        // Map vehicle type to display name
+                        const vehicleTypeDisplayMap = {
+                            'car': 'Avto',
+                            'van': 'Kombi',
+                            'truck': 'Tovornjak',
+                            'any': 'Poljubno vozilo'
+                        };
+                        
+                        // Prepare contact information
+                        let contactInfo = {
+                            name: '',
+                            email: firebase.auth().currentUser.email,
+                            phone: ''
+                        };
+                        
+                        // Try to get user profile information
+                        try {
+                            const userId = firebase.auth().currentUser.uid;
+                            const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+                            
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                // Add user contact information if available
+                                if (userData.firstName && userData.lastName) {
+                                    contactInfo.name = `${userData.firstName} ${userData.lastName}`;
+                                }
+                                
+                                if (userData.email) {
+                                    contactInfo.email = userData.email;
+                                }
+                                
+                                if (userData.phone) {
+                                    contactInfo.phone = userData.phone;
+                                }
+                            }
+                        } catch (profileError) {
+                            console.error('Error fetching user profile:', profileError);
+                            // Will continue with default contact info
+                        }
+                        
+                        // Create ride data object
+                        const rideData = {
+                            type: selectedRideType,
+                            fromCountry,
+                            toCountry,
+                            fromCity,
+                            toCity,
+                            date,
+                            time,
+                            formattedDate,
+                            formattedTime: displayTime,
+                            displayDate,
+                            displayTime,
+                            vehicleType,
+                            vehicleTypeDisplay: vehicleTypeDisplayMap[vehicleType] || vehicleType,
+                            vehicleSize,
+                            vehicleDimensions: {
+                                length: dimensions.length,
+                                width: dimensions.width,
+                                height: dimensions.height
+                            },
+                            vehicleSizeDisplay: dimensions.displayName,
+                            hasRefrigerator,
+                            description,
+                            price: priceInfo,
+                            image: null, // Image handling would require storage implementation
+                            contact: contactInfo
+                        };
+                        
+                        console.log('Submitting ride data:', rideData);
+                        
+                        // Submit to Firestore
+                        const result = await createRide(rideData);
+                        
+                        // Hide loading overlay
+                        loadingOverlay.style.display = 'none';
+                        
+                        if (result.success) {
+                            alert('Prevoz uspešno objavljen!');
+                            window.location.href = '../index.html';
+                        } else {
+                            alert('Napaka pri objavi prevoza: ' + result.message);
+                        }
+                    } catch (error) {
+                        // Hide loading overlay
+                        loadingOverlay.style.display = 'none';
+                        console.error('Error creating ride:', error);
+                        alert('Napaka pri objavi prevoza: ' + error.message);
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <style>
+        .dimensions-info {
+            margin: 10px 0 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .dimensions-info p {
+            margin: 5px 0;
+            color: var(--text-dark);
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .price-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .radio-group input[type="radio"] {
+            margin: 0;
+        }
+        
+        .price-input-row {
+            transition: all 0.3s ease;
+        }
+    </style>
+</body>
+</html>

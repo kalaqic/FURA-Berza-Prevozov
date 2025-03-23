@@ -1,0 +1,284 @@
+/* Main styles for FURA website */
+
+:root {
+    --primary-color: #5C6BC0;
+    --secondary-color: #7986CB;
+    --accent-color: #E87E38;
+    --light-bg: #E3F2FD;
+    --light-panel: #F5F5F5;
+    --text-dark: #37474F;
+    --text-light: #78909C;
+    --success: #66BB6A;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Styles */
+header {
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    box-shadow: var(--box-shadow);
+}
+
+/* Update to justify space between logo and auth buttons */
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+/* Search Panel */
+.search-panel {
+    background-color: var(--light-panel);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    margin: 30px 0;
+    box-shadow: var(--box-shadow);
+}
+
+.ride-type-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background-color: white;
+    box-shadow: var(--box-shadow);
+}
+
+
+
+/* Stilovi za tabove sa ride-type */
+.ride-type-tabs .tab-btn[data-tab="looking"]:not(.active):hover {
+    background-color: #FFF2E6 !important; /* Ista narandžasta boja kao za hover iscem prevoz redova */
+}
+
+/* Existing hover style for offering tab */
+.ride-type-tabs .tab-btn[data-tab="offering"]:not(.active):hover {
+    background-color: #D4E5FF !important; /* Plava boja za hover nudim prevoz tabova */
+}
+
+/* Hover stil za "sve fure" tab */
+.ride-type-tabs .tab-btn[data-tab="all"]:not(.active):hover {
+    background-color: #E8EAF6 !important; /* Postojeća boja */
+}
+
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+}
+
+.tab-btn.active[data-tab="looking"] {
+    background-color: var(--accent-color) !important;
+}
+
+.tab-btn.active[data-tab="offering"] {
+    background-color:  var(--primary-color) !important; 
+}
+
+.tab-btn.active[data-tab="all"] {
+    background-color: var(--primary-color) !important;
+}
+
+
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.tab-btn:not(.active) {
+    background-color: white;
+    color: var(--text-dark);
+}
+
+.tab-btn:not(.active):hover {
+    background-color: #E8EAF6;
+}
+
+/* Swap button */
+.swap-btn {
+    background-color: white;
+    border: 1px solid #DDD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+
+    margin-top: 0px;
+    color: var(--text-light);
+}
+
+.swap-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Fix for the swap button margin */
+.swap-container {
+    margin-bottom: 0 !important; /* Eliminate any bottom margin */
+}
+
+/* Center the date/time input */
+
+/* Clean date and time picker styles */
+.date-picker-container {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.date-picker-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 200px;
+}
+
+.date-picker-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.date-picker-button:hover .calendar-icon svg {
+    stroke: white;
+}
+
+.date-picker-button .calendar-icon {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.date-picker-button .calendar-icon svg {
+    stroke: var(--primary-color);
+    transition: var(--transition);
+}
+
+/* Results section */
+.results-section {
+    margin-bottom: 50px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 15px;
+}
+
+.results-count {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.results-sort {
+    display: flex;
+    align-items: center;
+}
+
+.results-sort select {
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid #DDD;
+    margin-left: 10px;
+}
+
+
+
+/* Uklanjamo različite pozadine za tipove vožnji */
+tr.offering-ride, tr.looking-ride {
+    background-color: white !important;
+}
+
+/* Ujednačavamo boju pozadine za alternativne redove */
+.results-table tr:nth-child(odd),
+.results-table tr:nth-child(even) {
+    background-color: white;
+}
+
+/* Različiti hover efekti za različite tipove fura */
+tr.offering-ride:hover {
+    background-color: #D4E5FF !important; /* Postojeća plava hover boja */
+}
+
+tr.looking-ride:hover {
+    background-color: #FFF2E6 !important; /* Svetlija verzija narandžaste - nežnija i prijatnija */
+}
+
+/* Ride type badges */
+.ride-type-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.ride-type-badge.offering {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.ride-type-badge.looking {
+    background-color: var(--accent-color);
+    color: white;
+}
