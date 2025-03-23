@@ -1,0 +1,3 @@
+# Ignore environment variables and generated config
+.env
+js/firebase-config.js
