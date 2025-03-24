@@ -1,3 +1,2 @@
 # Ignore configuration files with secrets
-/js/firebase-config.js
 .env
