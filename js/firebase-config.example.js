@@ -4,6 +4,7 @@
  */
 
 // Firebase configuration object - Replace with your own values
+
 const firebaseConfig = {
   databaseURL: "YOUR_DATABASE_URL",
   apiKey: "YOUR_API_KEY",
@@ -13,6 +14,7 @@ const firebaseConfig = {
   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
   appId: "YOUR_APP_ID"
 };
+
 
 // Initialize Firebase - only if it hasn't been initialized yet
 if (!window.firebaseInitialized) {
