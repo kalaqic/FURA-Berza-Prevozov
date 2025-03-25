@@ -129,6 +129,11 @@
                     <div class="detail-label">Opis:</div>
                     <div class="detail-value">Peljemo izdelke za trgovino. Ostalo je približno 5 kubikov prostora za tistega, ki bi potreboval prevoz za svoje stvari.</div>
                 </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Cena:</div>
+                    <div class="detail-value" id="ridePriceValue">Besplatno</div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')">Zapri</button>
@@ -263,189 +268,240 @@
             }
         }
         
-        // Load user rides
-        async function loadUserRides(userId) {
-            try {
-                console.log('Loading rides for user:', userId);
-                const ridesContainer = document.getElementById('userRides');
-                
-                if (!ridesContainer) {
-                    console.error('Rides container not found');
-                    return;
-                }
-                
-                // Clear loading indicator
-                ridesContainer.innerHTML = '';
-                
-                // Get user rides from Firestore
-                const ridesSnapshot = await firebase.firestore().collection('rides')
-                    .where('createdBy', '==', userId)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                if (ridesSnapshot.empty) {
-                    ridesContainer.innerHTML = '<div class="no-rides">Nimate še objavljenih fur.</div>';
-                    return;
-                }
-                
-                // Display rides
-                ridesSnapshot.forEach(doc => {
-                    const ride = doc.data();
-                    ride.id = doc.id;
-                    
-                    const rideCard = document.createElement('div');
-                    rideCard.className = `ride-card ${ride.type === 'offering' ? 'offering-ride' : 'looking-ride'}`;
-                    
-                    const dateDisplay = ride.formattedDate || ride.displayDate || 'Ni datuma';
-                    const timeDisplay = ride.formattedTime || ride.displayTime || '';
-                    const dateTimeDisplay = timeDisplay ? `${dateDisplay} ob ${timeDisplay}` : dateDisplay;
-                    
-                    rideCard.innerHTML = `
-                        <div class="ride-header">
-                            <div class="ride-type">
-                                ${ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz'}
-                            </div>
-                            <div class="ride-date">${dateTimeDisplay}</div>
-                        </div>
-                        <div class="ride-locations">
-                            <div class="ride-location">
-                                <strong>Iz:</strong> ${ride.fromCity}, ${ride.fromCountry}
-                            </div>
-                            <div class="ride-location">
-                                <strong>V:</strong> ${ride.toCity}, ${ride.toCountry}
-                            </div>
-                        </div>
-                        <div class="ride-details">
-                            <div class="ride-vehicle">
-                                ${ride.vehicleTypeDisplay || ride.vehicleType}
-                            </div>
-                            <div class="ride-actions">
-                                <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">Podrobnosti</button>
-                            </div>
-                        </div>
-                    `;
-                    
-                    ridesContainer.appendChild(rideCard);
-                    
-                    // Add click event to view button
-                    const viewButton = rideCard.querySelector('.view-ride-btn');
-                    if (viewButton) {
-                        viewButton.addEventListener('click', function() {
-                            const rideId = this.getAttribute('data-ride-id');
-                            showRideDetails(rideId);
-                        });
-                    }
-                });
-            } catch (error) {
-                console.error('Error loading user rides:', error);
-                const ridesContainer = document.getElementById('userRides');
-                if (ridesContainer) {
-                    ridesContainer.innerHTML = '<div class="error-message">Napaka pri nalaganju fur.</div>';
-                }
-            }
+// Load user rides - izmenjena funkcija da prikazuje "Prilagodljivo" za vožnje bez vremena
+async function loadUserRides(userId) {
+    try {
+        console.log('Loading rides for user:', userId);
+        const ridesContainer = document.getElementById('userRides');
+        
+        if (!ridesContainer) {
+            console.error('Rides container not found');
+            return;
         }
         
-        // Show ride details
-        async function showRideDetails(rideId) {
-            try {
-                console.log('Showing details for ride:', rideId);
-                
-                // Store current ride ID for delete/edit operations
-                currentRideId = rideId;
-                
-                // Get ride from Firestore
-                const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
-                
-                if (!rideDoc.exists) {
-                    alert('Fura ne obstaja več.');
-                    return;
-                }
-                
-                const ride = rideDoc.data();
-                console.log('Ride details:', ride);
-                
-                // Populate modal with ride details
-                const modal = document.getElementById('rideDetailsModal');
-                
-                if (modal) {
-                    // Get all detail rows
-                    const detailRows = modal.querySelectorAll('.detail-row');
-                    
-                    if (detailRows.length >= 7) {
-                        // Prvi red: Vrsta prevoza
-                        const typeLabel = detailRows[0].querySelector('.detail-label');
-                        const typeValue = detailRows[0].querySelector('.detail-value');
-                        
-                        if (typeLabel && typeValue) {
-                            typeLabel.textContent = 'Vrsta prevoza:';
-                            typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
-                        }
-                        
-                        // Drugi red: Odhod
-                        const departureLabel = detailRows[1].querySelector('.detail-label');
-                        const departureValue = detailRows[1].querySelector('.detail-value');
-                        
-                        if (departureLabel && departureValue) {
-                            departureLabel.textContent = 'Odhod:';
-                            departureValue.textContent = `${ride.fromCity}, ${ride.fromCountry}`;
-                        }
-                        
-                        // Treći red: Destinacija
-                        const destinationLabel = detailRows[2].querySelector('.detail-label');
-                        const destinationValue = detailRows[2].querySelector('.detail-value');
-                        
-                        if (destinationLabel && destinationValue) {
-                            destinationLabel.textContent = 'Destinacija:';
-                            destinationValue.textContent = `${ride.toCity}, ${ride.toCountry}`;
-                        }
-                        
-                        // Četvrti red: Datum in ura
-                        const dateLabel = detailRows[3].querySelector('.detail-label');
-                        const dateValue = detailRows[3].querySelector('.detail-value');
-                        
-                        if (dateLabel && dateValue) {
-                            dateLabel.textContent = 'Datum in ura:';
-                            const timeDisplay = ride.formattedTime ? `ob ${ride.formattedTime}` : '';
-                            dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
-                        }
-                        
-                        // Peti red: Vozilo
-                        const vehicleLabel = detailRows[4].querySelector('.detail-label');
-                        const vehicleValue = detailRows[4].querySelector('.detail-value');
-                        
-                        if (vehicleLabel && vehicleValue) {
-                            vehicleLabel.textContent = 'Vozilo:';
-                            const dimensions = ride.vehicleDimensions;
-                            vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
-                        }
-                        
-                        // Šesti red: Hladilnik
-                        const refrigeratorLabel = detailRows[5].querySelector('.detail-label');
-                        const refrigeratorValue = detailRows[5].querySelector('.detail-value');
-                        
-                        if (refrigeratorLabel && refrigeratorValue) {
-                            refrigeratorLabel.textContent = 'Hladilnik:';
-                            refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
-                        }
-                        
-                        // Sedmi red: Opis
-                        const descriptionLabel = detailRows[6].querySelector('.detail-label');
-                        const descriptionValue = detailRows[6].querySelector('.detail-value');
-                        
-                        if (descriptionLabel && descriptionValue) {
-                            descriptionLabel.textContent = 'Opis:';
-                            descriptionValue.textContent = ride.description;
-                        }
-                    }
-                    
-                    // Show the modal
-                    showModal('rideDetailsModal');
-                }
-            } catch (error) {
-                console.error('Error showing ride details:', error);
-                alert('Napaka pri prikazu podrobnosti fure: ' + error.message);
-            }
+        // Clear loading indicator
+        ridesContainer.innerHTML = '';
+        
+        // Get user rides from Firestore
+        const ridesSnapshot = await firebase.firestore().collection('rides')
+            .where('createdBy', '==', userId)
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        if (ridesSnapshot.empty) {
+            ridesContainer.innerHTML = '<div class="no-rides">Nimate še objavljenih fur.</div>';
+            return;
         }
+        
+        // Display rides
+        ridesSnapshot.forEach(doc => {
+            const ride = doc.data();
+            ride.id = doc.id;
+            
+            const rideCard = document.createElement('div');
+            rideCard.className = `ride-card ${ride.type === 'offering' ? 'offering-ride' : 'looking-ride'}`;
+            
+            const dateDisplay = ride.formattedDate || ride.displayDate || 'Ni datuma';
+            const timeDisplay = ride.formattedTime || ride.displayTime || '';
+            // Izmenjeni deo - dodavanje "Prilagodljivo" za vožnje bez vremena
+            const dateTimeDisplay = timeDisplay ? 
+                `${dateDisplay} ob ${timeDisplay}` : 
+                `${dateDisplay} (Prilagodljivo)`;
+            
+            rideCard.innerHTML = `
+                <div class="ride-header">
+                    <div class="ride-type">
+                        ${ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz'}
+                    </div>
+                    <div class="ride-date">${dateTimeDisplay}</div>
+                </div>
+                <div class="ride-locations">
+                    <div class="ride-location">
+                        <strong>Iz:</strong> ${ride.fromCity}, ${ride.fromCountry}
+                    </div>
+                    <div class="ride-location">
+                        <strong>V:</strong> ${ride.toCity}, ${ride.toCountry}
+                    </div>
+                </div>
+                <div class="ride-details">
+                    <div class="ride-vehicle">
+                        ${ride.vehicleTypeDisplay || ride.vehicleType}
+                    </div>
+                    <div class="ride-actions">
+                        <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">Podrobnosti</button>
+                    </div>
+                </div>
+            `;
+            
+            ridesContainer.appendChild(rideCard);
+            
+            // Add click event to view button
+            const viewButton = rideCard.querySelector('.view-ride-btn');
+            if (viewButton) {
+                viewButton.addEventListener('click', function() {
+                    const rideId = this.getAttribute('data-ride-id');
+                    showRideDetails(rideId);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error loading user rides:', error);
+        const ridesContainer = document.getElementById('userRides');
+        if (ridesContainer) {
+            ridesContainer.innerHTML = '<div class="error-message">Napaka pri nalaganju fur.</div>';
+        }
+    }
+}
+
+        // Funkcija za formatiranje cene
+        function formatPrice(priceInfo) {
+          if (!priceInfo) return 'Besplatno';
+          
+          switch(priceInfo.type) {
+            case 'free':
+              return 'Besplatno';
+            case 'negotiable':
+              return 'Po dogovoru';
+            case 'fixed':
+              if (priceInfo.amount && priceInfo.currency) {
+                // Formatiramo cenu sa dve decimale
+                const amount = parseFloat(priceInfo.amount).toFixed(2);
+                
+                // Različiti prikazi za različite valute
+                switch(priceInfo.currency) {
+                  case 'EUR':
+                    return `${amount} €`;
+                  case 'BAM':
+                    return `${amount} KM`;
+                  case 'RSD':
+                    return `${amount} RSD`;
+                  case 'HRK':
+                    return `${amount} HRK`;
+                  case 'MKD':
+                    return `${amount} MKD`;
+                  case 'ALL':
+                    return `${amount} ALL`;
+                  default:
+                    return `${amount} ${priceInfo.currency}`;
+                }
+              } else {
+                return 'Fiksna cena';
+              }
+            default:
+              return 'Besplatno';
+          }
+        }
+        
+// Show ride details - izmenjena funkcija da prikazuje "Prilagodljivo" za vožnje bez vremena
+async function showRideDetails(rideId) {
+  try {
+    console.log('Showing details for ride:', rideId);
+    
+    // Store current ride ID for delete/edit operations
+    currentRideId = rideId;
+    
+    // Get ride from Firestore
+    const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
+    
+    if (!rideDoc.exists) {
+      alert('Fura ne obstaja več.');
+      return;
+    }
+    
+    const ride = rideDoc.data();
+    console.log('Ride details:', ride);
+    
+    // Populate modal with ride details
+    const modal = document.getElementById('rideDetailsModal');
+    
+    if (modal) {
+      // Get all detail rows
+      const detailRows = modal.querySelectorAll('.detail-row');
+      
+      if (detailRows.length >= 8) {
+        // Prvi red: Vrsta prevoza
+        const typeLabel = detailRows[0].querySelector('.detail-label');
+        const typeValue = detailRows[0].querySelector('.detail-value');
+        
+        if (typeLabel && typeValue) {
+          typeLabel.textContent = 'Vrsta prevoza:';
+          typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
+        }
+        
+        // Drugi red: Odhod
+        const departureLabel = detailRows[1].querySelector('.detail-label');
+        const departureValue = detailRows[1].querySelector('.detail-value');
+        
+        if (departureLabel && departureValue) {
+          departureLabel.textContent = 'Odhod:';
+          departureValue.textContent = `${ride.fromCity}, ${ride.fromCountry}`;
+        }
+        
+        // Treći red: Destinacija
+        const destinationLabel = detailRows[2].querySelector('.detail-label');
+        const destinationValue = detailRows[2].querySelector('.detail-value');
+        
+        if (destinationLabel && destinationValue) {
+          destinationLabel.textContent = 'Destinacija:';
+          destinationValue.textContent = `${ride.toCity}, ${ride.toCountry}`;
+        }
+        
+        // Četvrti red: Datum in ura - IZMENJEN ZA PRIKAZ "Prilagodljivo"
+        const dateLabel = detailRows[3].querySelector('.detail-label');
+        const dateValue = detailRows[3].querySelector('.detail-value');
+        
+        if (dateLabel && dateValue) {
+          dateLabel.textContent = 'Datum in ura:';
+          const timeDisplay = ride.formattedTime ? `ob ${ride.formattedTime}` : '(Prilagodljivo)';
+          dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
+        }
+        
+        // Peti red: Vozilo
+        const vehicleLabel = detailRows[4].querySelector('.detail-label');
+        const vehicleValue = detailRows[4].querySelector('.detail-value');
+        
+        if (vehicleLabel && vehicleValue) {
+          vehicleLabel.textContent = 'Vozilo:';
+          const dimensions = ride.vehicleDimensions;
+          vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
+        }
+        
+        // Šesti red: Hladilnik
+        const refrigeratorLabel = detailRows[5].querySelector('.detail-label');
+        const refrigeratorValue = detailRows[5].querySelector('.detail-value');
+        
+        if (refrigeratorLabel && refrigeratorValue) {
+          refrigeratorLabel.textContent = 'Hladilnik:';
+          refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
+        }
+        
+        // Sedmi red: Opis
+        const descriptionLabel = detailRows[6].querySelector('.detail-label');
+        const descriptionValue = detailRows[6].querySelector('.detail-value');
+        
+        if (descriptionLabel && descriptionValue) {
+          descriptionLabel.textContent = 'Opis:';
+          descriptionValue.textContent = ride.description;
+        }
+        
+        // Osmi red: Cena
+        const priceLabel = detailRows[7].querySelector('.detail-label');
+        const priceValue = detailRows[7].querySelector('.detail-value');
+        
+        if (priceLabel && priceValue) {
+          priceLabel.textContent = 'Cena:';
+          priceValue.textContent = formatPrice(ride.price);
+        }
+      }
+      
+      // Show the modal
+      showModal('rideDetailsModal');
+    }
+  } catch (error) {
+    console.error('Error showing ride details:', error);
+    alert('Napaka pri prikazu podrobnosti fure: ' + error.message);
+  }
+}
         
         // Delete current ride
         async function deleteCurrentRide() {
