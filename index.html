@@ -39,6 +39,13 @@
     
 
     <main class="container">
+      <div id="initialLoadingScreen" class="initial-loading-overlay">
+        <div class="loading-container">
+            <div class="loading-logo">FURA</div>
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Iskanje prevozov...</div>
+        </div>
+    </div>
         <div class="search-panel">
             <div class="ride-type-tabs">
                 <div class="tab-btn active" data-tab="all">Vse fure</div>
@@ -200,11 +207,6 @@
     <!-- Ride Details Modal -->
     <div class="modal" id="rideDetailsModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <img src="placeholder-image.jpg" alt="Ride photo" class="modal-img">
-                <div class="modal-close" onclick="closeModal('rideDetailsModal')">✕</div>
-            </div>      
-            
             <div class="modal-body">
                 <h3 class="modal-title">Informacije o prevozu</h3>
                 
@@ -711,32 +713,81 @@ window.showRideDetails = async function(rideId) {
     alert('Napaka pri nalaganju podatkov o prevozu.');
   }
 };
-      
-      // Initialize everything when DOM is loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        // Check if user is already logged in
-        firebase.auth().onAuthStateChanged(function(user) {
-          if (user) {
-            console.log('User is already logged in:', user.email);
+// Uklonite postojeći loading screen kod i zamijenite ga ovim
+let globalLoadingTimeout;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, setting up loading screen logic');
+    const loadingScreen = document.getElementById('initialLoadingScreen');
+    
+    // Funkcija za uklanjanje loading screena
+    function hideLoadingScreen() {
+        console.log('Hiding loading screen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('fade-out');
+            
+            setTimeout(() => {
+                if (loadingScreen && loadingScreen.parentNode) {
+                    loadingScreen.parentNode.removeChild(loadingScreen);
+                    console.log('Loading screen removed from DOM');
+                }
+            }, 300);
+        }
+        
+        if (globalLoadingTimeout) {
+            clearTimeout(globalLoadingTimeout);
+            globalLoadingTimeout = null;
+        }
+    }
+    
+    // Maksimalno vrijeme čekanja - 15 sekundi
+    globalLoadingTimeout = setTimeout(hideLoadingScreen, 15000);
+    
+    // Inicijalno ćemo postaviti updateAuthUI funkciju ako nije definirana
+    if (typeof window.updateAuthUI !== 'function') {
+        window.updateAuthUI = function() {
+            console.log('Default updateAuthUI called');
+        };
+    }
+    
+    // Dodajte ovaj kod za rješavanje problema s dozvolama Firestore-a
+    const errorHandler = function(error) {
+        console.error('Firestore error:', error);
+        if (error && error.code === 'permission-denied') {
+            // Pokušajte ponovno učitati podatke nakon autentifikacije
+            console.log('Permission denied, will retry after authentication');
+        }
+    };
+    
+    // Koristite samo jedan onAuthStateChanged event
+    firebase.auth().onAuthStateChanged(function(user) {
+        console.log('Auth state resolved:', user ? 'User logged in' : 'User not logged in');
+        
+        if (user) {
+            console.log('User is authenticated:', user.email);
+            // Ažurirajte UI za prijavljenog korisnika
             updateUIAfterLogin(user);
-          }
-        });
-        
-        // Set up event listeners for login/register buttons
-        const loginButton = document.getElementById('loginButton');
-        if (loginButton) {
-          loginButton.addEventListener('click', function() {
-            window.handleLoginSubmit();
-          });
+            
+            // Pristupite podacima nakon uspješne autentifikacije
+            try {
+                // Kratka odgoda prije pristupanja Firestore-u
+                setTimeout(() => {
+                    loadInitialResults().catch(errorHandler);
+                }, 1000);
+            } catch (err) {
+                errorHandler(err);
+            }
+        } else {
+            // Pokušajte dohvatiti javno dostupne podatke
+            console.log('User not authenticated, attempting to load public data');
+            loadInitialResults().catch(errorHandler);
         }
         
-        const registerButton = document.getElementById('registerButton');
-        if (registerButton) {
-          registerButton.addEventListener('click', function() {
-            window.handleRegisterSubmit();
-          });
-        }
-      });
+        // Sakrij loading screen nakon odgode
+        setTimeout(hideLoadingScreen, 1000);
+    });
+});
+  
     </script>
 
     <!-- Added script for handling time display in search results -->

@@ -29,13 +29,20 @@
         <div class="container">
             <nav>
                 <a href="../index.html" class="logo">FURA</a>
-              
+                <div class="auth-buttons">
+                    <a href="profile.html" class="btn btn-outline">Nazaj na profil</a>
+                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                </div>
             </nav>
         </div>
     </header>
     
     <main class="container">
-        <div class="form-container">
+        <div id="loadingRideDataOverlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Nalaganje podatkov o furi...</div>
+        </div>
+        <div class="form-container" id="rideFormContainer" style="display: none;">
             <h2 class="form-title">Uredi furo</h2>
             
             <div class="toggle-container">
@@ -43,10 +50,7 @@
                 <div class="toggle-option" data-toggle="looking">Iščem prevoz</div>
             </div>
             
-            <div class="input-group">
-                <label class="input-label">Slika (opcijsko)</label>
-                <input type="file" class="input-field" accept="image/*" id="rideImage">
-            </div>
+          
             
             <div class="form-row">
                 <div class="form-col">
@@ -324,143 +328,219 @@
         
         // Load ride data from Firestore
         async function loadRideData(rideId, userId) {
-            try {
-                console.log('Loading ride data for ID:', rideId);
-                
-                // Get ride document from Firestore
-                const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
-                
-                if (!rideDoc.exists) {
-                    alert('Fura ni najdena.');
-                    window.location.href = 'profile.html';
-                    return;
-                }
-                
-                const ride = rideDoc.data();
-                
-                // Check if user is the owner of the ride
-                if (ride.createdBy !== userId) {
-                    alert('Nimate dovoljenja za urejanje te fure.');
-                    window.location.href = 'profile.html';
-                    return;
-                }
-                
-                // Store current ride data
-                currentRide = ride;
-                currentRide.id = rideId;
-                
-                console.log('Loaded ride data:', ride);
-                
-                // Populate form with ride data
-                populateForm(ride);
-                
-            } catch (error) {
-                console.error('Error loading ride data:', error);
-                alert('Napaka pri nalaganju podatkov o furi: ' + error.message);
-                window.location.href = 'profile.html';
-            }
+    try {
+        console.log('Loading ride data for ID:', rideId);
+        
+        // Prikaži loading overlay i sakrij formu
+        const loadingOverlay = document.getElementById('loadingRideDataOverlay');
+        const formContainer = document.getElementById('rideFormContainer');
+        
+        if (loadingOverlay) loadingOverlay.style.display = 'flex';
+        if (formContainer) formContainer.style.display = 'none';
+        
+        // Get ride document from Firestore
+        const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
+        
+        if (!rideDoc.exists) {
+            alert('Fura ni najdena.');
+            window.location.href = 'profile.html';
+            return;
         }
+        
+        const ride = rideDoc.data();
+        
+        // Check if user is the owner of the ride
+        if (ride.createdBy !== userId) {
+            alert('Nimate dovoljenja za urejanje te fure.');
+            window.location.href = 'profile.html';
+            return;
+        }
+        
+        // Store current ride data
+        currentRide = ride;
+        currentRide.id = rideId;
+        
+        console.log('Loaded ride data:', ride);
+        
+        // Populate form with ride data
+        populateForm(ride);
+        
+        // Sakrij loading overlay i prikaži formu
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (formContainer) formContainer.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading ride data:', error);
+        alert('Napaka pri nalaganju podatkov o furi: ' + error.message);
+        window.location.href = 'profile.html';
+    }
+}
         
         // Populate form with ride data
         function populateForm(ride) {
-            // Set ride type
-            const toggleOptions = document.querySelectorAll('.toggle-option');
-            toggleOptions.forEach(option => {
-                if (option.getAttribute('data-toggle') === ride.type) {
-                    option.classList.add('active');
-                } else {
-                    option.classList.remove('active');
-                }
-            });
+            if (!ride) {
+                console.error('Cannot populate form: ride data is undefined');
+                return;
+            }
             
-            // Fill in form fields
-            document.getElementById('fromCountry').value = ride.fromCountry || '';
-            document.getElementById('toCountry').value = ride.toCountry || '';
-            document.getElementById('fromCity').value = ride.fromCity || '';
-            document.getElementById('toCity').value = ride.toCity || '';
-            
-            // Set date and time
-            if (dateTimePicker) {
-                // Format date for flatpickr
-                let dateValue = '';
-                let hasTime = false;
-                
-                if (ride.date) {
-                    dateValue = ride.date;
-                    if (ride.time) {
-                        dateValue += ' ' + ride.time;
-                        hasTime = true;
+            try {
+                // Set ride type
+                const toggleOptions = document.querySelectorAll('.toggle-option');
+                toggleOptions.forEach(option => {
+                    if (option.getAttribute('data-toggle') === ride.type) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
                     }
-                }
+                });
                 
-                // Set date picker value
-                dateTimePicker.setDate(dateValue);
+                // Fill in form fields
+                const fromCountryField = document.getElementById('fromCountry');
+                if (fromCountryField) fromCountryField.value = ride.fromCountry || '';
                 
-                // Update checkbox and button text
-                const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
-                if (dateOnlyCheckbox) {
-                    dateOnlyCheckbox.checked = !hasTime;
-                    toggleDateTimePickerMode(!hasTime);
-                }
-            }
-            
-            // Set vehicle type
-            const vehicleTypeSelect = document.getElementById('vehicleType');
-            if (vehicleTypeSelect && ride.vehicleType) {
-                vehicleTypeSelect.value = ride.vehicleType;
-            }
-            
-            // Set vehicle size
-            const vehicleSizeSelect = document.getElementById('vehicleSize');
-            if (vehicleSizeSelect && ride.vehicleSize) {
-                vehicleSizeSelect.value = ride.vehicleSize;
-                updateDimensionsDisplay();
-            }
-            
-            // Set refrigerator checkbox
-            const refrigeratorCheckbox = document.getElementById('hasRefrigerator');
-            if (refrigeratorCheckbox) {
-                refrigeratorCheckbox.checked = ride.hasRefrigerator || false;
-            }
-            
-            // Set price options
-            if (ride.price) {
-                const priceType = ride.price.type || 'free';
-                const priceRadio = document.getElementById('price' + capitalize(priceType));
-                if (priceRadio) {
-                    priceRadio.checked = true;
+                const toCountryField = document.getElementById('toCountry');
+                if (toCountryField) toCountryField.value = ride.toCountry || '';
+                
+                const fromCityField = document.getElementById('fromCity');
+                if (fromCityField) fromCityField.value = ride.fromCity || '';
+                
+                const toCityField = document.getElementById('toCity');
+                if (toCityField) toCityField.value = ride.toCity || '';
+                
+                // Set date and time
+                if (dateTimePicker) {
+                    // Format date for flatpickr
+                    let dateValue = '';
+                    let hasTime = false;
                     
-                    // If fixed price, show input section and set values
-                    if (priceType === 'fixed') {
-                        const priceInputSection = document.getElementById('priceInputSection');
-                        if (priceInputSection) {
-                            priceInputSection.style.display = 'flex';
-                        }
-                        
-                        const priceAmountInput = document.getElementById('priceAmount');
-                        if (priceAmountInput && ride.price.amount) {
-                            priceAmountInput.value = ride.price.amount;
-                        }
-                        
-                        const priceCurrencySelect = document.getElementById('priceCurrency');
-                        if (priceCurrencySelect && ride.price.currency) {
-                            priceCurrencySelect.value = ride.price.currency;
+                    if (ride.date) {
+                        dateValue = ride.date;
+                        if (ride.time) {
+                            dateValue += ' ' + ride.time;
+                            hasTime = true;
                         }
                     }
+                    
+                    // Set date picker value
+                    try {
+                        dateTimePicker.setDate(dateValue);
+                        
+                        // Update checkbox
+                        const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+                        if (dateOnlyCheckbox) {
+                            dateOnlyCheckbox.checked = !hasTime;
+                            toggleDateTimePickerMode(!hasTime);
+                        }
+                        
+                        // Update button text manually
+                        updateDateTimeButtonText(dateValue, !hasTime);
+                    } catch (e) {
+                        console.error('Error setting date picker value:', e);
+                    }
                 }
-            } else {
-                // Default to free if no price info
-                const freeRadio = document.getElementById('priceFree');
-                if (freeRadio) {
-                    freeRadio.checked = true;
+                
+                // Set vehicle type
+                const vehicleTypeSelect = document.getElementById('vehicleType');
+                if (vehicleTypeSelect && ride.vehicleType) {
+                    vehicleTypeSelect.value = ride.vehicleType;
+                }
+                
+                // Set vehicle size
+                const vehicleSizeSelect = document.getElementById('vehicleSize');
+                if (vehicleSizeSelect && ride.vehicleSize) {
+                    vehicleSizeSelect.value = ride.vehicleSize;
+                    updateDimensionsDisplay();
+                }
+                
+                // Set refrigerator checkbox
+                const refrigeratorCheckbox = document.getElementById('hasRefrigerator');
+                if (refrigeratorCheckbox) {
+                    refrigeratorCheckbox.checked = ride.hasRefrigerator || false;
+                }
+                
+                // Set price options
+                if (ride.price) {
+                    const priceType = ride.price.type || 'free';
+                    const priceRadio = document.getElementById('price' + capitalize(priceType));
+                    if (priceRadio) {
+                        priceRadio.checked = true;
+                        
+                        // If fixed price, show input section and set values
+                        if (priceType === 'fixed') {
+                            const priceInputSection = document.getElementById('priceInputSection');
+                            if (priceInputSection) {
+                                priceInputSection.style.display = 'flex';
+                            }
+                            
+                            const priceAmountInput = document.getElementById('priceAmount');
+                            if (priceAmountInput && ride.price.amount) {
+                                priceAmountInput.value = ride.price.amount;
+                            }
+                            
+                            const priceCurrencySelect = document.getElementById('priceCurrency');
+                            if (priceCurrencySelect && ride.price.currency) {
+                                priceCurrencySelect.value = ride.price.currency;
+                            }
+                        }
+                    }
+                } else {
+                    // Default to free if no price info
+                    const freeRadio = document.getElementById('priceFree');
+                    if (freeRadio) {
+                        freeRadio.checked = true;
+                    }
+                }
+                
+                // Set description
+                const descriptionTextarea = document.getElementById('rideDescription');
+                if (descriptionTextarea) {
+                    descriptionTextarea.value = ride.description || '';
+                }
+            } catch (error) {
+                console.error('Error populating form:', error);
+                alert('Napaka pri nalaganju podatkov obrazca: ' + error.message);
+            }
+        }
+        
+        // Helper function to update date-time button text
+        function updateDateTimeButtonText(dateValue, dateOnly) {
+            const dateTimePickerBtn = document.getElementById('dateTimePicker');
+            if (!dateTimePickerBtn) return;
+            
+            let displayText = 'Datum in ura';
+            
+            if (dateValue) {
+                try {
+                    const date = new Date(dateValue);
+                    if (!isNaN(date.getTime())) {  // Check if date is valid
+                        const formattedDate = date.getDate().toString().padStart(2, '0') + '.' + 
+                                            (date.getMonth() + 1).toString().padStart(2, '0') + '.' + 
+                                            date.getFullYear();
+                        
+                        if (dateOnly) {
+                            displayText = formattedDate;
+                        } else {
+                            const hours = date.getHours().toString().padStart(2, '0');
+                            const minutes = date.getMinutes().toString().padStart(2, '0');
+                            displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error formatting date:', e);
                 }
             }
             
-            // Set description
-            const descriptionTextarea = document.getElementById('rideDescription');
-            if (descriptionTextarea) {
-                descriptionTextarea.value = ride.description || '';
-            }
+            dateTimePickerBtn.innerHTML = `
+                <span class="calendar-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </span>
+                ${displayText}
+            `;
         }
         
         // Capitalize first letter
@@ -470,21 +550,118 @@
         
         // Initialize date picker
         function initDatePicker() {
-            const dateTimePickerBtn = document.getElementById('dateTimePicker');
-            const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
-            
-            if (dateTimePickerBtn) {
-                // Initialize Flatpickr
+            try {
+                const dateTimePickerBtn = document.getElementById('dateTimePicker');
+                const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+                
+                if (!dateTimePickerBtn) {
+                    console.error('Date time picker button not found');
+                    return;
+                }
+                
+                // Ukloni sve postojeće instance flatpickr-a koje mogu biti vezane za dugme
+                if (dateTimePicker && typeof dateTimePicker.destroy === 'function') {
+                    dateTimePicker.destroy();
+                }
+                
+                // Proveri da li postoji skriveni input pored dugmeta i ukloni ga
+                const hiddenInputs = document.querySelectorAll('.flatpickr-input:not(#dateTimePicker)');
+                hiddenInputs.forEach(input => {
+                    if (input && input.parentNode) {
+                        input.parentNode.removeChild(input);
+                    }
+                });
+                
+                // Inicijalizuj flatpickr direktno na dugmetu
                 dateTimePicker = flatpickr(dateTimePickerBtn, {
                     enableTime: true,
                     dateFormat: "Y-m-d H:i",
                     time_24hr: true,
                     locale: "sl",
-                    altInput: true,
-                    altFormat: "d.m.Y ob H:i",
+                    altInput: false, // Važno - ne kreiraj alternativni input
+                    clickOpens: true,
                     minDate: "today",
                     onChange: function(selectedDates, dateStr, instance) {
-                        // Update button text
+                        // Ažuriraj tekst dugmeta
+                        if (selectedDates.length > 0) {
+                            const date = selectedDates[0];
+                            const formattedDate = date.getDate().toString().padStart(2, '0') + '.' + 
+                                                (date.getMonth() + 1).toString().padStart(2, '0') + '.' + 
+                                                date.getFullYear();
+                            
+                            let displayText = '';
+                            if (dateOnlyCheckbox && dateOnlyCheckbox.checked) {
+                                displayText = formattedDate;
+                            } else {
+                                const hours = date.getHours().toString().padStart(2, '0');
+                                const minutes = date.getMinutes().toString().padStart(2, '0');
+                                displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                            }
+                            
+                            dateTimePickerBtn.innerHTML = `
+                                <span class="calendar-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </span>
+                                ${displayText}
+                            `;
+                        }
+                    }
+                });
+                
+                // Dodaj event listener za checkbox
+                if (dateOnlyCheckbox) {
+                    dateOnlyCheckbox.addEventListener('change', function() {
+                        toggleDateTimePickerMode(this.checked);
+                    });
+                }
+            } catch (error) {
+                console.error('Error initializing date picker:', error);
+            }
+        }
+        
+        // Toggle date time picker mode
+        function toggleDateTimePickerMode(dateOnly) {
+            if (!dateTimePicker) {
+                console.error('Date time picker not initialized');
+                return;
+            }
+            
+            try {
+                dateTimePicker.set('enableTime', !dateOnly);
+                
+                if (dateOnly) {
+                    dateTimePicker.set('dateFormat', "Y-m-d");
+                } else {
+                    dateTimePicker.set('dateFormat', "Y-m-d H:i");
+                }
+                
+                // Update displayed date
+                const currentDate = dateTimePicker.selectedDates[0];
+                if (currentDate) {
+                    // Manually set date again to trigger onChange
+                    dateTimePicker.setDate(currentDate);
+                    
+                    // Update button text manually
+                    const dateTimePickerBtn = document.getElementById('dateTimePicker');
+                    if (dateTimePickerBtn) {
+                        const formattedDate = currentDate.getDate().toString().padStart(2, '0') + '.' + 
+                                            (currentDate.getMonth() + 1).toString().padStart(2, '0') + '.' + 
+                                            currentDate.getFullYear();
+                        
+                        let displayText = '';
+                        if (dateOnly) {
+                            displayText = formattedDate;
+                        } else {
+                            const hours = currentDate.getHours().toString().padStart(2, '0');
+                            const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+                            displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                        }
+                        
                         dateTimePickerBtn.innerHTML = `
                             <span class="calendar-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -494,64 +671,26 @@
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            ${instance.altInput.value}
+                            ${displayText}
                         `;
                     }
-                });
-                
-                // Toggle date-only mode when checkbox is clicked
-                if (dateOnlyCheckbox) {
-                    dateOnlyCheckbox.addEventListener('change', function() {
-                        toggleDateTimePickerMode(this.checked);
-                    });
                 }
-            }
-        }
-        
-        // Toggle date time picker mode
-        function toggleDateTimePickerMode(dateOnly) {
-            if (dateTimePicker) {
-                dateTimePicker.set('enableTime', !dateOnly);
-                
-                if (dateOnly) {
-                    dateTimePicker.set('altFormat', "d.m.Y");
-                    dateTimePicker.set('dateFormat', "Y-m-d");
-                } else {
-                    dateTimePicker.set('altFormat', "d.m.Y ob H:i");
-                    dateTimePicker.set('dateFormat', "Y-m-d H:i");
-                }
-                
-                // Update displayed date
-                const currentDate = dateTimePicker.selectedDates[0];
-                if (currentDate) {
-                    dateTimePicker.setDate(currentDate);
-                }
-                
-                // Update button text
-                const dateTimePickerBtn = document.getElementById('dateTimePicker');
-                if (dateTimePickerBtn) {
-                    const dateText = dateTimePicker.altInput.value;
-                    dateTimePickerBtn.innerHTML = `
-                        <span class="calendar-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                        </span>
-                        ${dateText}
-                    `;
-                }
+            } catch (error) {
+                console.error('Error toggling date time picker mode:', error);
             }
         }
         
         // Update dimensions display
         function updateDimensionsDisplay() {
-            const vehicleSizeSelect = document.getElementById('vehicleSize');
-            const dimensionsDisplay = document.getElementById('dimensionsDisplay');
-            
-            if (vehicleSizeSelect && dimensionsDisplay && window.getDimensionsBySize) {
+            try {
+                const vehicleSizeSelect = document.getElementById('vehicleSize');
+                const dimensionsDisplay = document.getElementById('dimensionsDisplay');
+                
+                if (!vehicleSizeSelect || !dimensionsDisplay || !window.getDimensionsBySize) {
+                    console.error('Missing elements for updating dimensions display');
+                    return;
+                }
+                
                 const selectedSize = vehicleSizeSelect.value;
                 const dimensions = window.getDimensionsBySize(selectedSize);
                 
@@ -561,17 +700,24 @@
                         <p>Volumen: ${dimensions.cubicMeters} m³</p>
                     </div>
                 `;
+            } catch (error) {
+                console.error('Error updating dimensions display:', error);
             }
         }
         
         // Swap locations
         function swapLocations() {
-            const fromCountry = document.getElementById('fromCountry');
-            const toCountry = document.getElementById('toCountry');
-            const fromCity = document.getElementById('fromCity');
-            const toCity = document.getElementById('toCity');
-            
-            if (fromCountry && toCountry && fromCity && toCity) {
+            try {
+                const fromCountry = document.getElementById('fromCountry');
+                const toCountry = document.getElementById('toCountry');
+                const fromCity = document.getElementById('fromCity');
+                const toCity = document.getElementById('toCity');
+                
+                if (!fromCountry || !toCountry || !fromCity || !toCity) {
+                    console.error('Missing location fields for swap');
+                    return;
+                }
+                
                 const tempCountry = fromCountry.value;
                 fromCountry.value = toCountry.value;
                 toCountry.value = tempCountry;
@@ -579,6 +725,8 @@
                 const tempCity = fromCity.value;
                 fromCity.value = toCity.value;
                 toCity.value = tempCity;
+            } catch (error) {
+                console.error('Error swapping locations:', error);
             }
         }
         
@@ -602,11 +750,21 @@
             
             try {
                 // Get form values
-                const fromCountry = document.getElementById('fromCountry').value.trim();
-                const toCountry = document.getElementById('toCountry').value.trim();
-                const fromCity = document.getElementById('fromCity').value.trim();
-                const toCity = document.getElementById('toCity').value.trim();
-                const description = document.getElementById('rideDescription').value.trim();
+                const fromCountryField = document.getElementById('fromCountry');
+                const toCountryField = document.getElementById('toCountry');
+                const fromCityField = document.getElementById('fromCity');
+                const toCityField = document.getElementById('toCity');
+                const descriptionField = document.getElementById('rideDescription');
+                
+                if (!fromCountryField || !toCountryField || !fromCityField || !toCityField || !descriptionField) {
+                    throw new Error('One or more required fields not found');
+                }
+                
+                const fromCountry = fromCountryField.value.trim();
+                const toCountry = toCountryField.value.trim();
+                const fromCity = fromCityField.value.trim();
+                const toCity = toCityField.value.trim();
+                const description = descriptionField.value.trim();
                 
                 // Validation
                 if (!fromCountry || !toCountry || !fromCity || !toCity || !description) {
@@ -628,9 +786,8 @@
                 
                 if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     const selectedDate = dateTimePicker.selectedDates[0];
-                    
-                    // Format date
-                    const dateOnly = document.getElementById('dateOnlyCheckbox').checked;
+                    const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+                    const dateOnly = dateOnlyCheckbox && dateOnlyCheckbox.checked;
                     
                     // YYYY-MM-DD format for storage
                     date = selectedDate.getFullYear() + '-' + 
@@ -659,9 +816,17 @@
                 }
                 
                 // Get vehicle info
-                const vehicleType = document.getElementById('vehicleType').value;
-                const vehicleSize = document.getElementById('vehicleSize').value;
-                const hasRefrigerator = document.getElementById('hasRefrigerator').checked;
+                const vehicleTypeSelect = document.getElementById('vehicleType');
+                const vehicleSizeSelect = document.getElementById('vehicleSize');
+                const refrigeratorCheckbox = document.getElementById('hasRefrigerator');
+                
+                if (!vehicleTypeSelect || !vehicleSizeSelect || !refrigeratorCheckbox) {
+                    throw new Error('Vehicle fields not found');
+                }
+                
+                const vehicleType = vehicleTypeSelect.value;
+                const vehicleSize = vehicleSizeSelect.value;
+                const hasRefrigerator = refrigeratorCheckbox.checked;
                 
                 // Map vehicle type to display name
                 const vehicleTypeDisplayMap = {
@@ -675,17 +840,28 @@
                 const dimensions = window.getDimensionsBySize(vehicleSize);
                 
                 // Get price information
-                const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked').value;
+                const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked');
+                if (!selectedPriceOption) {
+                    throw new Error('No price option selected');
+                }
+                
                 let priceInfo = {
-                    type: selectedPriceOption,
+                    type: selectedPriceOption.value,
                     amount: null,
                     currency: null
                 };
                 
                 // If fixed price is selected, get amount and currency
-                if (selectedPriceOption === 'fixed') {
-                    const priceAmount = document.getElementById('priceAmount').value;
-                    const priceCurrency = document.getElementById('priceCurrency').value;
+                if (priceInfo.type === 'fixed') {
+                    const priceAmountField = document.getElementById('priceAmount');
+                    const priceCurrencySelect = document.getElementById('priceCurrency');
+                    
+                    if (!priceAmountField || !priceCurrencySelect) {
+                        throw new Error('Price fields not found');
+                    }
+                    
+                    const priceAmount = priceAmountField.value;
+                    const priceCurrency = priceCurrencySelect.value;
                     
                     if (!priceAmount || isNaN(parseFloat(priceAmount))) {
                         alert('Prosimo vnesite veljavni znesek.');
@@ -697,7 +873,7 @@
                     priceInfo.currency = priceCurrency;
                 }
                 
-                // Create updated ride data
+                // Create updated ride data - only update what's changed
                 const updatedRideData = {
                     type: rideType,
                     fromCountry,
@@ -725,6 +901,11 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     // Don't overwrite createdBy, createdAt, contact info, and other fields
                 };
+                
+                // Ensure we have a ride ID before updating
+                if (!currentRide || !currentRide.id) {
+                    throw new Error('No ride ID available for update');
+                }
                 
                 // Update in Firestore
                 await firebase.firestore().collection('rides').doc(currentRide.id).update(updatedRideData);
@@ -879,6 +1060,39 @@
         .cancel-btn {
             margin-top: 10px;
         }
+        .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+
+.loading-text {
+    color: white;
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
     </style>
 </body>
 </html>
