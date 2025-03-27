@@ -146,9 +146,12 @@
                                 <label class="input-label">Prevozno sredstvo</label>
                                 <select class="input-field" id="vehicleTypeFilter">
                                     <option value="">Vse vrste vozil</option>
-                                    <option value="car">Avto</option>
+                                    <option value="car">Avtotransporter</option>
+                                    <option value="car">Avtovleka</option>
+                                    <option value="car">Furgon</option>
                                     <option value="van">Kombi</option>
-                                    <option value="truck">Tovornjak</option>
+                                    <option value="van">Vlačilec</option>
+                                    <option value="van">Drugo...</option>
                                 </select>
                             </div>
                         </div>
@@ -351,16 +354,17 @@
         </div>
     </div>
     
-    <!-- Include JavaScript files -->
-    <!-- IMPORTANT: Loading order matters for dependencies -->
-    <script src="js/vehicle-dimensions.js"></script>
-    <script src="js/firestore-rides.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/modals.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/autocomplete.js"></script>
-    <script src="js/datepicker.js"></script>
+<!-- Include JavaScript files -->
+<!-- IMPORTANT: Loading order matters for dependencies -->
+<script src="js/vehicle-dimensions.js"></script>
+<script src="js/location-data.js"></script> <!-- Nova datoteka -->
+<script src="js/firestore-rides.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/main.js"></script>
+<script src="js/search.js"></script>
+<script src="js/autocomplete.js"></script>
+<script src="js/datepicker.js"></script>
 
     <!-- Auth helpers and UI update functions -->
     <script>

@@ -333,3 +333,32 @@ tr.looking-ride:hover {
     opacity: 0;
     pointer-events: none;
 }
+/* Styles for approximate rides */
+.approximate-header {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: bold;
+}
+
+.approximate-badge {
+    display: inline-block;
+    padding: 2px 5px;
+    background-color: #f0ad4e;
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.approximate-ride {
+    background-color: #fcf8e3 !important;
+}
+
+.approximate-ride:hover {
+    background-color: #f7f3d7 !important;
+}
