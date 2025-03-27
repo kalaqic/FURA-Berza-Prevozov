@@ -2,68 +2,69 @@
  * Autocomplete functionality for FURA website
  */
 
-// Lista svih dostupnih država
+// List of countries
 const countries = [
-    'Slovenija',
-    'Hrvatska',
-    'Srbija',
-    'Bosna i Hercegovina',
-    'Crna Gora',
-    'Sjeverna Makedonija',
-    'Albanija',
-    'Austrija',
-    'Italija',
-    'Mađarska',
-    'Njemačka',
-    'Francuska',
-    'Švicarska',
-    'Španjolska',
-    'Portugal',
-    'Belgija',
-    'Nizozemska',
-    'Češka',
-    'Slovačka',
-    'Poljska',
-    'Švedska',
-    'Norveška',
-    'Finska',
-    'Danska',
-    'Grčka',
-    'Rumunjska',
-    'Bugarska',
-    'Turska',
-    'Ukrajina',
-    'Rusija'
+    'Slovenija', 
+    'Hrvatska', 
+    'Srbija', 
+    'Bosna i Hercegovina'
 ];
 
-/**
- * Cities data by country
- */
+// Cities data by country
 const citiesByCountry = {
     'Slovenija': [
+        // Major cities
         'Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Koper', 'Novo Mesto', 
-        'Velenje', 'Nova Gorica', 'Ptuj', 'Murska Sobota', 'Domžale', 
-        'Škofja Loka', 'Kamnik', 'Jesenice', 'Trbovlje', 'Izola', 
-        'Krško', 'Portorož', 'Bled', 'Postojna', 'Brežice', 'Idrija', 
-        'Ilirska Bistrica', 'Lendava', 'Radovljica', 'Ajdovščina', 
-        'Kočevje', 'Slovenska Bistrica', 'Tržič', 'Grosuplje'
+        'Velenje', 'Nova Gorica', 'Ptuj', 'Murska Sobota', 'Domžale',
+        'Škofja Loka', 'Kamnik', 'Jesenice', 'Trbovlje', 'Izola',
+        'Krško', 'Portorož', 'Bled', 'Postojna', 'Brežice', 'Idrija',
+        'Ilirska Bistrica', 'Lendava', 'Radovljica', 'Ajdovščina',
+        'Kočevje', 'Slovenska Bistrica', 'Tržič', 'Grosuplje',
+
+        // Smaller cities and towns
+        'Litija', 'Sežana', 'Žalec', 'Ribnica', 'Ljutomer', 'Gornja Radgona',
+        'Slovenj Gradec', 'Lenart', 'Moravče', 'Šmarje pri Jelšah', 'Šentjur',
+        'Laško', 'Radeče', 'Sevnica', 'Hrastnik', 'Zagorje ob Savi'
+    ],
+    'Hrvatska': [
+        // Major cities
+        'Zagreb', 'Split', 'Rijeka', 'Osijek', 'Zadar', 'Slavonski Brod',
+        'Šibenik', 'Dubrovnik', 'Karlovac', 'Varaždin', 'Sisak', 'Vinkovci',
+        'Požega', 'Našice', 'Đakovo', 'Čakovec', 'Samobor', 'Makarska',
+
+        // Smaller cities and towns
+        'Pula', 'Koprivnica', 'Bjelovar', 'Virovitica', 'Kutina', 'Križevci',
+        'Crikvenica', 'Opatija', 'Umag', 'Rovinj', 'Poreč', 'Gospić', 
+        'Metković', 'Sinj', 'KaŠtel Stari', 'Vodice', 'Biograd na Moru',
+        'Novigrad', 'Kastav', 'Delnice', 'Nova Gradiška',
     ],
     'Srbija': [
-        'Beograd', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica', 
-        'Pančevo', 'Zrenjanin', 'Šabac', 'Čačak', 'Smederevo', 
-        'Novi Pazar', 'Leskovac', 'Užice', 'Kruševac', 'Vranje', 
-        'Sombor', 'Valjevo', 'Sremska Mitrovica', 'Jagodina', 
-        'Loznica', 'Požarevac', 'Pirot', 'Kikinda', 'Vršac', 
-        'Zaječar', 'Kraljevo', 'Bor', 'Prijepolje', 'Kopaonik', 
-        'Zlatibor', 'Tara'
+        // Major cities
+        'Beograd', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica', 'Pančevo', 
+        'Zrenjanin', 'Šabac', 'Čačak', 'Smederevo', 'Novi Pazar', 'Leskovac', 
+        'Užice', 'Kruševac', 'Vranje', 'Sombor', 'Valjevo', 'Sremska Mitrovica', 
+        'Jagodina', 'Loznica', 'Požarevac', 'Pirot', 'Kikinda', 'Vršac',
+        'Zaječar', 'Kraljevo', 'Bor', 'Prijepolje',
+
+        // Smaller cities and towns
+        'Negotin', 'Prokuplje', 'Sjenica', 'Trstenik', 'Paraćin', 'Ćuprija',
+        'Novi Beograd', 'Zemun', 'Raška', 'Aleksandrovac', 'Zlatibor', 
+        'Kopaonik', 'Arilje', 'Ivanjica', 'Bajina Bašta'
     ],
     'Bosna i Hercegovina': [
-        'Sarajevo', 'Banja Luka', 'Tuzla', 'Zenica', 'Mostar', 
-        'Prijedor', 'Bijeljina', 'Brčko', 'Doboj', 'Bihać', 
-        'Trebinje', 'Travnik', 'Cazin', 'Livno', 'Gradiška', 
-        'Foča', 'Goražde', 'Srebrenica', 'Bugojno', 'Višegrad', 
-        'Konjic', 'Ljubuški', 'Jablanica', 'Gacko', 'Mrkonjić Grad', 
-        'Neum', 'Zvornik', 'Sanski Most', 'Velika Kladuša', 'Jajce'
+        // Major cities
+        'Sarajevo', 'Banja Luka', 'Tuzla', 'Zenica', 'Mostar', 'Prijedor', 
+        'Bijeljina', 'Brčko', 'Doboj', 'Bihać', 'Trebinje', 'Travnik', 
+        'Cazin', 'Livno', 'Foča', 'Goražde', 'Srebrenica', 
+        'Bugojno', 'Višegrad', 'Konjic', 'Ljubuški', 'Jablanica', 'Gacko', 
+        'Mrkonjić Grad', 'Neum', 'Zvornik', 'Sanski Most', 'Velika Kladuša', 
+        'Jajce',
+
+        // Smaller cities and towns
+        'Vitez', 'Žepče', 'Tešanj', 'Orašje', 'Gradačac', 'Gračanica', 
+        'Lukavac', 'Kakanj', 'Zavidovići', 'Srebrenik', 'Ključ', 'Olovo', 
+        'Vareš', 'Pale', 'Bosanska Krupa', 'Bosanski Petrovac', 
+        'Bosanski Šamac', 'Bosanska Gradiška', 'Petrovo'
     ]
 };
 
