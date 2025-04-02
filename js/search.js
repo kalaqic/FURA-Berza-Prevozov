@@ -860,107 +860,115 @@ function showApproximateResults(approximateRides) {
 }
 
 // Reset all filters and show all rides
+// Reset all filters and show all rides
 async function resetFilters() {
-    try {
-        console.log('Resetting all filters');
-        
-        // Set the "All" tab as active
-        const allTab = document.querySelector('.tab-btn[data-tab="all"]');
-        if (allTab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            allTab.classList.add('active');
-        }
-        
-        // Reset country fields to empty
-        const countryInputs = document.querySelectorAll('.country-input');
-        countryInputs.forEach(input => input.value = '');
-        
-        // Reset city fields to empty
-        const cityInputs = document.querySelectorAll('.city-input');
-        cityInputs.forEach(input => input.value = '');
-        
-        // Reset date time picker button text
-        const dateTimePickerButton = document.getElementById('dateTimePicker');
-        if (dateTimePickerButton) {
-            dateTimePickerButton.innerHTML = `
-                <span class="calendar-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                </span>
-                Datum in ura
-            `;
-            
-            // Reset the date-only checkbox if it exists
-            const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
-            if (dateOnlyCheckbox && dateOnlyCheckbox.checked) {
-                dateOnlyCheckbox.checked = false;
-                
-                // Trigger the change event to update the flatpickr instance
-                const event = new Event('change');
-                dateOnlyCheckbox.dispatchEvent(event);
-            }
-            
-            // Reset the flatpickr instance if it exists
-            if (dateTimePickerButton._flatpickr) {
-                dateTimePickerButton._flatpickr.clear();
-            }
-        }
-        
-        // Reset advanced filters
-        const advancedFilters = document.getElementById('advancedFilters');
-        if (advancedFilters) {
-            // Hide advanced filters panel
-            advancedFilters.style.display = 'none';
-            
-            // Reset dropdown values
-            const selects = advancedFilters.querySelectorAll('select');
-            selects.forEach(select => select.selectedIndex = 0);
-            
-            // Uncheck refrigerated checkbox
-            const refrigeratedCheckbox = document.getElementById('refrigerated');
-            if (refrigeratedCheckbox) {
-                refrigeratedCheckbox.checked = false;
-            }
-            
-            // Reset advanced search button state
-            const advancedSearchBtn = document.getElementById('advancedSearchBtn');
-            if (advancedSearchBtn) {
-                advancedSearchBtn.classList.remove('open');
-            }
-        }
-        
-        // Reset sort option to default (najnoviji)
-        
+  try {
+      console.log('Resetting all filters');
       
-        
-        // Load all rides from Firestore
-        const ridesRef = firebase.firestore().collection('rides');
-        const snapshot = await ridesRef.get();
-        
-        const rides = [];
-        snapshot.forEach(doc => {
-            rides.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        
-        console.log(`Reset filters: found ${rides.length} rides total`);
-        
-        // Sort by default option
-        // Sort rides (always newest first)
-const sortedRides = sortResults(rides);
-        
-        // Update UI
-        updateSearchResults(sortedRides);
-    } catch (error) {
-        console.error('Error resetting filters:', error);
-        alert('Napaka pri ponastavljanju filtrov: ' + error.message);
-    }
+      // Set the "All" tab as active
+      const allTab = document.querySelector('.tab-btn[data-tab="all"]');
+      if (allTab) {
+          document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+          allTab.classList.add('active');
+      }
+      
+      // Reset country fields to empty
+      const countryInputs = document.querySelectorAll('.country-input');
+      countryInputs.forEach(input => input.value = '');
+      
+      // Reset city fields to empty
+      const cityInputs = document.querySelectorAll('.city-input');
+      cityInputs.forEach(input => input.value = '');
+      
+      // Reset date time picker - Enhanced version
+      const dateTimePickerButton = document.getElementById('dateTimePicker');
+      if (dateTimePickerButton) {
+          // Clear the data attribute first
+          dateTimePickerButton.setAttribute('data-selected-date', '');
+          
+          // Reset the button text
+          dateTimePickerButton.innerHTML = `
+              <span class="calendar-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+              </span>
+              <span class="date-text">Datum in ura</span>
+          `;
+          
+          // Reset the date-only checkbox
+          const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+          if (dateOnlyCheckbox && dateOnlyCheckbox.checked) {
+              dateOnlyCheckbox.checked = false;
+              
+              // If we have a global function to handle this toggle, call it
+              if (typeof resetDateTimePickerMode === 'function') {
+                  resetDateTimePickerMode();
+              }
+          }
+          
+          // Clear the flatpickr instance if it exists
+          if (window.datePicker) {
+              window.datePicker.clear();
+              
+              // Force a redraw of the flatpickr if needed
+              setTimeout(() => {
+                  if (window.datePicker && typeof window.datePicker.redraw === 'function') {
+                      window.datePicker.redraw();
+                  }
+              }, 50);
+          }
+      }
+      
+      // Reset advanced filters
+      const advancedFilters = document.getElementById('advancedFilters');
+      if (advancedFilters) {
+          // Hide advanced filters panel
+          advancedFilters.style.display = 'none';
+          
+          // Reset dropdown values
+          const selects = advancedFilters.querySelectorAll('select');
+          selects.forEach(select => select.selectedIndex = 0);
+          
+          // Uncheck refrigerated checkbox
+          const refrigeratedCheckbox = document.getElementById('refrigerated');
+          if (refrigeratedCheckbox) {
+              refrigeratedCheckbox.checked = false;
+          }
+          
+          // Reset advanced search button state
+          const advancedSearchBtn = document.getElementById('advancedSearchBtn');
+          if (advancedSearchBtn) {
+              advancedSearchBtn.classList.remove('open');
+          }
+      }
+      
+      // Load all rides from Firestore
+      const ridesRef = firebase.firestore().collection('rides');
+      const snapshot = await ridesRef.get();
+      
+      const rides = [];
+      snapshot.forEach(doc => {
+          rides.push({
+              id: doc.id,
+              ...doc.data()
+          });
+      });
+      
+      console.log(`Reset filters: found ${rides.length} rides total`);
+      
+      // Sort rides (always newest first)
+      const sortedRides = sortResults(rides);
+      
+      // Update UI
+      updateSearchResults(sortedRides);
+  } catch (error) {
+      console.error('Error resetting filters:', error);
+      alert('Napaka pri ponastavljanju filtrov: ' + error.message);
+  }
 }
 
 
