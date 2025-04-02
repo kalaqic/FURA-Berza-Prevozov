@@ -566,16 +566,18 @@ function searchRides(filters) {
 }
 
 // Helper function to parse search date and time
+// Helper function to parse search date and time
 function parseSearchDateTime(searchDateText) {
-    // Check if we have a search date
     if (!searchDateText) return null;
+    
+    console.log('Parsing date text:', searchDateText);
     
     let date, time;
     
-    // Handle different formats with and without time
-    if (searchDateText.includes(' ')) {
-        // Format with time: "DD.MM.YYYY HH:MM" or similar
-        const parts = searchDateText.split(' ');
+    // Handle different formats
+    if (searchDateText.includes(' ob ')) {
+        // Format with "ob": "DD.MM.YYYY ob HH:MM"
+        const parts = searchDateText.split(' ob ');
         const dateParts = parts[0].split('.');
         
         if (dateParts.length !== 3) return null;
@@ -586,9 +588,43 @@ function parseSearchDateTime(searchDateText) {
         
         date = `${year}-${month}-${day}`;
         time = parts[1];
+    } else if (searchDateText.includes(' ')) {
+        // Format with space: "DD.MM.YYYY HH:MM"
+        const parts = searchDateText.split(' ');
+        const dateParts = parts[0].split('.');
+        
+        if (dateParts.length !== 3) {
+            // Try with slash format: "DD/MM/YYYY HH:MM"
+            const slashParts = parts[0].split('/');
+            if (slashParts.length === 3) {
+                const day = slashParts[0].padStart(2, '0');
+                const month = slashParts[1].padStart(2, '0');
+                const year = slashParts[2];
+                
+                date = `${year}-${month}-${day}`;
+                time = parts[1];
+            } else {
+                return null;
+            }
+        } else {
+            const day = dateParts[0].padStart(2, '0');
+            const month = dateParts[1].padStart(2, '0');
+            const year = dateParts[2];
+            
+            date = `${year}-${month}-${day}`;
+            time = parts[1];
+        }
     } else {
-        // Format without time: "DD.MM.YYYY"
-        const dateParts = searchDateText.split('.');
+        // Format without time: "DD.MM.YYYY" or "DD/MM/YYYY"
+        let dateParts;
+        
+        if (searchDateText.includes('.')) {
+            dateParts = searchDateText.split('.');
+        } else if (searchDateText.includes('/')) {
+            dateParts = searchDateText.split('/');
+        } else {
+            return null;
+        }
         
         if (dateParts.length !== 3) return null;
         
@@ -600,6 +636,7 @@ function parseSearchDateTime(searchDateText) {
         time = null;
     }
     
+    console.log('Parsed date and time:', { date, time });
     return { date, time };
 }
 

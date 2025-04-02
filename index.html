@@ -104,26 +104,27 @@
                 </div>
 
                 <!-- Date picker with date-only option -->
-                <div class="date-picker-container">
-                    <button type="button" class="date-picker-button" id="dateTimePicker">
-                        <span class="calendar-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                        </span>
-                        Datum in ura
-                    </button>
-                    <div class="date-only-option">
-                        <label class="checkbox-container">
-                            Brez ure
-                            <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>
-                </div>
+              
+<div class="date-picker-container">
+  <button type="button" class="date-picker-button" id="dateTimePicker">
+      <span class="calendar-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+      </span>
+      <span class="date-text">Datum in ura</span>
+  </button>
+  <div class="date-only-option">
+      <label class="checkbox-container">
+          Brez ure
+          <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
+          <span class="checkmark"></span>
+      </label>
+  </div>
+</div>
                 
                 <div class="search-buttons">
                     <button class="btn btn-accent search-btn">Poišči prevoz</button>
@@ -179,13 +180,6 @@
         <div class="results-section">
             <div class="results-header">
                 <div class="results-count">Prikazujem prevozov</div>
-                    <div class="results-sort">
-                        <span>Razvrsti po:</span>
-                        <select id="sortSelect">
-                            <option value="date-asc">Datum (najnovejši)</option>
-                            <option value="date-desc">Datum (najstarejši)</option>
-                        </select>
-                    </div>
                 </div>
             </div>
             

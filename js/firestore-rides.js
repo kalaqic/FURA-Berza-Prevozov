@@ -202,36 +202,77 @@ async function searchRides(filters) {
 }
 
 // Helper function to parse search date and time (same as in original database.js)
+// Helper function to parse search date and time
 function parseSearchDateTime(searchDateText) {
   if (!searchDateText) return null;
   
+  console.log('Parsing date text:', searchDateText);
+  
   let date, time;
   
-  if (searchDateText.includes(' ')) {
-    const parts = searchDateText.split(' ');
-    const dateParts = parts[0].split('.');
-    
-    if (dateParts.length !== 3) return null;
-    
-    const day = dateParts[0].padStart(2, '0');
-    const month = dateParts[1].padStart(2, '0');
-    const year = dateParts[2];
-    
-    date = `${year}-${month}-${day}`;
-    time = parts[1];
+  // Handle different formats
+  if (searchDateText.includes(' ob ')) {
+      // Format with "ob": "DD.MM.YYYY ob HH:MM"
+      const parts = searchDateText.split(' ob ');
+      const dateParts = parts[0].split('.');
+      
+      if (dateParts.length !== 3) return null;
+      
+      const day = dateParts[0].padStart(2, '0');
+      const month = dateParts[1].padStart(2, '0');
+      const year = dateParts[2];
+      
+      date = `${year}-${month}-${day}`;
+      time = parts[1];
+  } else if (searchDateText.includes(' ')) {
+      // Format with space: "DD.MM.YYYY HH:MM"
+      const parts = searchDateText.split(' ');
+      const dateParts = parts[0].split('.');
+      
+      if (dateParts.length !== 3) {
+          // Try with slash format: "DD/MM/YYYY HH:MM"
+          const slashParts = parts[0].split('/');
+          if (slashParts.length === 3) {
+              const day = slashParts[0].padStart(2, '0');
+              const month = slashParts[1].padStart(2, '0');
+              const year = slashParts[2];
+              
+              date = `${year}-${month}-${day}`;
+              time = parts[1];
+          } else {
+              return null;
+          }
+      } else {
+          const day = dateParts[0].padStart(2, '0');
+          const month = dateParts[1].padStart(2, '0');
+          const year = dateParts[2];
+          
+          date = `${year}-${month}-${day}`;
+          time = parts[1];
+      }
   } else {
-    const dateParts = searchDateText.split('.');
-    
-    if (dateParts.length !== 3) return null;
-    
-    const day = dateParts[0].padStart(2, '0');
-    const month = dateParts[1].padStart(2, '0');
-    const year = dateParts[2];
-    
-    date = `${year}-${month}-${day}`;
-    time = null;
+      // Format without time: "DD.MM.YYYY" or "DD/MM/YYYY"
+      let dateParts;
+      
+      if (searchDateText.includes('.')) {
+          dateParts = searchDateText.split('.');
+      } else if (searchDateText.includes('/')) {
+          dateParts = searchDateText.split('/');
+      } else {
+          return null;
+      }
+      
+      if (dateParts.length !== 3) return null;
+      
+      const day = dateParts[0].padStart(2, '0');
+      const month = dateParts[1].padStart(2, '0');
+      const year = dateParts[2];
+      
+      date = `${year}-${month}-${day}`;
+      time = null;
   }
   
+  console.log('Parsed date and time:', { date, time });
   return { date, time };
 }
 
