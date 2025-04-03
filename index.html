@@ -441,8 +441,66 @@
       
       // Direct registration handler
 // Direct registration handler
+// Direct registration handler with loading overlay
 window.handleRegisterSubmit = async function() {
   console.log('Register handler called');
+  
+  // Create and show loading overlay
+  let loadingOverlay = document.getElementById('registrationLoadingOverlay');
+  if (!loadingOverlay) {
+    loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'registrationLoadingOverlay';
+    loadingOverlay.innerHTML = `
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Registracija v teku...</div>
+    `;
+    document.body.appendChild(loadingOverlay);
+    
+    // Add styles for the loading overlay if not already added
+    if (!document.getElementById('loadingOverlayStyles')) {
+      const style = document.createElement('style');
+      style.id = 'loadingOverlayStyles';
+      style.textContent = `
+        #registrationLoadingOverlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+        
+        .loading-spinner {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid var(--primary-color);
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 2s linear infinite;
+        }
+        
+        .loading-text {
+          color: white;
+          margin-top: 20px;
+          font-size: 18px;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  
+  // Show loading overlay
+  loadingOverlay.style.display = 'flex';
   
   // Get input elements by ID
   const firstNameInput = document.getElementById('registerFirstName');
@@ -455,6 +513,8 @@ window.handleRegisterSubmit = async function() {
   
   if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
     console.error('Register form elements not found');
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
     alert('Error: Registration form not available. Please refresh the page.');
     return;
   }
@@ -471,11 +531,15 @@ window.handleRegisterSubmit = async function() {
   
   // Validation
   if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
     alert('Izpolnite vsa obvezna polja.');
     return;
   }
   
   if (password !== confirmPassword) {
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
     alert('Gesli se ne ujemata.');
     return;
   }
@@ -509,6 +573,9 @@ window.handleRegisterSubmit = async function() {
     passwordInput.value = '';
     confirmPasswordInput.value = '';
     
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
+    
     // Close register modal
     window.closeModal('registerModal');
     
@@ -520,6 +587,8 @@ window.handleRegisterSubmit = async function() {
     
   } catch (error) {
     console.error('Registration error:', error);
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
     alert('Napaka pri registraciji: ' + error.message);
   }
 };
@@ -980,6 +1049,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Custom styles for "My Rides" -->
 <style>
+  /* Adjusting search panel padding and compactness */
+.search-panel {
+  padding: 20px 30px; /* Reduced top/bottom padding and increased left/right padding */
+}
+
+.form-row {
+  margin-bottom: 15px; /* Reduced spacing between form rows */
+}
+
+.input-group {
+  margin-bottom: 15px; /* Reduced margin for input groups */
+}
+
+.search-buttons {
+  margin-top: 15px; /* Adjusted spacing before search buttons */
+}
+
+.date-picker-container {
+  margin: 15px 0; /* Reduced margin around date picker */
+}
+
+.advanced-search {
+  margin-top: 10px; /* Reduced margin before advanced search section */
+}
+
+/* Make form labels a bit more compact */
+.input-label {
+  top: 10px; /* Adjust label position */
+}
+
+.input-field {
+  padding: 22px 15px 8px; /* Adjust padding to accommodate moved label */
+}
   /* Styling for rides that belong to the current user */
   .my-ride {
     position: relative;
