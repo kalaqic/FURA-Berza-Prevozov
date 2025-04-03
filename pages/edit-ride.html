@@ -625,60 +625,83 @@
         }
         
         // Toggle date time picker mode
-        function toggleDateTimePickerMode(dateOnly) {
-            if (!dateTimePicker) {
-                console.error('Date time picker not initialized');
-                return;
+// Toggle date time picker mode
+function toggleDateTimePickerMode(dateOnly) {
+    if (!dateTimePicker) {
+        console.error('Date time picker not initialized');
+        return;
+    }
+    
+    try {
+        // Store the current selected date if any
+        const currentSelectedDate = dateTimePicker.selectedDates.length > 0 ? 
+            new Date(dateTimePicker.selectedDates[0]) : null;
+        
+        // Destroy and recreate the picker with new settings
+        dateTimePicker.destroy();
+        
+        const dateTimePickerBtn = document.getElementById('dateTimePicker');
+        
+        // Reinitialize with correct settings
+        dateTimePicker = flatpickr(dateTimePickerBtn, {
+            enableTime: !dateOnly,
+            dateFormat: dateOnly ? "Y-m-d" : "Y-m-d H:i",
+            time_24hr: true,
+            locale: "sl",
+            altInput: false,
+            clickOpens: true,
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Update button text
+                if (selectedDates.length > 0) {
+                    const date = selectedDates[0];
+                    const formattedDate = date.getDate().toString().padStart(2, '0') + '.' + 
+                                      (date.getMonth() + 1).toString().padStart(2, '0') + '.' + 
+                                      date.getFullYear();
+                    
+                    let displayText = '';
+                    if (dateOnly) {
+                        displayText = formattedDate;
+                    } else {
+                        const hours = date.getHours().toString().padStart(2, '0');
+                        const minutes = date.getMinutes().toString().padStart(2, '0');
+                        displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                    }
+                    
+                    dateTimePickerBtn.innerHTML = `
+                        <span class="calendar-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </span>
+                        ${displayText}
+                    `;
+                }
+            }
+        });
+        
+        // If there was a date selected, set it again
+        if (currentSelectedDate) {
+            // When switching to time mode, make sure the time is not 00:00
+            if (!dateOnly && currentSelectedDate.getHours() === 0 && currentSelectedDate.getMinutes() === 0) {
+                // Set to current time if it was 00:00
+                const now = new Date();
+                currentSelectedDate.setHours(now.getHours());
+                currentSelectedDate.setMinutes(now.getMinutes());
             }
             
-            try {
-                dateTimePicker.set('enableTime', !dateOnly);
-                
-                if (dateOnly) {
-                    dateTimePicker.set('dateFormat', "Y-m-d");
-                } else {
-                    dateTimePicker.set('dateFormat', "Y-m-d H:i");
-                }
-                
-                // Update displayed date
-                const currentDate = dateTimePicker.selectedDates[0];
-                if (currentDate) {
-                    // Manually set date again to trigger onChange
-                    dateTimePicker.setDate(currentDate);
-                    
-                    // Update button text manually
-                    const dateTimePickerBtn = document.getElementById('dateTimePicker');
-                    if (dateTimePickerBtn) {
-                        const formattedDate = currentDate.getDate().toString().padStart(2, '0') + '.' + 
-                                            (currentDate.getMonth() + 1).toString().padStart(2, '0') + '.' + 
-                                            currentDate.getFullYear();
-                        
-                        let displayText = '';
-                        if (dateOnly) {
-                            displayText = formattedDate;
-                        } else {
-                            const hours = currentDate.getHours().toString().padStart(2, '0');
-                            const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-                            displayText = `${formattedDate} ob ${hours}:${minutes}`;
-                        }
-                        
-                        dateTimePickerBtn.innerHTML = `
-                            <span class="calendar-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                            </span>
-                            ${displayText}
-                        `;
-                    }
-                }
-            } catch (error) {
-                console.error('Error toggling date time picker mode:', error);
-            }
+            dateTimePicker.setDate(currentSelectedDate);
+            
+            // Update button text manually
+            updateDateTimeButtonText(currentSelectedDate, dateOnly);
         }
+    } catch (error) {
+        console.error('Error toggling date time picker mode:', error);
+    }
+}
         
         // Update dimensions display
         function updateDimensionsDisplay() {
@@ -777,43 +800,54 @@
                 const activeToggle = document.querySelector('.toggle-option.active');
                 const rideType = activeToggle ? activeToggle.getAttribute('data-toggle') : 'offering';
                 
-                // Get date and time
-                let date = '';
-                let time = '';
-                let formattedDate = '';
-                let displayDate = '';
-                let displayTime = '';
-                
-                if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
-                    const selectedDate = dateTimePicker.selectedDates[0];
-                    const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
-                    const dateOnly = dateOnlyCheckbox && dateOnlyCheckbox.checked;
-                    
-                    // YYYY-MM-DD format for storage
-                    date = selectedDate.getFullYear() + '-' + 
-                           ('0' + (selectedDate.getMonth() + 1)).slice(-2) + '-' + 
-                           ('0' + selectedDate.getDate()).slice(-2);
-                    
-                    // Display formats
-                    formattedDate = ('0' + selectedDate.getDate()).slice(-2) + '.' + 
-                                   ('0' + (selectedDate.getMonth() + 1)).slice(-2) + '.' + 
-                                   selectedDate.getFullYear();
-                    
-                    displayDate = formattedDate.replace(/\./g, '/');
-                    
-                    if (!dateOnly) {
-                        // HH:MM format for storage
-                        time = ('0' + selectedDate.getHours()).slice(-2) + ':' + 
-                              ('0' + selectedDate.getMinutes()).slice(-2);
-                        
-                        // Display format
-                        displayTime = time;
-                    }
-                } else {
-                    alert('Prosimo izberite datum!');
-                    loadingOverlay.style.display = 'none';
-                    return;
-                }
+               // Modify the part of the saveChanges function that handles date and time
+let date = '';
+let time = '';
+let formattedDate = '';
+let displayDate = '';
+let displayTime = '';
+
+if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
+    const selectedDate = dateTimePicker.selectedDates[0];
+    const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+    const dateOnly = dateOnlyCheckbox && dateOnlyCheckbox.checked;
+    
+    // YYYY-MM-DD format for storage
+    date = selectedDate.getFullYear() + '-' + 
+           ('0' + (selectedDate.getMonth() + 1)).slice(-2) + '-' + 
+           ('0' + selectedDate.getDate()).slice(-2);
+    
+    // Display formats
+    formattedDate = ('0' + selectedDate.getDate()).slice(-2) + '.' + 
+                   ('0' + (selectedDate.getMonth() + 1)).slice(-2) + '.' + 
+                   selectedDate.getFullYear();
+    
+    displayDate = formattedDate.replace(/\./g, '/');
+    
+    if (!dateOnly) {
+        // HH:MM format for storage - FIXED to use the actual selected time
+        const hours = selectedDate.getHours();
+        const minutes = selectedDate.getMinutes();
+        
+        // Making sure we're getting the actual time from the date picker
+        console.log('Selected time:', hours + ':' + minutes);
+        
+        time = ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2);
+        
+        // Display format - also use the actual time
+        displayTime = time;
+        
+        console.log('Time being saved:', time);
+    } else {
+        // If date-only is checked, explicitly set time to null/empty
+        time = '';
+        displayTime = '';
+    }
+} else {
+    alert('Prosimo izberite datum!');
+    loadingOverlay.style.display = 'none';
+    return;
+}
                 
                 // Get vehicle info
                 const vehicleTypeSelect = document.getElementById('vehicleType');
