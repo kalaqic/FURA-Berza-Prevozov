@@ -1059,6 +1059,7 @@ function convertTimeToMinutes(timeStr) {
 }
 
 // Function to update search results in the UI
+// Modify the updateSearchResults function in search.js to highlight the user's own rides
 
 function updateSearchResults(results) {
   console.log('Updating UI with sorted results:', results.map(r => r.formattedDate || r.date));
@@ -1089,125 +1090,187 @@ function updateSearchResults(results) {
     return;
   }
   
-  // Add results in the order they are received (IMPORTANT: don't sort here)
+  // Get current user ID for identifying own rides
+  const currentUser = firebase.auth().currentUser;
+  const currentUserId = currentUser ? currentUser.uid : null;
+  
+  // Add results in the order they are received
   results.forEach(ride => {
-           // Skip rides with missing critical data
-           if (!ride.fromCity || !ride.toCity) {
-            console.warn('Skipping ride with missing data:', ride);
-            return;
+    // Skip rides with missing critical data
+    if (!ride.fromCity || !ride.toCity) {
+      console.warn('Skipping ride with missing data:', ride);
+      return;
+    }
+    
+    const row = document.createElement('tr');
+    
+    // Check if this is user's own ride
+    const isMyRide = currentUserId && ride.createdBy === currentUserId;
+    
+    // Add a class for user's own rides
+    if (isMyRide) {
+      row.classList.add('my-ride');
+    }
+    
+    // Add click handler to show details
+    row.onclick = () => {
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser) {
+        window.showRideDetails(ride.id);
+      } else {
+        window.showLoginModal();
+        window.showLoginRequiredMessage();
+      }
+    };
+    
+    row.style.cursor = 'pointer'; // Add pointer cursor to show it's clickable
+    
+    // Add a class based on ride type for styling
+    if (ride.type === 'offering') {
+      row.classList.add('offering-ride');
+    } else {
+      row.classList.add('looking-ride');
+    }
+    
+    // Choose icon based on vehicle type
+    let vehicleIcon = '';
+    
+    if (ride.vehicleType === 'car') {
+      vehicleIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M5 9l2 3h8l2 -6M2 5h4.5l2 5M2 8h12M9 17h6M13 4l1.5 5h.5"></path>
+      </svg>
+      `;
+    } else if (ride.vehicleType === 'van') {
+      vehicleIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="8" width="20" height="12" rx="2"></rect>
+          <path d="M6 11h12m-9 4h6M7 5h10"></path>
+      </svg>
+      `;
+    } else if (ride.vehicleType === 'truck') {
+      vehicleIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="8" width="22" height="12" rx="2"></rect>
+          <path d="M3 8V5h18v3M5 12h14M8 16h8"></path>
+      </svg>
+      `;
+    } else {
+      vehicleIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path>
+      </svg>
+      `;
+    }
+    
+    // Create a badge for ride type
+    let rideTypeBadge = ride.type === 'offering' 
+      ? `<span class="ride-type-badge offering">Nudim prevoz</span>`
+      : `<span class="ride-type-badge looking">Iščem prevoz</span>`;
+    
+    // Add "My Ride" indicator if it's the user's own ride
+    if (isMyRide) {
+      rideTypeBadge += `<span class="my-ride-badge">Moja fura</span>`;
+    }
+    
+    // Format date and time for display
+    let displayDate = '';
+    let displayTime = '';
+    
+    // If the ride has proper displayDate and displayTime fields, use those
+    if (ride.displayDate) {
+      // Check if displayDate contains time and split it if needed
+      if (ride.displayDate.includes(' ')) {
+        const parts = ride.displayDate.split(' ');
+        displayDate = parts[0];
+        // If there's no explicit displayTime but time in displayDate, use it
+        if (!ride.displayTime) {
+          displayTime = parts[1];
         }
-        
-        const row = document.createElement('tr');
-        
-        // Check if user is logged in directly using Firebase
-        row.onclick = () => {
-            const currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                window.showRideDetails(ride.id);
-            } else {
-                window.showLoginModal();
-                window.showLoginRequiredMessage();
-            }
-        };
-        
-        row.style.cursor = 'pointer'; // Add pointer cursor to show it's clickable
-        
-        // Add a class based on ride type for styling
-        if (ride.type === 'offering') {
-            row.classList.add('offering-ride');
-        } else {
-            row.classList.add('looking-ride');
-        }
-        
-        // Choose icon based on vehicle type
-        let vehicleIcon = '';
-        
-        if (ride.vehicleType === 'car') {
-            vehicleIcon = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M5 9l2 3h8l2 -6M2 5h4.5l2 5M2 8h12M9 17h6M13 4l1.5 5h.5"></path>
-            </svg>
-            `;
-        } else if (ride.vehicleType === 'van') {
-            vehicleIcon = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="8" width="20" height="12" rx="2"></rect>
-                <path d="M6 11h12m-9 4h6M7 5h10"></path>
-            </svg>
-            `;
-        } else if (ride.vehicleType === 'truck') {
-            vehicleIcon = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="8" width="22" height="12" rx="2"></rect>
-                <path d="M3 8V5h18v3M5 12h14M8 16h8"></path>
-            </svg>
-            `;
-        } else {
-            vehicleIcon = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path>
-            </svg>
-            `;
-        }
-        
-        // Create a badge for ride type
-        const rideTypeBadge = ride.type === 'offering' 
-            ? `<span class="ride-type-badge offering">Nudim prevoz</span>`
-            : `<span class="ride-type-badge looking">Iščem prevoz</span>`;
-        
-        // Format date and time for display - FIXED TO SEPARATE DATE AND TIME
-        let displayDate = '';
-        let displayTime = '';
-        
-        // If the ride has proper displayDate and displayTime fields, use those
-        if (ride.displayDate) {
-            // Check if displayDate contains time and split it if needed
-            if (ride.displayDate.includes(' ')) {
-                const parts = ride.displayDate.split(' ');
-                displayDate = parts[0];
-                // If there's no explicit displayTime but time in displayDate, use it
-                if (!ride.displayTime) {
-                    displayTime = parts[1];
-                }
-            } else {
-                displayDate = ride.displayDate;
-            }
-        } else if (ride.date) {
-            // Format from date field
-            displayDate = formatDisplayDate(ride.date);
-        }
-        
-        // If ride has explicit displayTime field, use it
-        if (ride.displayTime) {
-            displayTime = ride.displayTime;
-        } else if (ride.time) {
-            // Otherwise use time field if available
-            displayTime = ride.time;
-        } else if (ride.formattedTime) {
-            // Or formattedTime as last resort
-            displayTime = ride.formattedTime;
-        }
-        
-        row.innerHTML = `
-            <td>${ride.fromCity}</td>
-            <td>${ride.toCity}</td>
-            <td>${displayDate}</td>
-            <td>${displayTime}</td>
-            <td class="vehicle-icon">
-            ${vehicleIcon}
-            ${ride.vehicleTypeDisplay || ride.vehicleType}
-            </td>
-            <td>
-            ${rideTypeBadge}
-            </td>
-        `;
-        
-        resultsTable.appendChild(row);
-
+      } else {
+        displayDate = ride.displayDate;
+      }
+    } else if (ride.formattedDate) {
+      displayDate = ride.formattedDate;
+    } else if (ride.date) {
+      // Format from date field
+      displayDate = formatDisplayDate(ride.date);
+    }
+    
+    // If ride has explicit displayTime field, use it
+    if (ride.displayTime) {
+      displayTime = ride.displayTime;
+    } else if (ride.formattedTime) {
+      displayTime = ride.formattedTime;
+    } else if (ride.time) {
+      // Otherwise use time field if available
+      displayTime = ride.time;
+    } else {
+      displayTime = 'Prilagodljivo';
+    }
+    
+    row.innerHTML = `
+      <td>${ride.fromCity}, ${ride.fromCountry}</td>
+      <td>${ride.toCity}, ${ride.toCountry}</td>
+      <td>${displayDate}</td>
+      <td>${displayTime}</td>
+      <td class="vehicle-icon">
+        ${vehicleIcon}
+        ${ride.vehicleTypeDisplay || ride.vehicleType}
+      </td>
+      <td>
+        ${rideTypeBadge}
+      </td>
+    `;
+    
+    resultsTable.appendChild(row);
   });
+
+  // Add CSS for highlighting own rides if not already added
+  if (!document.getElementById('my-ride-styles')) {
+    const style = document.createElement('style');
+    style.id = 'my-ride-styles';
+    style.innerHTML = `
+      .my-ride {
+        position: relative;
+        box-shadow: 0 0 0 2px var(--primary-color);
+      }
+      
+      .my-ride-badge {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 5px;
+        border-radius: 10px;
+        margin-left: 5px;
+        vertical-align: middle;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// Helper function to format date for display
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return '';
+  
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr; // Return original if invalid
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return dateStr; // Return original on error
+  }
 }
 
 // Helper function to format date for displays

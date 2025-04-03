@@ -629,16 +629,24 @@ window.showRideDetails = async function(rideId) {
     return;
   }
   
-  // Get ride details from Firestore
   try {
-    const ride = await window.getRideById(rideId);
+    // Get ride details from Firestore
+    const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
     
-    if (!ride) {
+    if (!rideDoc.exists) {
+      console.error('Ride not found:', rideId);
       alert('Napaka pri nalaganju podatkov o prevozu.');
       return;
     }
     
+    const ride = rideDoc.data();
+    ride.id = rideId; // Add ID to the ride object
+    
     console.log('Loading ride details:', ride);
+    
+    // Determine if this ride belongs to the current user
+    const isMyRide = ride.createdBy === currentUser.uid;
+    console.log('Is user\'s own ride:', isMyRide);
     
     // Populate modal with ride details
     const modal = document.getElementById('rideDetailsModal');
@@ -737,6 +745,54 @@ window.showRideDetails = async function(rideId) {
         }
       }
       
+      // Update the modal footer buttons based on ride ownership
+      const modalFooter = modal.querySelector('.modal-footer');
+      if (modalFooter) {
+        // Clear existing buttons
+        modalFooter.innerHTML = '';
+        
+        // Always add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'btn btn-primary';
+        closeButton.textContent = 'Zapri';
+        closeButton.onclick = function() {
+          closeModal('rideDetailsModal');
+        };
+        modalFooter.appendChild(closeButton);
+        
+        if (isMyRide) {
+          // Add edit button for user's own rides
+          const editButton = document.createElement('button');
+          editButton.className = 'btn btn-outline';
+          editButton.textContent = 'Uredi furo';
+          editButton.onclick = function() {
+            window.location.href = `pages/edit-ride.html?id=${rideId}`;
+          };
+          modalFooter.appendChild(editButton);
+          
+          // Add delete button for user's own rides
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'btn btn-accent';
+          deleteButton.textContent = 'Izbriši furo';
+          deleteButton.onclick = function() {
+            if (confirm('Ali ste prepričani, da želite izbrisati to furo?')) {
+              deleteRide(rideId);
+            }
+          };
+          modalFooter.appendChild(deleteButton);
+        } else {
+          // Add contact button for other users' rides
+          const contactButton = document.createElement('button');
+          contactButton.className = 'btn btn-accent';
+          contactButton.textContent = 'Kontaktiraj';
+          contactButton.onclick = function() {
+            alert('Kontaktiranje lastnika fure...');
+            // Here you could add code to show a contact form or email the ride owner
+          };
+          modalFooter.appendChild(contactButton);
+        }
+      }
+      
       // Show the modal
       window.showModal('rideDetailsModal');
     }
@@ -745,6 +801,34 @@ window.showRideDetails = async function(rideId) {
     alert('Napaka pri nalaganju podatkov o prevozu.');
   }
 };
+
+// Function to delete a ride
+async function deleteRide(rideId) {
+  try {
+    // Delete the ride document from Firestore
+    await firebase.firestore().collection('rides').doc(rideId).delete();
+    
+    // Close the modal
+    window.closeModal('rideDetailsModal');
+    
+    // Show success message
+    alert('Fura uspešno izbrisana!');
+    
+    // Reload rides if we're on the profile page
+    if (window.location.pathname.includes('profile.html') && typeof loadUserRides === 'function') {
+      loadUserRides(firebase.auth().currentUser.uid);
+    } else {
+      // Reload rides if we're on the home page
+      if (typeof loadInitialResults === 'function') {
+        loadInitialResults();
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting ride:', error);
+    alert('Napaka pri brisanju fure: ' + error.message);
+  }
+}
+
 // Uklonite postojeći loading screen kod i zamijenite ga ovim
 let globalLoadingTimeout;
 
@@ -838,15 +922,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update results count
         document.querySelector('.results-count').textContent = `Prikazujem ${rides.length} prevozov`;
         
+        // Get current user ID for identifying own rides
+        const currentUser = firebase.auth().currentUser;
+        const currentUserId = currentUser ? currentUser.uid : null;
+        
         // Add each ride to the table
         rides.forEach(ride => {
           const tableRow = document.createElement('tr');
+          
+          // Check if this is user's own ride
+          const isMyRide = currentUserId && ride.createdBy === currentUserId;
           
           // Add class based on ride type
           if (ride.type === 'offering') {
             tableRow.classList.add('offering-ride');
           } else {
             tableRow.classList.add('looking-ride');
+          }
+          
+          // Add class for user's own rides
+          if (isMyRide) {
+            tableRow.classList.add('my-ride');
           }
           
           // Add click handler to show details
@@ -861,6 +957,12 @@ document.addEventListener('DOMContentLoaded', function() {
           // Format time with "Prilagodljivo" for rides without time
           const timeDisplay = ride.formattedTime || ride.displayTime || 'Prilagodljivo';
           
+          // Create badge HTML including "Moja fura" badge if it's the user's ride
+          let badgeHtml = `<div class="ride-type-badge ${typeClass}">${typeText}</div>`;
+          if (isMyRide) {
+            badgeHtml += `<span class="my-ride-badge">Moja fura</span>`;
+          }
+          
           // Populate the row
           tableRow.innerHTML = `
             <td>${ride.fromCity}, ${ride.fromCountry}</td>
@@ -868,12 +970,119 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${ride.formattedDate || ride.displayDate || 'Ni datuma'}</td>
             <td>${timeDisplay}</td>
             <td>${ride.vehicleTypeDisplay || ride.vehicleType}</td>
-            <td><div class="ride-type-badge ${typeClass}">${typeText}</div></td>
+            <td>${badgeHtml}</td>
           `;
           
           resultsTable.appendChild(tableRow);
         });
       };
+    </script>
+
+<!-- Custom styles for "My Rides" -->
+<style>
+  /* Styling for rides that belong to the current user */
+  .my-ride {
+    position: relative;
+    border: 2px solid var(--primary-color) !important;
+    background-color: rgba(92, 107, 192, 0.05) !important;
+  }
+  
+  .my-ride:hover {
+    background-color: rgba(92, 107, 192, 0.1) !important;
+  }
+  
+  /* Enhanced styling for "Moja fura" badge - with smaller text */
+  .my-ride-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), #8c9eff);
+    color: white;
+    font-size: 0.65rem; /* Smaller text */
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    margin-left: 5px;
+    vertical-align: middle;
+    box-shadow: 0 1px 3px rgba(92, 107, 192, 0.3);
+    text-transform: uppercase;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    animation: badge-pulse 2s infinite;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Pulsing animation for the badge */
+  @keyframes badge-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(92, 107, 192, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 3px rgba(92, 107, 192, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(92, 107, 192, 0);
+    }
+  }
+  
+  /* Specific border colors for different ride types */
+  .offering-ride.my-ride {
+    border-color: var(--primary-color) !important; /* Blue border for "Nudim prevoz" */
+  }
+  
+  .looking-ride.my-ride {
+    border-color: var(--accent-color) !important; /* Orange border for "Iscem prevoz" */
+  }
+  
+  /* Style for the updated ride details modal buttons */
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 15px 20px 20px;
+  }
+  
+  /* Make sure the buttons have consistent styling */
+  .modal-footer .btn {
+    padding: 8px 15px;
+  }
+</style>
+
+    <!-- Custom script to enhance ride ownership detection -->
+    <script>
+      // Function to apply the new ride details handler
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Setting up ride ownership detection');
+        
+        // Make sure to identify rides when they're loaded
+        const originalUpdateSearchResults = window.updateSearchResults;
+        if (typeof originalUpdateSearchResults === 'function') {
+          window.updateSearchResults = function(results) {
+            console.log('Enhanced updateSearchResults called');
+            
+            // Call the original function first
+            originalUpdateSearchResults(results);
+            
+            // Then add extra highlighting for own rides
+            highlightOwnRides();
+          };
+        }
+        
+        // Function to highlight own rides in the results
+        function highlightOwnRides() {
+          const currentUser = firebase.auth().currentUser;
+          if (!currentUser) return;
+          
+          // Find rides that belong to current user and add a class
+          const rides = document.querySelectorAll('.results-table tbody tr');
+          rides.forEach(row => {
+            // We've already added the class in the updateSearchResults function
+            // This is just extra highlighting in case needed
+            if (row.classList.contains('my-ride')) {
+              // Can add extra visual styling here if needed
+              console.log('Found and highlighted a user ride');
+            }
+          });
+        }
+      });
     </script>
 </body>
 </html>
