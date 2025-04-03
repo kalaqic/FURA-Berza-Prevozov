@@ -118,12 +118,20 @@
             
             <div class="input-group">
                 <label class="input-label">Prevozno sredstvo</label>
-                <select class="input-field" id="vehicleType">
-                    <option value="car">Avto</option>
+                <select class="input-field" id="vehicleType" onchange="checkForCustomVehicle()">
+                    <option value="car-transporter">Avtotransporter</option>
+                    <option value="car-tow">Avtovleka</option>
+                    <option value="furgon">Furgon</option>
                     <option value="van">Kombi</option>
-                    <option value="truck">Tovornjak</option>
-                    <option value="any">Poljubno vozilo</option>
+                    <option value="truck">Vlačilec</option>
+                    <option value="custom">Drugo...</option>
                 </select>
+            </div>
+            
+            <!-- Custom vehicle type input (hidden by default) -->
+            <div class="input-group" id="customVehicleContainer" style="display: none;">
+                <label class="input-label">Vnesite vrsto vozila</label>
+                <input type="text" class="input-field" id="customVehicleType" placeholder="Vnesite vrsto vozila">
             </div>
             
             <div class="input-group">
@@ -204,8 +212,26 @@
     <script src="../js/datepicker.js"></script>
     
     <script>
+        // Function to handle custom vehicle type selection
+        function checkForCustomVehicle() {
+            const vehicleTypeSelect = document.getElementById('vehicleType');
+            const customVehicleContainer = document.getElementById('customVehicleContainer');
+            const customVehicleInput = document.getElementById('customVehicleType');
+            
+            if (vehicleTypeSelect.value === 'custom') {
+                customVehicleContainer.style.display = 'block';
+                customVehicleInput.setAttribute('required', 'required');
+            } else {
+                customVehicleContainer.style.display = 'none';
+                customVehicleInput.removeAttribute('required');
+            }
+        }
+
         // Authentication check
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for custom vehicle on page load
+            checkForCustomVehicle();
+            
             // Check if user is logged in
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
@@ -419,7 +445,27 @@
                             }
                         }
                         
-                        const vehicleType = document.getElementById('vehicleType').value;
+                        // Get vehicle type and handle custom type
+                        const vehicleTypeSelect = document.getElementById('vehicleType');
+                        let vehicleType = vehicleTypeSelect.value;
+                        let vehicleTypeDisplay = vehicleTypeSelect.options[vehicleTypeSelect.selectedIndex].text;
+                        
+                        // If custom vehicle type is selected, use the custom input value
+                        if (vehicleType === 'custom') {
+                            const customVehicleInput = document.getElementById('customVehicleType');
+                            const customValue = customVehicleInput.value.trim();
+                            
+                            if (!customValue) {
+                                // If no custom value provided but required, show error
+                                loadingOverlay.style.display = 'none';
+                                alert('Vnesite vrsto vozila.');
+                                return;
+                            }
+                            
+                            // Use the custom value for display
+                            vehicleTypeDisplay = customValue;
+                        }
+                        
                         const vehicleSize = document.getElementById('vehicleSize').value;
                         const hasRefrigerator = document.getElementById('hasRefrigerator').checked;
                         const description = document.getElementById('rideDescription').value;
@@ -458,14 +504,6 @@
                         
                         // Get vehicle dimensions based on selected size
                         const dimensions = getDimensionsBySize(vehicleSize);
-                        
-                        // Map vehicle type to display name
-                        const vehicleTypeDisplayMap = {
-                            'car': 'Avto',
-                            'van': 'Kombi',
-                            'truck': 'Tovornjak',
-                            'any': 'Poljubno vozilo'
-                        };
                         
                         // Prepare contact information
                         let contactInfo = {
@@ -513,7 +551,8 @@
                             displayDate,
                             displayTime,
                             vehicleType,
-                            vehicleTypeDisplay: vehicleTypeDisplayMap[vehicleType] || vehicleType,
+                            vehicleTypeDisplay,
+                            customVehicleType: vehicleType === 'custom' ? vehicleTypeDisplay : null,
                             vehicleSize,
                             vehicleDimensions: {
                                 length: dimensions.length,
