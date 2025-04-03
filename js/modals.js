@@ -43,81 +43,99 @@ window.showRegisterModal = function() {
 };
 
 // Show login required message
-window.showLoginRequiredMessage = function() {
-  const messageDiv = document.createElement('div');
-  messageDiv.className = 'login-required-message';
-  messageDiv.innerHTML = `
-    <div class="message-content">
-      <p>Za ogled podrobnosti se morate prijaviti.</p>
-      <button class="close-message">✕</button>
-    </div>
+// Function to show login required message
+function showLoginRequiredMessage() {
+  // Create a toast message or notification
+  const loginMessage = document.createElement('div');
+  loginMessage.className = 'login-message';
+  loginMessage.innerHTML = `
+      <div class="login-message-content">
+          Za ogled podrobnosti se morate prijaviti.
+          <span class="close-message">✕</span>
+      </div>
   `;
   
-  // Add styles if not already present
-  if (!document.getElementById('login-message-styles')) {
-    const style = document.createElement('style');
-    style.id = 'login-message-styles';
-    style.textContent = `
-      .login-required-message {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px 20px;
-        border-radius: var(--border-radius);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        z-index: 9999;
-        animation: fadeInUp 0.3s ease-out;
+  document.body.appendChild(loginMessage);
+  
+  // Add style for message
+  const style = document.createElement('style');
+  style.textContent = `
+      .login-message {
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--primary-color);
+          color: white;
+          padding: 12px 20px;
+          border-radius: var(--border-radius);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
       }
       
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translate(-50%, 20px);
-        }
-        to {
-          opacity: 1;
-          transform: translate(-50%, 0);
-        }
-      }
-      
-      .message-content {
-        display: flex;
-        align-items: center;
-        gap: 15px;
+      .login-message-content {
+          display: flex;
+          align-items: center;
+          gap: 15px;
       }
       
       .close-message {
-        background: none;
-        border: none;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
+          cursor: pointer;
+          font-weight: bold;
       }
-    `;
-    document.head.appendChild(style);
+      
+      @keyframes slideUp {
+          from {
+              opacity: 0;
+              transform: translate(-50%, 20px);
+          }
+          to {
+              opacity: 1;
+              transform: translate(-50%, 0);
+          }
+      }
+      
+      @keyframes fadeOut {
+          from {
+              opacity: 1;
+          }
+          to {
+              opacity: 0;
+          }
+      }
+  `;
+  
+  document.head.appendChild(style);
+  
+  // Add event listener to close button
+  const closeBtn = loginMessage.querySelector('.close-message');
+  if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+          removeLoginMessage(loginMessage);
+      });
   }
   
-  document.body.appendChild(messageDiv);
-  
-  // Set timer to remove the message
+  // Automatically remove after 5 seconds
   setTimeout(() => {
-    if (document.body.contains(messageDiv)) {
-      document.body.removeChild(messageDiv);
-    }
+      removeLoginMessage(loginMessage);
   }, 5000);
   
-  // Add close button functionality
-  const closeButton = messageDiv.querySelector('.close-message');
-  if (closeButton) {
-    closeButton.addEventListener('click', () => {
-      document.body.removeChild(messageDiv);
-    });
+  // Helper function to remove message with animation
+  function removeLoginMessage(messageElement) {
+      if (document.body.contains(messageElement)) {
+          // Add fade out animation
+          messageElement.style.animation = 'fadeOut 0.5s ease-out forwards';
+          
+          // Remove from DOM after animation completes
+          setTimeout(() => {
+              if (document.body.contains(messageElement)) {
+                  document.body.removeChild(messageElement);
+              }
+          }, 500);
+      }
   }
-};
+}
 
 // Show ride details modal - updated to use Firebase auth directly
 

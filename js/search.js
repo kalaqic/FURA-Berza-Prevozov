@@ -1230,75 +1230,98 @@ function formatDisplayDate(dateStr) {
 }
 
 // Function to show login required message
+// Function to show login required message
 function showLoginRequiredMessage() {
-    // Create a toast message or notification
-    const loginMessage = document.createElement('div');
-    loginMessage.className = 'login-message';
-    loginMessage.innerHTML = `
-        <div class="login-message-content">
-            Za ogled podrobnosti se morate prijaviti.
-            <span class="close-message">✕</span>
-        </div>
-    `;
-    
-    document.body.appendChild(loginMessage);
-    
-    // Add style for message
-    const style = document.createElement('style');
-    style.textContent = `
-        .login-message {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        .login-message-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .close-message {
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translate(-50%, 20px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
-        }
-    `;
-    
-    document.head.appendChild(style);
-    
-    // Add event listener to close button
-    const closeBtn = loginMessage.querySelector('.close-message');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            document.body.removeChild(loginMessage);
-        });
-    }
-    
-    // Automatically remove after 5 seconds
-    setTimeout(() => {
-        if (document.body.contains(loginMessage)) {
-            document.body.removeChild(loginMessage);
-        }
-    }, 5000);
+  // Create a toast message or notification
+  const loginMessage = document.createElement('div');
+  loginMessage.className = 'login-message';
+  loginMessage.innerHTML = `
+      <div class="login-message-content">
+          Za ogled podrobnosti se morate prijaviti.
+          <span class="close-message">✕</span>
+      </div>
+  `;
+  
+  document.body.appendChild(loginMessage);
+  
+  // Add style for message
+  const style = document.createElement('style');
+  style.textContent = `
+      .login-message {
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--primary-color);
+          color: white;
+          padding: 12px 20px;
+          border-radius: var(--border-radius);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
+      }
+      
+      .login-message-content {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+      }
+      
+      .close-message {
+          cursor: pointer;
+          font-weight: bold;
+      }
+      
+      @keyframes slideUp {
+          from {
+              opacity: 0;
+              transform: translate(-50%, 20px);
+          }
+          to {
+              opacity: 1;
+              transform: translate(-50%, 0);
+          }
+      }
+      
+      @keyframes fadeOut {
+          from {
+              opacity: 1;
+          }
+          to {
+              opacity: 0;
+          }
+      }
+  `;
+  
+  document.head.appendChild(style);
+  
+  // Add event listener to close button
+  const closeBtn = loginMessage.querySelector('.close-message');
+  if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+          removeLoginMessage(loginMessage);
+      });
+  }
+  
+  // Automatically remove after 5 seconds
+  setTimeout(() => {
+      removeLoginMessage(loginMessage);
+  }, 5000);
+  
+  // Helper function to remove message with animation
+  function removeLoginMessage(messageElement) {
+      if (document.body.contains(messageElement)) {
+          // Add fade out animation
+          messageElement.style.animation = 'fadeOut 0.5s ease-out forwards';
+          
+          // Remove from DOM after animation completes
+          setTimeout(() => {
+              if (document.body.contains(messageElement)) {
+                  document.body.removeChild(messageElement);
+              }
+          }, 500);
+      }
+  }
 }
 
 // Set up real-time updates for rides
