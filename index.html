@@ -327,6 +327,32 @@
                         <label class="input-label">Uporabniško ime</label>
                         <input type="text" class="input-field" id="registerUsername" placeholder="Vnesite uporabniško ime">
                     </div>
+
+                    <!-- Add this after the Username field and before the Password field -->
+<div class="input-group phone-input-group">
+  <label class="input-label">Telefon</label>
+  <div class="phone-input-container">
+    <div class="country-code-selector">
+      <div class="selected-country">
+        <span class="country-flag">🇸🇮</span>
+        <span class="country-code">+386</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div class="country-dropdown">
+        <div class="country-search">
+          <input type="text" placeholder="Iskanje..." id="countrySearchInput">
+        </div>
+        <div class="country-list">
+          <!-- Country options will be added dynamically -->
+        </div>
+      </div>
+    </div>
+    <input type="tel" class="input-field phone-number" id="registerPhone" placeholder="Vnesite telefonsko številko">
+    <input type="hidden" id="fullPhoneNumber">
+  </div>
+</div>
                     
                     <div class="input-group">
                         <label class="input-label">Geslo</label>
@@ -337,6 +363,8 @@
                         <label class="input-label">Potrdite geslo</label>
                         <input type="password" class="input-field" id="registerConfirmPassword" placeholder="Ponovno vnesite geslo">
                     </div>
+
+                    
                     
                     <button class="btn btn-primary search-btn" id="registerButton">Registracija</button>
                     
@@ -359,6 +387,7 @@
 <script src="js/search.js"></script>
 <script src="js/autocomplete.js"></script>
 <script src="js/datepicker.js"></script>
+<script src="js/phone-input.js"></script>
 
     <!-- Auth helpers and UI update functions -->
     <script>
@@ -411,84 +440,89 @@
       };
       
       // Direct registration handler
-      window.handleRegisterSubmit = async function() {
-        console.log('Register handler called');
-        
-        // Get input elements by ID
-        const firstNameInput = document.getElementById('registerFirstName');
-        const lastNameInput = document.getElementById('registerLastName');
-        const emailInput = document.getElementById('registerEmail');
-        const usernameInput = document.getElementById('registerUsername');
-        const passwordInput = document.getElementById('registerPassword');
-        const confirmPasswordInput = document.getElementById('registerConfirmPassword');
-        
-        if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
-          console.error('Register form elements not found');
-          alert('Error: Registration form not available. Please refresh the page.');
-          return;
-        }
-        
-        const firstName = firstNameInput.value.trim();
-        const lastName = lastNameInput.value.trim();
-        const email = emailInput.value.trim();
-        const username = usernameInput ? usernameInput.value.trim() : email;
-        const password = passwordInput.value.trim();
-        const confirmPassword = confirmPasswordInput.value.trim();
-        
-        console.log('Register data collected:', { email, firstName, lastName, username });
-        
-        // Validation
-        if (!firstName || !lastName || !email || !password || !confirmPassword) {
-          alert('Izpolnite vsa obvezna polja.');
-          return;
-        }
-        
-        if (password !== confirmPassword) {
-          alert('Gesli se ne ujemata.');
-          return;
-        }
-        
-        try {
-          console.log('Starting Firebase registration...');
-          
-          // Create user directly with Firebase Auth
-          const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-          const user = userCredential.user;
-          console.log('User created in Firebase Auth:', user.uid);
-          
-          // Save additional user data to Firestore
-          await firebase.firestore().collection('users').doc(user.uid).set({
-            email,
-            firstName,
-            lastName,
-            username,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          console.log('User data saved to Firestore');
-          
-          // Clear form fields
-          firstNameInput.value = '';
-          lastNameInput.value = '';
-          emailInput.value = '';
-          if (usernameInput) usernameInput.value = '';
-          passwordInput.value = '';
-          confirmPasswordInput.value = '';
-          
-          // Close register modal
-          window.closeModal('registerModal');
-          
-          // Update UI
-          updateUIAfterLogin(user);
-          
-          // Show success message
-          alert('Uspešna registracija!');
-          
-        } catch (error) {
-          console.error('Registration error:', error);
-          alert('Napaka pri registraciji: ' + error.message);
-        }
-      };
+// Direct registration handler
+window.handleRegisterSubmit = async function() {
+  console.log('Register handler called');
+  
+  // Get input elements by ID
+  const firstNameInput = document.getElementById('registerFirstName');
+  const lastNameInput = document.getElementById('registerLastName');
+  const emailInput = document.getElementById('registerEmail');
+  const usernameInput = document.getElementById('registerUsername');
+  const phoneInput = document.getElementById('fullPhoneNumber'); // Get the full phone number
+  const passwordInput = document.getElementById('registerPassword');
+  const confirmPasswordInput = document.getElementById('registerConfirmPassword');
+  
+  if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
+    console.error('Register form elements not found');
+    alert('Error: Registration form not available. Please refresh the page.');
+    return;
+  }
+  
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
+  const email = emailInput.value.trim();
+  const username = usernameInput ? usernameInput.value.trim() : email;
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+  const password = passwordInput.value.trim();
+  const confirmPassword = confirmPasswordInput.value.trim();
+  
+  console.log('Register data collected:', { email, firstName, lastName, username, phone });
+  
+  // Validation
+  if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    alert('Izpolnite vsa obvezna polja.');
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    alert('Gesli se ne ujemata.');
+    return;
+  }
+  
+  try {
+    console.log('Starting Firebase registration...');
+    
+    // Create user directly with Firebase Auth
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    console.log('User created in Firebase Auth:', user.uid);
+    
+    // Save additional user data to Firestore
+    await firebase.firestore().collection('users').doc(user.uid).set({
+      email,
+      firstName,
+      lastName,
+      username,
+      phone, // Add phone number to user data
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    console.log('User data saved to Firestore');
+    
+    // Clear form fields
+    firstNameInput.value = '';
+    lastNameInput.value = '';
+    emailInput.value = '';
+    if (usernameInput) usernameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    passwordInput.value = '';
+    confirmPasswordInput.value = '';
+    
+    // Close register modal
+    window.closeModal('registerModal');
+    
+    // Update UI
+    updateUIAfterLogin(user);
+    
+    // Show success message
+    alert('Uspešna registracija!');
+    
+  } catch (error) {
+    console.error('Registration error:', error);
+    alert('Napaka pri registraciji: ' + error.message);
+  }
+};
       
       // Handle logout
       window.handleLogout = function() {

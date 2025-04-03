@@ -51,6 +51,32 @@
                 <input type="text" id="username" class="input-field" placeholder="Vnesite uporabniško ime">
             </div>
             
+<!-- Add this after the Username field and before the Password field -->
+<div class="input-group phone-input-group">
+    <label class="input-label">Telefon</label>
+    <div class="phone-input-container">
+      <div class="country-code-selector">
+        <div class="selected-country">
+          <span class="country-flag">🇸🇮</span>
+          <span class="country-code">+386</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="country-dropdown">
+          <div class="country-search">
+            <input type="text" placeholder="Iskanje..." id="countrySearchInput">
+          </div>
+          <div class="country-list">
+            <!-- Country options will be added dynamically -->
+          </div>
+        </div>
+      </div>
+      <input type="tel" class="input-field phone-number" id="phone" placeholder="Vnesite telefonsko številko">
+      <input type="hidden" id="fullPhoneNumber">
+    </div>
+  </div>
+
             <div class="input-group">
                 <label class="input-label">Geslo</label>
                 <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
@@ -75,45 +101,49 @@
     </main>
     
     <script>
-        function register() {
-            // Get form values
-            const firstname = document.getElementById('firstname').value;
-            const lastname = document.getElementById('lastname').value;
-            const email = document.getElementById('email').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            const terms = document.getElementById('terms').checked;
-            
-            // Validate inputs
-            if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
-                alert('Prosimo izpolnite vsa obvezna polja!');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                alert('Gesli se ne ujemata!');
-                return;
-            }
-            
-            if (!terms) {
-                alert('Morate se strinjati s pogoji uporabe in politiko zasebnosti!');
-                return;
-            }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Vnesite veljaven email naslov!');
-                return;
-            }
-            
-            // In a real app, you would send the registration data to the server
-            
-            // For demo purposes, we'll just simulate a successful registration
-            alert('Registracija uspešna! Zdaj se lahko prijavite.');
-            window.location.href = 'login.html';
-        }
+function register() {
+    // Get form values
+    const firstname = document.getElementById('firstname').value;
+    const lastname = document.getElementById('lastname').value;
+    const email = document.getElementById('email').value;
+    const username = document.getElementById('username').value;
+    const phone = document.getElementById('fullPhoneNumber').value; // Get the full phone number
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const terms = document.getElementById('terms').checked;
+    
+    // Validate inputs
+    if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
+        alert('Prosimo izpolnite vsa obvezna polja!');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        alert('Gesli se ne ujemata!');
+        return;
+    }
+    
+    if (!terms) {
+        alert('Morate se strinjati s pogoji uporabe in politiko zasebnosti!');
+        return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Vnesite veljaven email naslov!');
+        return;
+    }
+    
+    // Log all data including phone
+    console.log('Registration data:', { firstname, lastname, email, username, phone, password });
+    
+    // In a real app, you would send the registration data to the server
+    
+    // For demo purposes, we'll just simulate a successful registration
+    alert('Registracija uspešna! Zdaj se lahko prijavite.');
+    window.location.href = 'login.html';
+}
     </script>
 </body>
 </html>
