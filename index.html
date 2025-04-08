@@ -392,52 +392,119 @@
     <!-- Auth helpers and UI update functions -->
     <script>
       // Direct login handler
-      window.handleLoginSubmit = async function() {
-        console.log('Login handler called');
-        
-        const emailInput = document.getElementById('loginEmail');
-        const passwordInput = document.getElementById('loginPassword');
-        
-        if (!emailInput || !passwordInput) {
-          console.error('Login form elements not found');
-          alert('Error: Login form not available. Please refresh the page.');
-          return;
+// Direct login handler with loading overlay
+window.handleLoginSubmit = async function() {
+  console.log('Login handler called');
+  
+  // Create and show loading overlay
+  let loadingOverlay = document.getElementById('loginLoadingOverlay');
+  if (!loadingOverlay) {
+    loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loginLoadingOverlay';
+    loadingOverlay.innerHTML = `
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Prijava v teku...</div>
+    `;
+    document.body.appendChild(loadingOverlay);
+    
+    // Add styles for the loading overlay if not already added
+    if (!document.getElementById('loadingOverlayStyles')) {
+      const style = document.createElement('style');
+      style.id = 'loadingOverlayStyles';
+      style.textContent = `
+        #loginLoadingOverlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
         }
         
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-        
-        if (!email || !password) {
-          alert('Vnesite e-poštni naslov in geslo.');
-          return;
+        .loading-spinner {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid var(--primary-color);
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 2s linear infinite;
         }
         
-        try {
-          console.log('Starting login with:', email);
-          
-          // Use Firebase auth directly
-          const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-          const user = userCredential.user;
-          console.log('Firebase login successful:', user);
-          
-          // Clear form fields
-          emailInput.value = '';
-          passwordInput.value = '';
-          
-          // Close the modal immediately
-          window.closeModal('loginModal');
-          
-          // Show success message
-          alert('Uspešna prijava!');
-          
-          // Update UI
-          updateUIAfterLogin(user);
-          
-        } catch (error) {
-          console.error('Login error:', error);
-          alert('Napaka pri prijavi: ' + error.message);
+        .loading-text {
+          color: white;
+          margin-top: 20px;
+          font-size: 18px;
         }
-      };
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  
+  // Show loading overlay
+  loadingOverlay.style.display = 'flex';
+  
+  const emailInput = document.getElementById('loginEmail');
+  const passwordInput = document.getElementById('loginPassword');
+  
+  if (!emailInput || !passwordInput) {
+    console.error('Login form elements not found');
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
+    alert('Error: Login form not available. Please refresh the page.');
+    return;
+  }
+  
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  
+  if (!email || !password) {
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
+    alert('Vnesite e-poštni naslov in geslo.');
+    return;
+  }
+  
+  try {
+    console.log('Starting login with:', email);
+    
+    // Use Firebase auth directly
+    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    console.log('Firebase login successful:', user);
+    
+    // Clear form fields
+    emailInput.value = '';
+    passwordInput.value = '';
+    
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
+    
+    // Close the modal immediately
+    window.closeModal('loginModal');
+    
+    // Show success message
+    alert('Uspešna prijava!');
+    
+    // Update UI
+    updateUIAfterLogin(user);
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    // Hide loading overlay
+    loadingOverlay.style.display = 'none';
+    alert('Napaka pri prijavi: ' + error.message);
+  }
+};
       
       // Direct registration handler
 // Direct registration handler
