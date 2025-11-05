@@ -19,26 +19,58 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- EmailJS for email sending -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <!-- Centralized Firebase Configuration -->
     <script src="js/firebase-config.js"></script>
+    
+    <!-- Translation System -->
+    <script src="js/translations.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
             <nav>
                 <a href="index.html" class="logo">FURA</a>
-                <div class="auth-buttons">
-                    <a href="#" class="btn btn-outline" onclick="showLoginModal()">Prijavi se</a>
-                    <a href="#" class="btn btn-primary" onclick="showRegisterModal()">Registracija</a>
-                    <!-- Auth buttons for logged in users will be added by JavaScript -->
+                <div class="nav-right">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span class="flag-icon">🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span class="flag-icon">🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span class="flag-icon">🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <a href="#" class="btn btn-outline" onclick="showLoginModal()" data-translate="login">Prijavi se</a>
+                        <a href="#" class="btn btn-primary" onclick="showRegisterModal()" data-translate="register">Registracija</a>
+                        <!-- Auth buttons for logged in users will be added by JavaScript -->
+                    </div>
                 </div>
             </nav>
         </div>
     </header>
     
-
-    <main class="container">
+    <main>
+        <div class="container">
       <div id="initialLoadingScreen" class="initial-loading-overlay">
         <div class="loading-container">
             <div class="loading-logo">FURA</div>
@@ -48,25 +80,27 @@
     </div>
         <div class="search-panel">
             <div class="ride-type-tabs">
-                <div class="tab-btn active" data-tab="all">Vse fure</div>
-                <div class="tab-btn" data-tab="looking">Iščem prevoz</div>
-                <div class="tab-btn" data-tab="offering">Nudim prevoz</div>
+                <div class="tab-btn active" data-tab="all" data-translate="allRides">Vse fure</div>
+                <div class="tab-btn" data-tab="looking" data-translate="lookingForRide">Iščem prevoz</div>
+                <div class="tab-btn" data-tab="offering" data-translate="offeringRide">Nudim prevoz</div>
             </div>
             
             <div class="form-group">
                 <div class="form-row">
                     <div class="form-col">
-                        <div class="input-group autocomplete-container">
-                            <label class="input-label">Iz</label>
-                            <input type="text" class="input-field country-input" id="fromCountry" placeholder="Država">
-                            <div class="autocomplete-dropdown" id="fromCountryDropdown"></div>
+                        <div class="input-group">
+                            <label class="input-label" data-translate="from">Iz</label>
+                            <select class="input-field country-select" id="fromCountry" data-translate-placeholder="country">
+                                <option value="" data-translate="selectCountry">Izberi državo</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-col">
-                        <div class="input-group autocomplete-container">
-                            <label class="input-label">V</label>
-                            <input type="text" class="input-field country-input" id="toCountry" placeholder="Država">
-                            <div class="autocomplete-dropdown" id="toCountryDropdown"></div>
+                        <div class="input-group">
+                            <label class="input-label" data-translate="to">V</label>
+                            <select class="input-field country-select" id="toCountry" data-translate-placeholder="country">
+                                <option value="" data-translate="selectCountry">Izberi državo</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -85,20 +119,22 @@
                 
                 <div class="form-row">
                     <div class="form-col">
-                        <div class="input-group autocomplete-container">
-                            <label class="input-label">Iz</label>
-                            <input type="text" class="input-field city-input" id="fromCity" placeholder="Mesto">
-                            <div class="autocomplete-dropdown" id="fromCityDropdown"></div>
+                        <div class="input-group">
+                            <label class="input-label" data-translate="from">Iz</label>
+                            <select class="input-field city-select" id="fromCity" data-translate-placeholder="city">
+                                <option value="" data-translate="selectCity">Izberi mesto</option>
+                            </select>
                         </div>
                     </div>
 
                 
 
                     <div class="form-col">
-                        <div class="input-group autocomplete-container">
-                            <label class="input-label">V</label>
-                            <input type="text" class="input-field city-input" id="toCity" placeholder="Mesto">
-                            <div class="autocomplete-dropdown" id="toCityDropdown"></div>
+                        <div class="input-group">
+                            <label class="input-label" data-translate="to">V</label>
+                            <select class="input-field city-select" id="toCity" data-translate-placeholder="city">
+                                <option value="" data-translate="selectCity">Izberi mesto</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -115,11 +151,11 @@
               <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
       </span>
-      <span class="date-text">Datum in ura</span>
+      <span class="date-text" data-translate="dateTime">Datum in ura</span>
   </button>
   <div class="date-only-option">
       <label class="checkbox-container">
-          Brez ure
+          <span data-translate="dateOnly">Brez ure</span>
           <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
           <span class="checkmark"></span>
       </label>
@@ -127,14 +163,14 @@
 </div>
                 
                 <div class="search-buttons">
-                    <button class="btn btn-accent search-btn">Poišči prevoz</button>
-                    <button class="btn btn-outline reset-btn" id="resetFiltersBtn">Ponastavi filtre</button>
+                    <button class="btn btn-accent search-btn" data-translate="searchRide">Poišči prevoz</button>
+                    <button class="btn btn-outline reset-btn" id="resetFiltersBtn" data-translate="resetFilters">Ponastavi filtre</button>
                 </div>
             </div>
             
             <div class="advanced-search">
                 <button class="advanced-search-btn" id="advancedSearchBtn">
-                    Napredno iskanje
+                    <span data-translate="advancedSearch">Napredno iskanje</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -144,26 +180,28 @@
                     <div class="form-row">
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Prevozno sredstvo</label>
+                                <label class="input-label" data-translate="vehicleType">Prevozno sredstvo</label>
                                 <select class="input-field" id="vehicleTypeFilter">
-                                    <option value="">Vse vrste vozil</option>
-                                    <option value="car">Avtotransporter</option>
-                                    <option value="car">Avtovleka</option>
-                                    <option value="car">Furgon</option>
-                                    <option value="van">Kombi</option>
-                                    <option value="van">Vlačilec</option>
-                                    <option value="van">Drugo...</option>
+                                    <option value="" data-translate="allVehicleTypes">Vse vrste vozil</option>
+                                    <option value="avtotransporter" data-translate="avtotransporter">Avtotransporter</option>
+                                    <option value="avtovleka" data-translate="avtovleka">Avtovleka</option>
+                                    <option value="furgon" data-translate="furgon">Furgon</option>
+                                    <option value="kombi" data-translate="kombi">Kombi</option>
+                                    <option value="vlačilec" data-translate="vlačilec">Vlačilec</option>
+                                    <option value="truck" data-translate="truck">Tovornjak</option>
+                                    <option value="van" data-translate="van">Kombi/Van</option>
+                                    <option value="other" data-translate="other">Drugo</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Dimenzije</label>
+                                <label class="input-label" data-translate="dimensions">Dimenzije</label>
                                 <select class="input-field" id="vehicleSizeFilter">
-                                    <option value="">Vse dimenzije</option>
-                                    <option value="small">Majhno vozilo</option>
-                                    <option value="medium">Srednje vozilo</option>
-                                    <option value="large">Veliko vozilo</option>
+                                    <option value="" data-translate="allDimensions">Vse dimenzije</option>
+                                    <option value="small" data-translate="smallVehicle">Majhno vozilo</option>
+                                    <option value="medium" data-translate="mediumVehicle">Srednje vozilo</option>
+                                    <option value="large" data-translate="largeVehicle">Veliko vozilo</option>
                                 </select>
                             </div>
                         </div>
@@ -171,7 +209,7 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="refrigerated">
-                        <label for="refrigerated">Samo vozila s hladilnikom</label>
+                        <label for="refrigerated" data-translate="refrigeratedOnly">Samo vozila s hladilnikom</label>
                     </div>
                 </div>
             </div>
@@ -179,19 +217,19 @@
         
         <div class="results-section">
             <div class="results-header">
-                <div class="results-count">Prikazujem prevozov</div>
+                <div class="results-count" id="resultsCount"></div>
                 </div>
             </div>
             
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th>OD</th>
-                        <th>DO</th>
-                        <th>DATUM</th>
-                        <th>URA</th>
-                        <th>VRSTA VOZILA</th>
-                        <th>TIP FURE</th>
+                        <th data-translate="fromLocation">OD</th>
+                        <th data-translate="toLocation">DO</th>
+                        <th data-translate="date">DATUM</th>
+                        <th data-translate="time">URA</th>
+                        <th data-translate="vehicle">VRSTA VOZILA</th>
+                        <th data-translate="rideType">TIP FURE</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -205,60 +243,57 @@
     <div class="modal" id="rideDetailsModal">
         <div class="modal-content">
             <div class="modal-body">
-                <h3 class="modal-title">Informacije o prevozu</h3>
+                <h3 class="modal-title" data-translate="rideDetailsTitle">Informacije o prevozu</h3>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Vrsta prevoza:</div>
-                    <div class="detail-value">Nudim prevoz</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Odhod:</div>
-                    <div class="detail-value">Vuzenica, Slovenija</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Destinacija:</div>
-                    <div class="detail-value">Zavič, Slovenija</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Datum in ura:</div>
-                    <div class="detail-value">13.02.2025 ob 22:00</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Vozilo:</div>
-                    <div class="detail-value">Kombi (3.5m × 1.8m × 1.9m)</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Hladilnik:</div>
-                    <div class="detail-value">Da</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Opis:</div>
-                    <div class="detail-value">Peljemo izdelke za trgovino. Ostalo je približno 5 kubikov prostora za tistega, ki bi potreboval prevoz za svoje stvari.</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Cena:</div>
-                    <div class="detail-value" id="ridePriceValue">Besplatno</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value" id="ridePriceValue"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Kontakt:</div>
+                    <div class="detail-label"></div>
                     <div class="detail-value">
-                        <p>Marko Novak</p>
-                        <p>marko.novak@gmail.com</p>
-                        <p>+386 31 123 456</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')">Zapri</button>
-                <button class="btn btn-accent">Kontaktiraj</button>
+                <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')" data-translate="close">Zapri</button>
+                <button class="btn btn-accent" data-translate="contactOwner">Kontaktiraj</button>
             </div>
         </div>
     </div>
@@ -271,22 +306,22 @@
             </div>
             <div class="modal-body">
                 <div class="form-container" style="margin: 0; box-shadow: none; padding: 0;">
-                    <h2 class="form-title">Prijava</h2>
+                    <h2 class="form-title" data-translate="loginTitle">Prijava</h2>
                     
                     <div class="input-group">
-                        <label class="input-label">Email ali uporabniško ime</label>
-                        <input type="email" class="input-field" id="loginEmail" placeholder="Vnesite email ali uporabniško ime">
+                        <label class="input-label" data-translate="emailOrUsername">Email ali uporabniško ime</label>
+                        <input type="email" class="input-field" id="loginEmail" data-translate-placeholder="emailOrUsername" placeholder="Vnesite email ali uporabniško ime">
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Geslo</label>
-                        <input type="password" class="input-field" id="loginPassword" placeholder="Vnesite geslo">
+                        <label class="input-label" data-translate="password">Geslo</label>
+                        <input type="password" class="input-field" id="loginPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
                     </div>
                     
-                    <button class="btn btn-primary search-btn" id="loginButton">Prijava</button>
+                    <button class="btn btn-primary search-btn" id="loginButton" data-translate="loginButton">Prijava</button>
                     
                     <div class="form-footer">
-                        <p>Nimate računa? <a href="#" onclick="showRegisterModal()">Registrirajte se</a></p>
+                        <p><span data-translate="noAccount">Nimate računa?</span> <a href="#" onclick="showRegisterModal()" data-translate="registerLink">Registrirajte se</a></p>
                     </div>
                 </div>
             </div>
@@ -301,36 +336,36 @@
             </div>
             <div class="modal-body">
                 <div class="form-container" style="margin: 0; box-shadow: none; padding: 0;">
-                    <h2 class="form-title">Registracija</h2>
+                    <h2 class="form-title" data-translate="registerTitle">Registracija</h2>
                     
                     <div class="form-row">
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Ime</label>
-                                <input type="text" class="input-field" id="registerFirstName" placeholder="Vnesite ime">
+                                <label class="input-label" data-translate="firstName">Ime</label>
+                                <input type="text" class="input-field" id="registerFirstName" data-translate-placeholder="firstName" placeholder="Vnesite ime">
                             </div>
                         </div>
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Priimek</label>
-                                <input type="text" class="input-field" id="registerLastName" placeholder="Vnesite priimek">
+                                <label class="input-label" data-translate="lastName">Priimek</label>
+                                <input type="text" class="input-field" id="registerLastName" data-translate-placeholder="lastName" placeholder="Vnesite priimek">
                             </div>
                         </div>
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input type="email" class="input-field" id="registerEmail" placeholder="Vnesite email">
+                        <label class="input-label" data-translate="email">Email</label>
+                        <input type="email" class="input-field" id="registerEmail" data-translate-placeholder="email" placeholder="Vnesite email">
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Uporabniško ime</label>
-                        <input type="text" class="input-field" id="registerUsername" placeholder="Vnesite uporabniško ime">
+                        <label class="input-label" data-translate="username">Uporabniško ime</label>
+                        <input type="text" class="input-field" id="registerUsername" data-translate-placeholder="username" placeholder="Vnesite uporabniško ime">
                     </div>
 
                     <!-- Add this after the Username field and before the Password field -->
 <div class="input-group phone-input-group">
-  <label class="input-label">Telefon</label>
+  <label class="input-label" data-translate="phone">Telefon</label>
   <div class="phone-input-container">
     <div class="country-code-selector">
       <div class="selected-country">
@@ -349,32 +384,59 @@
         </div>
       </div>
     </div>
-    <input type="tel" class="input-field phone-number" id="registerPhone" placeholder="Vnesite telefonsko številko">
+    <input type="tel" class="input-field phone-number" id="registerPhone" data-translate-placeholder="enterPhoneNumber" placeholder="Vnesite telefonsko številko">
     <input type="hidden" id="fullPhoneNumber">
   </div>
 </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Geslo</label>
-                        <input type="password" class="input-field" id="registerPassword" placeholder="Vnesite geslo">
+                        <label class="input-label" data-translate="password">Geslo</label>
+                        <input type="password" class="input-field" id="registerPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Potrdite geslo</label>
-                        <input type="password" class="input-field" id="registerConfirmPassword" placeholder="Ponovno vnesite geslo">
+                        <label class="input-label" data-translate="confirmPassword">Potrdite geslo</label>
+                        <input type="password" class="input-field" id="registerConfirmPassword" data-translate-placeholder="confirmPassword" placeholder="Ponovno vnesite geslo">
                     </div>
 
                     
                     
-                    <button class="btn btn-primary search-btn" id="registerButton">Registracija</button>
+                    <button class="btn btn-primary search-btn" id="registerButton" data-translate="registerButton">Registracija</button>
                     
                     <div class="form-footer">
-                        <p>Že imate račun? <a href="#" onclick="showLoginModal()">Prijavite se</a></p>
+                        <p><span data-translate="haveAccount">Že imate račun?</span> <a href="#" onclick="showLoginModal()" data-translate="loginLink">Prijavite se</a></p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FURA</h3>
+                    <p data-translate="footerDescription">Platforma za iskanje in nudenje prevozov po Sloveniji in sosednjih državah.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-translate="legalTitle">Pravne informacije</h4>
+                    <ul class="footer-links">
+                        <li><a href="pages/privacy-policy.html" data-translate="privacyPolicy">Pravilnik o zasebnosti</a></li>
+                        <li><a href="pages/terms-conditions.html" data-translate="termsConditions">Splošni pogoji</a></li>
+                        <li><a href="pages/about.html" data-translate="about">O nas</a></li>
+                        <li><a href="pages/contact.html" data-translate="contact">Kontakt</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
+            </div>
+        </div>
+    </footer>
     
 <!-- Include JavaScript files -->
 <!-- IMPORTANT: Loading order matters for dependencies -->
@@ -382,344 +444,27 @@
 <script src="js/location-data.js"></script> <!-- Nova datoteka -->
 <script src="js/firestore-rides.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/utils.js"></script>
 <script src="js/modals.js"></script>
 <script src="js/main.js"></script>
 <script src="js/search.js"></script>
-<script src="js/autocomplete.js"></script>
+<script src="js/dropdown-locations.js"></script>
 <script src="js/datepicker.js"></script>
 <script src="js/phone-input.js"></script>
 
     <!-- Auth helpers and UI update functions -->
     <script>
-      // Direct login handler
-// Direct login handler with loading overlay
-window.handleLoginSubmit = async function() {
-  console.log('Login handler called');
-  
-  // Create and show loading overlay
-  let loadingOverlay = document.getElementById('loginLoadingOverlay');
-  if (!loadingOverlay) {
-    loadingOverlay = document.createElement('div');
-    loadingOverlay.id = 'loginLoadingOverlay';
-    loadingOverlay.innerHTML = `
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Prijava v teku...</div>
-    `;
-    document.body.appendChild(loadingOverlay);
-    
-    // Add styles for the loading overlay if not already added
-    if (!document.getElementById('loadingOverlayStyles')) {
-      const style = document.createElement('style');
-      style.id = 'loadingOverlayStyles';
-      style.textContent = `
-        #loginLoadingOverlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-        
-        .loading-spinner {
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid var(--primary-color);
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          animation: spin 2s linear infinite;
-        }
-        
-        .loading-text {
-          color: white;
-          margin-top: 20px;
-          font-size: 18px;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  }
-  
-  // Show loading overlay
-  loadingOverlay.style.display = 'flex';
-  
-  const emailInput = document.getElementById('loginEmail');
-  const passwordInput = document.getElementById('loginPassword');
-  
-  if (!emailInput || !passwordInput) {
-    console.error('Login form elements not found');
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Error: Login form not available. Please refresh the page.');
-    return;
-  }
-  
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-  
-  if (!email || !password) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Vnesite e-poštni naslov in geslo.');
-    return;
-  }
-  
-  try {
-    console.log('Starting login with:', email);
-    
-    // Use Firebase auth directly
-    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    console.log('Firebase login successful:', user);
-    
-    // Clear form fields
-    emailInput.value = '';
-    passwordInput.value = '';
-    
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    
-    // Close the modal immediately
-    window.closeModal('loginModal');
-    
-    // Show success message
-    alert('Uspešna prijava!');
-    
-    // Update UI
-    updateUIAfterLogin(user);
-    
-  } catch (error) {
-    console.error('Login error:', error);
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Napaka pri prijavi: ' + error.message);
-  }
-};
-      
-      // Direct registration handler
-// Direct registration handler
-// Direct registration handler with loading overlay
-window.handleRegisterSubmit = async function() {
-  console.log('Register handler called');
-  
-  // Create and show loading overlay
-  let loadingOverlay = document.getElementById('registrationLoadingOverlay');
-  if (!loadingOverlay) {
-    loadingOverlay = document.createElement('div');
-    loadingOverlay.id = 'registrationLoadingOverlay';
-    loadingOverlay.innerHTML = `
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Registracija v teku...</div>
-    `;
-    document.body.appendChild(loadingOverlay);
-    
-    // Add styles for the loading overlay if not already added
-    if (!document.getElementById('loadingOverlayStyles')) {
-      const style = document.createElement('style');
-      style.id = 'loadingOverlayStyles';
-      style.textContent = `
-        #registrationLoadingOverlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-        
-        .loading-spinner {
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid var(--primary-color);
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          animation: spin 2s linear infinite;
-        }
-        
-        .loading-text {
-          color: white;
-          margin-top: 20px;
-          font-size: 18px;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  }
-  
-  // Show loading overlay
-  loadingOverlay.style.display = 'flex';
-  
-  // Get input elements by ID
-  const firstNameInput = document.getElementById('registerFirstName');
-  const lastNameInput = document.getElementById('registerLastName');
-  const emailInput = document.getElementById('registerEmail');
-  const usernameInput = document.getElementById('registerUsername');
-  const phoneInput = document.getElementById('fullPhoneNumber'); // Get the full phone number
-  const passwordInput = document.getElementById('registerPassword');
-  const confirmPasswordInput = document.getElementById('registerConfirmPassword');
-  
-  if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
-    console.error('Register form elements not found');
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Error: Registration form not available. Please refresh the page.');
-    return;
-  }
-  
-  const firstName = firstNameInput.value.trim();
-  const lastName = lastNameInput.value.trim();
-  const email = emailInput.value.trim();
-  const username = usernameInput ? usernameInput.value.trim() : email;
-  const phone = phoneInput ? phoneInput.value.trim() : '';
-  const password = passwordInput.value.trim();
-  const confirmPassword = confirmPasswordInput.value.trim();
-  
-  console.log('Register data collected:', { email, firstName, lastName, username, phone });
-  
-  // Validation
-  if (!firstName || !lastName || !email || !password || !confirmPassword) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Izpolnite vsa obvezna polja.');
-    return;
-  }
-  
-  if (password !== confirmPassword) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Gesli se ne ujemata.');
-    return;
-  }
-  
-  try {
-    console.log('Starting Firebase registration...');
-    
-    // Create user directly with Firebase Auth
-    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    console.log('User created in Firebase Auth:', user.uid);
-    
-    // Save additional user data to Firestore
-    await firebase.firestore().collection('users').doc(user.uid).set({
-      email,
-      firstName,
-      lastName,
-      username,
-      phone, // Add phone number to user data
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    console.log('User data saved to Firestore');
-    
-    // Clear form fields
-    firstNameInput.value = '';
-    lastNameInput.value = '';
-    emailInput.value = '';
-    if (usernameInput) usernameInput.value = '';
-    if (phoneInput) phoneInput.value = '';
-    passwordInput.value = '';
-    confirmPasswordInput.value = '';
-    
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    
-    // Close register modal
-    window.closeModal('registerModal');
-    
-    // Update UI
-    updateUIAfterLogin(user);
-    
-    // Show success message
-    alert('Uspešna registracija!');
-    
-  } catch (error) {
-    console.error('Registration error:', error);
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Napaka pri registraciji: ' + error.message);
-  }
-};
-      
-      // Handle logout
-      window.handleLogout = function() {
-        firebase.auth().signOut()
-          .then(() => {
-            console.log('User signed out');
-            
-            // Reset UI to logged-out state
-            const authButtons = document.querySelector('.auth-buttons');
-            if (authButtons) {
-              authButtons.innerHTML = `
-                <a href="#" class="btn btn-outline" onclick="showLoginModal()">Prijavi se</a>
-                <a href="#" class="btn btn-primary" onclick="showRegisterModal()">Registracija</a>
-              `;
-            }
-            
-            alert('Uspešno ste se odjavili.');
-          })
-          .catch(error => {
-            console.error('Logout error:', error);
-            alert('Napaka pri odjavi: ' + error.message);
-          });
-      };
-      
-      // Function to update UI after login
-      function updateUIAfterLogin(user) {
-        const authButtons = document.querySelector('.auth-buttons');
-        if (authButtons) {
-          authButtons.innerHTML = `
-            <a href="pages/create-ride.html" class="btn btn-outline">Vpisi svojo furo</a>
-            <a href="pages/profile.html" class="btn btn-outline">Moj profil (${user.email})</a>
-            <a href="#" class="btn btn-primary" onclick="window.handleLogout()">Odjavi se</a>
-          `;
-          
-          // Try to get user display name from Firestore
-          firebase.firestore().collection('users').doc(user.uid).get()
-            .then(doc => {
-              if (doc.exists && doc.data().firstName && doc.data().lastName) {
-                const displayName = `${doc.data().firstName} ${doc.data().lastName}`;
-                const profileButton = authButtons.querySelector('a[href="pages/profile.html"]');
-                if (profileButton) {
-                  profileButton.textContent = `Moj profil (${displayName})`;
-                }
-              }
-            })
-            .catch(error => {
-              console.error('Error fetching user data:', error);
-            });
-        }
-      }
-
-
+      // Authentication functions are now handled in auth.js
+      // This section contains only UI-specific functions
       // Funkcija za formatiranje cene
 function formatPrice(priceInfo) {
-  if (!priceInfo) return 'Besplatno';
+  if (!priceInfo) return window.t ? window.t('free') : 'Besplatno';
   
   switch(priceInfo.type) {
     case 'free':
-      return 'Besplatno';
+      return window.t ? window.t('free') : 'Besplatno';
     case 'negotiable':
-      return 'Po dogovoru';
+      return window.t ? window.t('negotiable') : 'Po dogovoru';
     case 'fixed':
       if (priceInfo.amount && priceInfo.currency) {
         // Formatiramo cenu sa dve decimale
@@ -743,227 +488,13 @@ function formatPrice(priceInfo) {
             return `${amount} ${priceInfo.currency}`;
         }
       } else {
-        return 'Fiksna cena';
+        return window.t ? window.t('fixedPrice') : 'Fiksna cena';
       }
     default:
-      return 'Besplatno';
+      return window.t ? window.t('free') : 'Besplatno';
   }
 }
 
-// Updated showRideDetails function with price display
-window.showRideDetails = async function(rideId) {
-  console.log('Showing details for ride:', rideId);
-  
-  // Check directly with Firebase if user is logged in
-  const currentUser = firebase.auth().currentUser;
-  console.log('Current user when viewing ride details:', currentUser);
-  
-  if (!currentUser) {
-    console.log('User not logged in, showing login modal');
-    window.showLoginModal();
-    window.showLoginRequiredMessage();
-    return;
-  }
-  
-  try {
-    // Get ride details from Firestore
-    const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
-    
-    if (!rideDoc.exists) {
-      console.error('Ride not found:', rideId);
-      alert('Napaka pri nalaganju podatkov o prevozu.');
-      return;
-    }
-    
-    const ride = rideDoc.data();
-    ride.id = rideId; // Add ID to the ride object
-    
-    console.log('Loading ride details:', ride);
-    
-    // Determine if this ride belongs to the current user
-    const isMyRide = ride.createdBy === currentUser.uid;
-    console.log('Is user\'s own ride:', isMyRide);
-    
-    // Populate modal with ride details
-    const modal = document.getElementById('rideDetailsModal');
-    
-    if (modal) {
-      // Get all detail rows
-      const detailRows = modal.querySelectorAll('.detail-row');
-      
-      if (detailRows.length >= 9) {
-        // Set ride details in the modal
-        // Prvi red: Vrsta prevoza
-        const typeLabel = detailRows[0].querySelector('.detail-label');
-        const typeValue = detailRows[0].querySelector('.detail-value');
-        
-        if (typeLabel && typeValue) {
-          typeLabel.textContent = 'Vrsta prevoza:';
-          typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
-        }
-        
-        // Drugi red: Odhod
-        const departureLabel = detailRows[1].querySelector('.detail-label');
-        const departureValue = detailRows[1].querySelector('.detail-value');
-        
-        if (departureLabel && departureValue) {
-          departureLabel.textContent = 'Odhod:';
-          departureValue.textContent = `${ride.fromCity}, ${ride.fromCountry}`;
-        }
-        
-        // Treći red: Destinacija
-        const destinationLabel = detailRows[2].querySelector('.detail-label');
-        const destinationValue = detailRows[2].querySelector('.detail-value');
-        
-        if (destinationLabel && destinationValue) {
-          destinationLabel.textContent = 'Destinacija:';
-          destinationValue.textContent = `${ride.toCity}, ${ride.toCountry}`;
-        }
-        
-        // Četvrti red: Datum in ura
-        const dateLabel = detailRows[3].querySelector('.detail-label');
-        const dateValue = detailRows[3].querySelector('.detail-value');
-        
-        if (dateLabel && dateValue) {
-          dateLabel.textContent = 'Datum in ura:';
-          const timeDisplay = ride.time ? `ob ${ride.formattedTime}` : '(Prilagodljivo)';
-          dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
-        }
-        
-        // Peti red: Vozilo
-        const vehicleLabel = detailRows[4].querySelector('.detail-label');
-        const vehicleValue = detailRows[4].querySelector('.detail-value');
-        
-        if (vehicleLabel && vehicleValue) {
-          vehicleLabel.textContent = 'Vozilo:';
-          const dimensions = ride.vehicleDimensions;
-          vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
-        }
-        
-        // Šesti red: Hladilnik
-        const refrigeratorLabel = detailRows[5].querySelector('.detail-label');
-        const refrigeratorValue = detailRows[5].querySelector('.detail-value');
-        
-        if (refrigeratorLabel && refrigeratorValue) {
-          refrigeratorLabel.textContent = 'Hladilnik:';
-          refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
-        }
-        
-        // Sedmi red: Opis
-        const descriptionLabel = detailRows[6].querySelector('.detail-label');
-        const descriptionValue = detailRows[6].querySelector('.detail-value');
-        
-        if (descriptionLabel && descriptionValue) {
-          descriptionLabel.textContent = 'Opis:';
-          descriptionValue.textContent = ride.description;
-        }
-        
-        // Osmi red: Cena
-        const priceLabel = detailRows[7].querySelector('.detail-label');
-        const priceValue = detailRows[7].querySelector('.detail-value');
-        
-        if (priceLabel && priceValue) {
-          priceLabel.textContent = 'Cena:';
-          priceValue.textContent = formatPrice(ride.price);
-        }
-        
-        // Deveti red: Kontakt
-        const contactLabel = detailRows[8].querySelector('.detail-label');
-        const contactValue = detailRows[8].querySelector('.detail-value');
-        
-        if (contactLabel && contactValue) {
-          contactLabel.textContent = 'Kontakt:';
-          contactValue.innerHTML = `
-            <p>${ride.contact.name || 'Ni na voljo'}</p>
-            <p>${ride.contact.email || 'Ni na voljo'}</p>
-            <p>${ride.contact.phone || 'Ni na voljo'}</p>
-          `;
-        }
-      }
-      
-      // Update the modal footer buttons based on ride ownership
-      const modalFooter = modal.querySelector('.modal-footer');
-      if (modalFooter) {
-        // Clear existing buttons
-        modalFooter.innerHTML = '';
-        
-        // Always add close button
-        const closeButton = document.createElement('button');
-        closeButton.className = 'btn btn-primary';
-        closeButton.textContent = 'Zapri';
-        closeButton.onclick = function() {
-          closeModal('rideDetailsModal');
-        };
-        modalFooter.appendChild(closeButton);
-        
-        if (isMyRide) {
-          // Add edit button for user's own rides
-          const editButton = document.createElement('button');
-          editButton.className = 'btn btn-outline';
-          editButton.textContent = 'Uredi furo';
-          editButton.onclick = function() {
-            window.location.href = `pages/edit-ride.html?id=${rideId}`;
-          };
-          modalFooter.appendChild(editButton);
-          
-          // Add delete button for user's own rides
-          const deleteButton = document.createElement('button');
-          deleteButton.className = 'btn btn-accent';
-          deleteButton.textContent = 'Izbriši furo';
-          deleteButton.onclick = function() {
-            if (confirm('Ali ste prepričani, da želite izbrisati to furo?')) {
-              deleteRide(rideId);
-            }
-          };
-          modalFooter.appendChild(deleteButton);
-        } else {
-          // Add contact button for other users' rides
-          const contactButton = document.createElement('button');
-          contactButton.className = 'btn btn-accent';
-          contactButton.textContent = 'Kontaktiraj';
-          contactButton.onclick = function() {
-            alert('Kontaktiranje lastnika fure...');
-            // Here you could add code to show a contact form or email the ride owner
-          };
-          modalFooter.appendChild(contactButton);
-        }
-      }
-      
-      // Show the modal
-      window.showModal('rideDetailsModal');
-    }
-  } catch (error) {
-    console.error('Error getting ride details:', error);
-    alert('Napaka pri nalaganju podatkov o prevozu.');
-  }
-};
-
-// Function to delete a ride
-async function deleteRide(rideId) {
-  try {
-    // Delete the ride document from Firestore
-    await firebase.firestore().collection('rides').doc(rideId).delete();
-    
-    // Close the modal
-    window.closeModal('rideDetailsModal');
-    
-    // Show success message
-    alert('Fura uspešno izbrisana!');
-    
-    // Reload rides if we're on the profile page
-    if (window.location.pathname.includes('profile.html') && typeof loadUserRides === 'function') {
-      loadUserRides(firebase.auth().currentUser.uid);
-    } else {
-      // Reload rides if we're on the home page
-      if (typeof loadInitialResults === 'function') {
-        loadInitialResults();
-      }
-    }
-  } catch (error) {
-    console.error('Error deleting ride:', error);
-    alert('Napaka pri brisanju fure: ' + error.message);
-  }
-}
 
 // Uklonite postojeći loading screen kod i zamijenite ga ovim
 let globalLoadingTimeout;
@@ -1048,6 +579,11 @@ document.addEventListener('DOMContentLoaded', function() {
       window.displayOriginalRideResults = window.displayRideResults;
       
       window.displayRideResults = function(rides) {
+        // Store results for re-translation when language changes
+        if (typeof storeSearchResults === 'function') {
+          storeSearchResults(rides);
+        }
+        
         // Get the results container
         const resultsTable = document.querySelector('.results-table tbody');
         if (!resultsTable) return;
@@ -1087,11 +623,11 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           
           // Set ride type text and class
-          const typeText = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
+          const typeText = translateRideType(ride.type);
           const typeClass = ride.type === 'offering' ? 'offering' : 'looking';
           
           // Format time with "Prilagodljivo" for rides without time
-          const timeDisplay = ride.formattedTime || ride.displayTime || 'Prilagodljivo';
+          const timeDisplay = ride.formattedTime || ride.displayTime || translateFlexibleTime();
           
           // Create badge HTML including "Moja fura" badge if it's the user's ride
           let badgeHtml = `<div class="ride-type-badge ${typeClass}">${typeText}</div>`;

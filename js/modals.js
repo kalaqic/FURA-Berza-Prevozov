@@ -18,6 +18,17 @@ window.showModal = function(modalId) {
 // Close a modal by ID - using reliable direct manipulation
 window.closeModal = function(modalId) {
   console.log('Closing modal with ID:', modalId);
+  
+  // Prevent closing email verification modal unless verification is complete
+  if (modalId === 'emailVerificationModal') {
+    console.log('Attempted to close email verification modal - checking if verification is complete');
+    const pendingEmail = localStorage.getItem('pendingVerificationEmail');
+    if (pendingEmail) {
+      console.log('Email verification still pending, preventing modal close');
+      return; // Don't close the modal
+    }
+  }
+  
   const modal = document.getElementById(modalId);
   if (modal) {
     console.log('Modal element found, setting display to none');
@@ -182,6 +193,12 @@ window.showRideDetails = async function(rideId) {
       return;
     }
     
+    // Update modal title
+    const modalTitle = modal.querySelector('.modal-title');
+    if (modalTitle) {
+      modalTitle.textContent = t('rideDetailsTitle');
+    }
+    
     // Get all detail rows
     const detailRows = modal.querySelectorAll('.detail-row');
     
@@ -197,8 +214,8 @@ window.showRideDetails = async function(rideId) {
     const typeValue = detailRows[0].querySelector('.detail-value');
     
     if (typeLabel && typeValue) {
-      typeLabel.textContent = 'Vrsta prevoza:';
-      typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
+      typeLabel.textContent = t('rideTypeLabel') + ':';
+      typeValue.textContent = translateRideType(ride.type);
     }
     
     // Second row: Departure
@@ -206,8 +223,8 @@ window.showRideDetails = async function(rideId) {
     const departureValue = detailRows[1].querySelector('.detail-value');
     
     if (departureLabel && departureValue) {
-      departureLabel.textContent = 'Odhod:';
-      departureValue.textContent = `${ride.fromCity || 'N/A'}, ${ride.fromCountry || 'N/A'}`;
+      departureLabel.textContent = t('departure') + ':';
+      departureValue.textContent = `${ride.fromCity || 'N/A'}, ${translateCountry(ride.fromCountry) || 'N/A'}`;
     }
     
     // Third row: Destination
@@ -215,8 +232,8 @@ window.showRideDetails = async function(rideId) {
     const destinationValue = detailRows[2].querySelector('.detail-value');
     
     if (destinationLabel && destinationValue) {
-      destinationLabel.textContent = 'Destinacija:';
-      destinationValue.textContent = `${ride.toCity || 'N/A'}, ${ride.toCountry || 'N/A'}`;
+      destinationLabel.textContent = t('destination') + ':';
+      destinationValue.textContent = `${ride.toCity || 'N/A'}, ${translateCountry(ride.toCountry) || 'N/A'}`;
     }
     
     // Fourth row: Date and time
@@ -224,15 +241,15 @@ window.showRideDetails = async function(rideId) {
     const dateValue = detailRows[3].querySelector('.detail-value');
     
     if (dateLabel && dateValue) {
-      dateLabel.textContent = 'Datum in ura:';
+      dateLabel.textContent = t('dateAndTime') + ':';
       
       let dateDisplay = ride.formattedDate || 'N/A';
       const timeDisplay = ride.formattedTime || ride.time || '';
       
       if (timeDisplay) {
-        dateValue.textContent = `${dateDisplay} ob ${timeDisplay}`;
+        dateValue.textContent = `${dateDisplay} ${t('at')} ${timeDisplay}`;
       } else {
-        dateValue.textContent = `${dateDisplay} (Prilagodljivo)`;
+        dateValue.textContent = `${dateDisplay} (${translateFlexibleTime()})`;
       }
     }
     
@@ -241,13 +258,15 @@ window.showRideDetails = async function(rideId) {
     const vehicleValue = detailRows[4].querySelector('.detail-value');
     
     if (vehicleLabel && vehicleValue) {
-      vehicleLabel.textContent = 'Vozilo:';
+      vehicleLabel.textContent = t('vehicleInfo') + ':';
+      
+      const translatedVehicleType = translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType || 'N/A');
       
       if (ride.vehicleDimensions) {
         const dimensions = ride.vehicleDimensions;
-        vehicleValue.textContent = `${ride.vehicleTypeDisplay || ride.vehicleType || 'N/A'} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
+        vehicleValue.textContent = `${translatedVehicleType} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
       } else {
-        vehicleValue.textContent = ride.vehicleTypeDisplay || ride.vehicleType || 'N/A';
+        vehicleValue.textContent = translatedVehicleType;
       }
     }
     
@@ -256,8 +275,8 @@ window.showRideDetails = async function(rideId) {
     const refrigeratorValue = detailRows[5].querySelector('.detail-value');
     
     if (refrigeratorLabel && refrigeratorValue) {
-      refrigeratorLabel.textContent = 'Hladilnik:';
-      refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
+      refrigeratorLabel.textContent = t('refrigerator') + ':';
+      refrigeratorValue.textContent = ride.hasRefrigerator ? t('yes') : t('no');
     }
     
     // Seventh row: Description
@@ -265,8 +284,8 @@ window.showRideDetails = async function(rideId) {
     const descriptionValue = detailRows[6].querySelector('.detail-value');
     
     if (descriptionLabel && descriptionValue) {
-      descriptionLabel.textContent = 'Opis:';
-      descriptionValue.textContent = ride.description || 'Ni opisa';
+      descriptionLabel.textContent = t('description') + ':';
+      descriptionValue.textContent = ride.description || t('noDescription');
     }
     
     // Eighth row: Price (if exists)
@@ -275,14 +294,14 @@ window.showRideDetails = async function(rideId) {
       const priceValue = detailRows[7].querySelector('.detail-value');
       
       if (priceLabel && priceValue) {
-        priceLabel.textContent = 'Cena:';
+        priceLabel.textContent = t('price') + ':';
         
         if (typeof formatPrice === 'function') {
           priceValue.textContent = formatPrice(ride.price);
         } else {
-          priceValue.textContent = ride.price?.type === 'free' ? 'Besplatno' : 
-                                  ride.price?.type === 'negotiable' ? 'Po dogovoru' : 
-                                  ride.price?.amount ? `${ride.price.amount} ${ride.price.currency || '€'}` : 'Ni podatka';
+          priceValue.textContent = ride.price?.type === 'free' ? t('free') : 
+                                  ride.price?.type === 'negotiable' ? t('negotiable') : 
+                                  ride.price?.amount ? `${ride.price.amount} ${ride.price.currency || '€'}` : t('noData');
         }
       }
     }
@@ -293,19 +312,19 @@ window.showRideDetails = async function(rideId) {
       const contactValue = detailRows[8].querySelector('.detail-value');
       
       if (contactLabel && contactValue) {
-        contactLabel.textContent = 'Kontakt:';
+        contactLabel.textContent = t('contact') + ':';
         
         if (ride.contact) {
           contactValue.innerHTML = `
-            <p>${ride.contact.name || 'Ni na voljo'}</p>
-            <p>${ride.contact.email || ride.userEmail || 'Ni na voljo'}</p>
-            <p>${ride.contact.phone || 'Ni na voljo'}</p>
+            <p>${ride.contact.name || t('notAvailable')}</p>
+            <p>${ride.contact.email || ride.userEmail || t('notAvailable')}</p>
+            <p>${ride.contact.phone || t('notAvailable')}</p>
           `;
         } else {
           contactValue.innerHTML = `
-            <p>Ni na voljo</p>
-            <p>${ride.userEmail || 'Ni na voljo'}</p>
-            <p>Ni na voljo</p>
+            <p>${t('notAvailable')}</p>
+            <p>${ride.userEmail || t('notAvailable')}</p>
+            <p>${t('notAvailable')}</p>
           `;
         }
       }
@@ -320,7 +339,7 @@ window.showRideDetails = async function(rideId) {
       // Always add close button
       const closeButton = document.createElement('button');
       closeButton.className = 'btn btn-primary';
-      closeButton.textContent = 'Zapri';
+      closeButton.textContent = t('close');
       closeButton.onclick = function() {
         closeModal('rideDetailsModal');
       };
@@ -330,7 +349,7 @@ window.showRideDetails = async function(rideId) {
         // Add edit button for user's own rides
         const editButton = document.createElement('button');
         editButton.className = 'btn btn-outline';
-        editButton.textContent = 'Uredi furo';
+        editButton.textContent = t('editRide');
         editButton.onclick = function() {
           window.location.href = `pages/edit-ride.html?id=${rideId}`;
         };
@@ -339,9 +358,9 @@ window.showRideDetails = async function(rideId) {
         // Add delete button for user's own rides
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-accent';
-        deleteButton.textContent = 'Izbriši furo';
+        deleteButton.textContent = t('deleteRide');
         deleteButton.onclick = function() {
-          if (confirm('Ali ste prepričani, da želite izbrisati to furo?')) {
+          if (confirm(t('confirmDeleteRide'))) {
             deleteRide(rideId);
           }
         };
@@ -350,9 +369,9 @@ window.showRideDetails = async function(rideId) {
         // Add contact button for other users' rides
         const contactButton = document.createElement('button');
         contactButton.className = 'btn btn-accent';
-        contactButton.textContent = 'Kontaktiraj';
+        contactButton.textContent = t('contactOwner');
         contactButton.onclick = function() {
-          alert('Kontaktiranje lastnika fure...');
+          alert(t('contactingOwner'));
           // Here you could add code to show a contact form or email the ride owner
         };
         modalFooter.appendChild(contactButton);
@@ -383,7 +402,7 @@ async function deleteRide(rideId) {
     window.closeModal('rideDetailsModal');
     
     // Show success message
-    alert('Fura uspešno izbrisana!');
+    alert(t('rideDeleted'));
     
     // Reload rides if we're on the profile page
     if (window.location.pathname.includes('profile.html') && typeof loadUserRides === 'function') {
@@ -396,7 +415,7 @@ async function deleteRide(rideId) {
     }
   } catch (error) {
     console.error('Error deleting ride:', error);
-    alert('Napaka pri brisanju fure: ' + error.message);
+    alert(t('errorDeletingRide') + ': ' + error.message);
   }
 }
 
@@ -518,150 +537,8 @@ window.handleLoginSubmit = async function() {
 // Register handler function - Completely revised to be more reliable
 // Replace just the handleRegisterSubmit function in your modals.js file with this version:
 
-// Direct registration handler
-window.handleRegisterSubmit = async function() {
-  console.log('Register handler called');
-  
-  // Create loading overlay if it doesn't exist
-  let loadingOverlay = document.getElementById('loadingOverlay');
-  if (!loadingOverlay) {
-    loadingOverlay = document.createElement('div');
-    loadingOverlay.id = 'loadingOverlay';
-    loadingOverlay.innerHTML = `
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Registracija v teku...</div>
-    `;
-    document.body.appendChild(loadingOverlay);
-    
-    // Add styles for the loading overlay
-    const style = document.createElement('style');
-    style.textContent = `
-      #loadingOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-      }
-      
-      .loading-spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid var(--primary-color);
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 2s linear infinite;
-      }
-      
-      .loading-text {
-        color: white;
-        margin-top: 20px;
-        font-size: 18px;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  
-  // Show loading overlay
-  loadingOverlay.style.display = 'flex';
-  
-  // Get input elements by ID
-  const firstNameInput = document.getElementById('registerFirstName');
-  const lastNameInput = document.getElementById('registerLastName');
-  const emailInput = document.getElementById('registerEmail');
-  const usernameInput = document.getElementById('registerUsername');
-  const passwordInput = document.getElementById('registerPassword');
-  const confirmPasswordInput = document.getElementById('registerConfirmPassword');
-  
-  if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    console.error('Register form elements not found');
-    alert('Error: Registration form not available. Please refresh the page.');
-    return;
-  }
-  
-  const firstName = firstNameInput.value.trim();
-  const lastName = lastNameInput.value.trim();
-  const email = emailInput.value.trim();
-  const username = usernameInput ? usernameInput.value.trim() : email;
-  const password = passwordInput.value.trim();
-  const confirmPassword = confirmPasswordInput.value.trim();
-  
-  console.log('Register data collected:', { email, firstName, lastName, username });
-  
-  // Validation
-  if (!firstName || !lastName || !email || !password || !confirmPassword) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Izpolnite vsa obvezna polja.');
-    return;
-  }
-  
-  if (password !== confirmPassword) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    alert('Gesli se ne ujemata.');
-    return;
-  }
-  
-  try {
-    console.log('Starting Firebase registration...');
-    
-    // Create user directly with Firebase Auth
-    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    console.log('User created in Firebase Auth:', user.uid);
-    
-    // Save additional user data to Firestore
-    await firebase.firestore().collection('users').doc(user.uid).set({
-      email,
-      firstName,
-      lastName,
-      username,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    console.log('User data saved to Firestore');
-    
-    // Clear form fields
-    firstNameInput.value = '';
-    lastNameInput.value = '';
-    emailInput.value = '';
-    if (usernameInput) usernameInput.value = '';
-    passwordInput.value = '';
-    confirmPasswordInput.value = '';
-    
-    // Close register modal
-    window.closeModal('registerModal');
-    
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    
-    // Update UI
-    updateUIAfterLogin(user);
-    
-    // Show success message
-    alert('Uspešna registracija!');
-    
-  } catch (error) {
-    // Hide loading overlay
-    loadingOverlay.style.display = 'none';
-    console.error('Registration error:', error);
-    alert('Napaka pri registraciji: ' + error.message);
-  }
-};
+// Registration handler is now handled in auth.js
+// Removed duplicate function to prevent conflicts
 
 // Common function to update UI after login/registration
 function updateUIAfterLogin(user) {
@@ -675,12 +552,42 @@ function updateUIAfterLogin(user) {
   
   console.log('Updating UI for logged in user:', user.email);
   
+  // Detect current page to conditionally show buttons
+  const currentPath = window.location.pathname;
+  const isOnProfilePage = currentPath.includes('profile.html');
+  const isOnCreateRidePage = currentPath.includes('create-ride.html');
+  
+  // Build buttons HTML based on current page
+  let buttonsHTML = '';
+  
+  // Show "Back to Search" button if on profile or create-ride pages
+  if (isOnProfilePage || isOnCreateRidePage) {
+    const backToSearchHref = currentPath.includes('/pages/') ? '../index.html' : 'index.html';
+    buttonsHTML += `<a href="${backToSearchHref}" class="btn btn-outline" data-translate="backToSearch">Nazaj na iskanje</a>`;
+  }
+  
+  // Show create ride button only if not on create ride page
+  if (!isOnCreateRidePage) {
+    const createRideHref = currentPath.includes('/pages/') ? 'create-ride.html' : 'pages/create-ride.html';
+    buttonsHTML += `<a href="${createRideHref}" class="btn btn-outline" data-translate="createRide">Vpisi svojo furo</a>`;
+  }
+  
+  // Show profile button only if not on profile page
+  if (!isOnProfilePage) {
+    const profileHref = currentPath.includes('/pages/') ? 'profile.html' : 'pages/profile.html';
+    buttonsHTML += `<a href="${profileHref}" class="btn btn-outline" data-translate="profile" data-user-email="${user.email}">Moj profil (${user.email})</a>`;
+  }
+  
+  // Always show logout button
+  buttonsHTML += `<a href="#" class="btn btn-primary" id="logoutButton" data-translate="logout">Odjavi se</a>`;
+  
   // Update with logged-in UI
-  authButtons.innerHTML = `
-    <a href="pages/create-ride.html" class="btn btn-outline">Vpisi svojo furo</a>
-    <a href="pages/profile.html" class="btn btn-outline">Moj profil (${user.email})</a>
-    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
-  `;
+  authButtons.innerHTML = buttonsHTML;
+  
+  // Retranslate the newly created buttons
+  if (typeof updateUI === 'function') {
+    updateUI();
+  }
   
   // Add logout handler
   const logoutButton = document.getElementById('logoutButton');
@@ -695,9 +602,15 @@ function updateUIAfterLogin(user) {
     .then(doc => {
       if (doc.exists && doc.data().firstName && doc.data().lastName) {
         const displayName = `${doc.data().firstName} ${doc.data().lastName}`;
-        const profileButton = authButtons.querySelector('a[href="pages/profile.html"]');
+        // Find profile button regardless of href (could be profile.html or pages/profile.html)
+        const profileButton = authButtons.querySelector('a[data-translate="profile"]');
         if (profileButton) {
-          profileButton.textContent = `Moj profil (${displayName})`;
+          // Get the current translated text and append the display name
+          const currentLang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'sl';
+          const profileText = window.t ? window.t('profile') : 'Moj profil';
+          profileButton.textContent = `${profileText} (${displayName})`;
+          // Store the display name for future language changes
+          profileButton.setAttribute('data-user-name', displayName);
         }
       }
     })
@@ -767,7 +680,13 @@ document.addEventListener('DOMContentLoaded', function() {
     newRegisterButton.addEventListener('click', function(event) {
       event.preventDefault();
       console.log('Register button clicked');
-      window.handleRegisterSubmit();
+      // Call the registration handler from auth.js
+      if (typeof window.handleRegisterSubmit === 'function') {
+        window.handleRegisterSubmit();
+      } else {
+        console.error('Registration handler not found in auth.js');
+        alert('Registration handler not loaded. Please refresh the page.');
+      }
     });
   }
   
@@ -787,7 +706,13 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        window.handleRegisterSubmit();
+        // Call the registration handler from auth.js
+        if (typeof window.handleRegisterSubmit === 'function') {
+          window.handleRegisterSubmit();
+        } else {
+          console.error('Registration handler not found in auth.js');
+          alert('Registration handler not loaded. Please refresh the page.');
+        }
       }
     });
   });

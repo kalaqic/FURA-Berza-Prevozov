@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize toggle options
     initToggleOptions();
     
-    // Initialize swap buttons
-    initSwapButtons();
+    // Swap buttons are handled by dropdown-locations.js
     
     // Close modals when clicking outside
     initModalOutsideClick();
@@ -32,13 +31,27 @@ function initTabs() {
             // In a real app, you would filter the results based on the selected tab
             console.log('Selected tab:', tabValue);
             
+            // Apply theme based on selected tab
+            const bodyElement = document.body;
+            
+            // Remove all theme classes first
+            bodyElement.classList.remove('looking-mode', 'offering-mode');
+            
+            // Add appropriate theme class
+            if (tabValue === 'looking') {
+                bodyElement.classList.add('looking-mode');
+            } else if (tabValue === 'offering') {
+                bodyElement.classList.add('offering-mode');
+            }
+            // 'all' tab uses default theme (no additional class)
+            
             // Example of how you would update the UI
             if (tabValue === 'all') {
-                document.querySelector('.results-count').textContent = 'Prikazujem 5 prevozov';
+                document.querySelector('.results-count').textContent = window.formatResultsCount ? window.formatResultsCount(5) : 'Prikazujem 5 prevozov';
             } else if (tabValue === 'looking') {
-                document.querySelector('.results-count').textContent = 'Prikazujem 2 iskane prevoze';
+                document.querySelector('.results-count').textContent = window.formatResultsCount ? window.formatResultsCount(2) : 'Prikazujem 2 iskane prevoze';
             } else if (tabValue === 'offering') {
-                document.querySelector('.results-count').textContent = 'Prikazujem 3 ponujene prevoze';
+                document.querySelector('.results-count').textContent = window.formatResultsCount ? window.formatResultsCount(3) : 'Prikazujem 3 ponujene prevoze';
             }
         });
     });
@@ -62,49 +75,7 @@ function initToggleOptions() {
     });
 }
 
-// Swap locations functionality
-function initSwapButtons() {
-    const swapBtns = document.querySelectorAll('.swap-btn');
-    
-    swapBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Swap countries
-            const fromCountryInput = document.getElementById('fromCountry');
-            const toCountryInput = document.getElementById('toCountry');
-            
-            if (fromCountryInput && toCountryInput) {
-                const fromCountry = fromCountryInput.value;
-                const toCountry = toCountryInput.value;
-                
-                fromCountryInput.value = toCountry;
-                toCountryInput.value = fromCountry;
-            }
-            
-            // Swap cities
-            const fromCityInput = document.getElementById('fromCity');
-            const toCityInput = document.getElementById('toCity');
-            
-            if (fromCityInput && toCityInput) {
-                const fromCity = fromCityInput.value;
-                const toCity = toCityInput.value;
-                
-                fromCityInput.value = toCity;
-                toCityInput.value = fromCity;
-            }
-            
-            // Trigger change events to update any dependent fields or dropdowns
-            if (fromCountryInput) {
-                const event = new Event('change');
-                fromCountryInput.dispatchEvent(event);
-            }
-            
-            if (toCountryInput) {
-                const event = new Event('change');
-                toCountryInput.dispatchEvent(event);
-            }
-        });
-    });
-}
+// Swap locations functionality is handled by dropdown-locations.js
 
 // Close modals when clicking outside
 function initModalOutsideClick() {

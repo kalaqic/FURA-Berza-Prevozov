@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
             </span>
-            <span class="date-text">Datum in ura</span>
+            <span class="date-text" data-translate="dateTime">Datum in ura</span>
         `;
         
         // Store the selected date value in a data attribute for easy access
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Reset text to default
                     const dateTextElement = dateTimePickerButton.querySelector('.date-text');
                     if (dateTextElement) {
-                        dateTextElement.textContent = enableTimeSelection ? 'Datum in ura' : 'Datum';
+                        dateTextElement.textContent = enableTimeSelection ? (window.t ? window.t('dateTime') : 'Datum in ura') : (window.t ? window.t('date') : 'Datum');
                     } else {
                         // Fallback
                         dateTimePickerButton.innerHTML = `
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            <span class="date-text">${enableTimeSelection ? 'Datum in ura' : 'Datum'}</span>
+                            <span class="date-text">${enableTimeSelection ? (window.t ? window.t('dateTime') : 'Datum in ura') : (window.t ? window.t('date') : 'Datum')}</span>
                         `;
                     }
                 }
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (currentSelectedDate && currentSelectedDate !== '') {
                         dateTextElement.textContent = currentSelectedDate;
                     } else {
-                        dateTextElement.textContent = this.checked ? 'Datum' : 'Datum in ura';
+                        dateTextElement.textContent = this.checked ? (window.t ? window.t('date') : 'Datum') : (window.t ? window.t('dateTime') : 'Datum in ura');
                     }
                 } else {
                     if (currentSelectedDate && currentSelectedDate !== '') {
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            <span class="date-text">${this.checked ? 'Datum' : 'Datum in ura'}</span>
+                            <span class="date-text">${this.checked ? (window.t ? window.t('date') : 'Datum') : (window.t ? window.t('dateTime') : 'Datum in ura')}</span>
                         `;
                     }
                 }
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             const dateTextElement = dateTimePickerButton.querySelector('.date-text');
                             if (dateTextElement) {
-                                dateTextElement.textContent = dateOnlyCheckbox.checked ? 'Datum' : 'Datum in ura';
+                                dateTextElement.textContent = dateOnlyCheckbox.checked ? (window.t ? window.t('date') : 'Datum') : (window.t ? window.t('dateTime') : 'Datum in ura');
                             } else {
                                 dateTimePickerButton.innerHTML = `
                                     <span class="calendar-icon">
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <line x1="3" y1="10" x2="21" y2="10"></line>
                                         </svg>
                                     </span>
-                                    <span class="date-text">${dateOnlyCheckbox.checked ? 'Datum' : 'Datum in ura'}</span>
+                                    <span class="date-text">${dateOnlyCheckbox.checked ? (window.t ? window.t('date') : 'Datum') : (window.t ? window.t('dateTime') : 'Datum in ura')}</span>
                                 `;
                             }
                         }
@@ -267,7 +267,7 @@ window.resetDateTimePickerMode = function() {
         // Reset the button text
         const dateTextElement = dateTimePickerButton.querySelector('.date-text');
         if (dateTextElement) {
-            dateTextElement.textContent = 'Datum in ura';
+            dateTextElement.textContent = window.t ? window.t('dateTime') : 'Datum in ura';
         } else {
             dateTimePickerButton.innerHTML = `
                 <span class="calendar-icon">
@@ -278,7 +278,7 @@ window.resetDateTimePickerMode = function() {
                         <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
                 </span>
-                <span class="date-text">Datum in ura</span>
+                <span class="date-text">${window.t ? window.t('dateTime') : 'Datum in ura'}</span>
             `;
         }
         

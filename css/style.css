@@ -14,6 +14,109 @@
     --transition: all 0.3s ease;
 }
 
+/* Orange theme variables for "looking for ride" mode */
+.looking-mode {
+    --primary-color: #E87E38;
+    --secondary-color: #F39C63;
+    --light-bg: #FFF3E0;
+    --light-panel: #FFF8F0;
+}
+
+/* Lighter blue theme variables for "offering ride" mode */
+.offering-mode {
+    --primary-color: #64B5F6;
+    --secondary-color: #90CAF9;
+    --light-bg: #E3F2FD;
+    --light-panel: #F3F9FF;
+}
+
+/* Apply orange theme to body background when in looking mode */
+body.looking-mode {
+    background-color: var(--light-bg);
+}
+
+/* Orange theme for table headers in looking mode */
+.looking-mode .results-table th {
+    background-color: var(--primary-color);
+}
+
+/* Orange theme for table rows in looking mode */
+.looking-mode .results-table tr:nth-child(odd) {
+    background-color: rgba(232, 126, 56, 0.1);
+}
+
+/* Orange theme for search panel in looking mode */
+.looking-mode .search-panel {
+    background-color: var(--light-panel);
+}
+
+/* Orange theme for buttons in looking mode - they already use CSS variables */
+/* No additional CSS needed as buttons use var(--primary-color) and var(--accent-color) */
+
+/* Orange theme for language selector border in looking mode */
+.looking-mode .current-language {
+    border-color: var(--primary-color);
+}
+
+.looking-mode .language-dropdown {
+    border-color: var(--primary-color);
+}
+
+/* Orange theme for form elements in looking mode */
+.looking-mode .input-field:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(232, 126, 56, 0.1);
+}
+
+/* Orange theme for active tab in looking mode */
+.looking-mode .tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* ========== OFFERING MODE (LIGHTER BLUE) STYLES ========== */
+
+/* Apply lighter blue theme to body background when in offering mode */
+body.offering-mode {
+    background-color: var(--light-bg);
+}
+
+/* Lighter blue theme for table headers in offering mode */
+.offering-mode .results-table th {
+    background-color: var(--primary-color);
+}
+
+/* Lighter blue theme for table rows in offering mode */
+.offering-mode .results-table tr:nth-child(odd) {
+    background-color: rgba(100, 181, 246, 0.1);
+}
+
+/* Lighter blue theme for search panel in offering mode */
+.offering-mode .search-panel {
+    background-color: var(--light-panel);
+}
+
+/* Lighter blue theme for language selector border in offering mode */
+.offering-mode .current-language {
+    border-color: var(--primary-color);
+}
+
+.offering-mode .language-dropdown {
+    border-color: var(--primary-color);
+}
+
+/* Lighter blue theme for form elements in offering mode */
+.offering-mode .input-field:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.1);
+}
+
+/* Lighter blue theme for active tab in offering mode */
+.offering-mode .tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -25,6 +128,8 @@ body {
     background-color: var(--light-bg);
     color: var(--text-dark);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
@@ -65,9 +170,97 @@ nav {
     text-decoration: none;
 }
 
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .auth-buttons {
     display: flex;
     gap: 15px;
+}
+
+/* Language Selector Styles */
+.language-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.current-language {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.current-language:hover {
+    background-color: var(--light-bg);
+}
+
+.flag-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.dropdown-arrow {
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+.current-language.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    min-width: 160px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.language-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.language-option:last-child {
+    border-bottom: none;
+}
+
+.language-option:hover {
+    background-color: var(--light-bg);
+}
+
+.language-option.active {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 /* Search Panel */
@@ -361,4 +554,101 @@ tr.looking-ride:hover {
 
 .approximate-ride:hover {
     background-color: #f7f3d7 !important;
+}
+
+/* ========== FOOTER STYLES ========== */
+
+main {
+    flex: 1;
+}
+
+.site-footer {
+    background-color: var(--text-dark);
+    color: white;
+    padding: 40px 0 20px;
+    margin-top: 50px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.footer-section h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.footer-section h4 {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.footer-section p {
+    line-height: 1.6;
+    color: #B0BEC5;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 8px;
+}
+
+.footer-links a {
+    color: #B0BEC5;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    color: #B0BEC5;
+    transition: var(--transition);
+    width: 24px;
+    height: 24px;
+}
+
+.social-links a:hover {
+    color: var(--primary-color);
+}
+
+.footer-bottom {
+    border-top: 1px solid #455A64;
+    padding-top: 20px;
+    text-align: center;
+    color: #B0BEC5;
+    font-size: 0.9rem;
+}
+
+/* Footer responsive design */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .site-footer {
+        padding: 30px 0 15px;
+        margin-top: 30px;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
 }

@@ -30,8 +30,8 @@
             <nav>
                 <a href="../index.html" class="logo">FURA</a>
                 <div class="auth-buttons">
-                    <a href="profile.html" class="btn btn-outline">Nazaj na profil</a>
-                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                    <a href="profile.html" class="btn btn-outline" data-translate="backToProfile">Nazaj na profil</a>
+                    <a href="#" class="btn btn-primary" id="logoutButton" data-translate="logout">Odjavi se</a>
                 </div>
             </nav>
         </div>
@@ -1129,5 +1129,9 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
     100% { transform: rotate(360deg); }
 }
     </style>
+    
+    <!-- Include JavaScript files -->
+    <script src="../js/translations.js"></script>
+    <script src="../js/modals.js"></script>
 </body>
 </html>

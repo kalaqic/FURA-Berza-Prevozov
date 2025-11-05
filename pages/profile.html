@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FURA - Moj profil</title>
+    <title data-translate="profilePageTitle">FURA - Moj profil</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/forms.css">
@@ -24,10 +24,34 @@
         <div class="container">
             <nav>
                 <a href="../index.html" class="logo">FURA</a>
-                <div class="auth-buttons">
-                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
-                    <a href="create-ride.html" class="btn btn-outline">Vpisi svojo furo</a>
-                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                <div class="nav-right">
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span id="currentFlag">🇸🇮</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span>🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span>🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span>🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToSearch">Nazaj na iskanje</a>
+                        <a href="create-ride.html" class="btn btn-outline" data-translate="createRide">Vpisi svojo furo</a>
+                        <a href="#" class="btn btn-primary" id="logoutButton" data-translate="logout">Odjavi se</a>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -35,58 +59,58 @@
     
     <main class="container">
         <div class="profile-container">
-            <h2 class="profile-title">Moj profil</h2>
+            <h2 class="profile-title" data-translate="myProfile">Moj profil</h2>
             
             <div class="profile-section">
-                <h3>Osebni podatki</h3>
+                <h3 data-translate="personalData">Osebni podatki</h3>
                 
                 <div id="userProfileLoading" class="loading-indicator">
                     <div class="loading-spinner"></div>
-                    <div class="loading-text">Spoznavanje uporabnika...</div>
+                    <div class="loading-text" data-translate="loadingUser">Spoznavanje uporabnika...</div>
                 </div>
                 
                 <div class="form-container" id="userProfileForm" style="margin-top: 20px; display: none;">
                     <div class="form-row">
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Ime</label>
-                                <input type="text" class="input-field" id="firstName" placeholder="Vnesite ime">
+                                <label class="input-label" data-translate="firstName">Ime</label>
+                                <input type="text" class="input-field" id="firstName" data-translate-placeholder="enterFirstName" placeholder="Vnesite ime">
                             </div>
                         </div>
                         <div class="form-col">
                             <div class="input-group">
-                                <label class="input-label">Priimek</label>
-                                <input type="text" class="input-field" id="lastName" placeholder="Vnesite priimek">
+                                <label class="input-label" data-translate="lastName">Priimek</label>
+                                <input type="text" class="input-field" id="lastName" data-translate-placeholder="enterLastName" placeholder="Vnesite priimek">
                             </div>
                         </div>
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input type="email" class="input-field" id="email" placeholder="Vnesite email" disabled>
+                        <label class="input-label" data-translate="email">Email</label>
+                        <input type="email" class="input-field" id="email" data-translate-placeholder="enterEmail" placeholder="Vnesite email" disabled>
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Uporabniško ime</label>
-                        <input type="text" class="input-field" id="username" placeholder="Vnesite uporabniško ime">
+                        <label class="input-label" data-translate="username">Uporabniško ime</label>
+                        <input type="text" class="input-field" id="username" data-translate-placeholder="enterUsername" placeholder="Vnesite uporabniško ime">
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Telefon</label>
-                        <input type="tel" class="input-field" id="phone" placeholder="Vnesite telefonsko številko">
+                        <label class="input-label" data-translate="phone">Telefon</label>
+                        <input type="tel" class="input-field" id="phone" data-translate-placeholder="enterPhoneNumber" placeholder="Vnesite telefonsko številko">
                     </div>
                     
-                    <button class="btn btn-primary" id="updateProfileBtn">Shrani spremembe</button>
+                    <button class="btn btn-primary" id="updateProfileBtn" data-translate="saveChanges">Shrani spremembe</button>
                 </div>
             </div>
             
             <div class="profile-section">
-                <h3>Moje fure</h3>
+                <h3 data-translate="myRides">Moje fure</h3>
                 <div class="profile-rides" id="userRides">
                     <!-- User rides will be loaded here -->
                     <div class="loading-indicator">
                         <div class="loading-spinner"></div>
-                        <div class="loading-text">Nalaganje vaših fur...</div>
+                        <div class="loading-text" data-translate="loadingRides">Nalaganje vaših fur...</div>
                     </div>
                 </div>
             </div>
@@ -98,55 +122,59 @@
         <div class="modal-content">
            
             <div class="modal-body">
-                <h3 class="modal-title">Informacije o prevozu</h3>
+                <h3 class="modal-title" data-translate="rideDetailsTitle">Informacije o prevozu</h3>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Vrsta prevoza:</div>
-                    <div class="detail-value">Nudim prevoz</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Odhod:</div>
-                    <div class="detail-value">Vuzenica, Slovenija</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Destinacija:</div>
-                    <div class="detail-value">Zavič, Slovenija</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Datum in ura:</div>
-                    <div class="detail-value">13.02.2023 ob 22:00</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Vozilo:</div>
-                    <div class="detail-value">Kombi (3.5m × 1.8m × 1.9m)</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Hladilnik:</div>
-                    <div class="detail-value">Da</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Opis:</div>
-                    <div class="detail-value">Peljemo izdelke za trgovino. Ostalo je približno 5 kubikov prostora za tistega, ki bi potreboval prevoz za svoje stvari.</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value"></div>
                 </div>
                 
                 <div class="detail-row">
-                    <div class="detail-label">Cena:</div>
-                    <div class="detail-value" id="ridePriceValue">Besplatno</div>
+                    <div class="detail-label"></div>
+                    <div class="detail-value" id="ridePriceValue"></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')">Zapri</button>
-                <button class="btn btn-accent" id="deleteRideBtn">Izbriši furo</button>
-                <button class="btn btn-outline" id="editRideBtn">Uredi furo</button>
+                <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')" data-translate="close">Zapri</button>
+                <button class="btn btn-accent" id="deleteRideBtn" data-translate="deleteRide">Izbriši furo</button>
+                <button class="btn btn-outline" id="editRideBtn" data-translate="editRide">Uredi furo</button>
             </div>
         </div>
     </div>
+    
+    <!-- Include JavaScript files -->
+    <script src="../js/translations.js"></script>
+    <script src="../js/modals.js"></script>
     
     <script>
         // Global variables
@@ -159,7 +187,7 @@
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
                     // Redirect to login page if not logged in
-                    alert('Za dostop do profila se morate prijaviti.');
+                    alert(window.t ? window.t('loginRequiredProfile') : 'Za dostop do profila se morate prijaviti.');
                     window.location.href = '../index.html';
                 } else {
                     currentUserId = user.uid;
@@ -332,7 +360,7 @@
                 ridesContainer.innerHTML = '';
                 
                 if (ridesSnapshot.empty) {
-                    ridesContainer.innerHTML = '<div class="no-rides">Nimate še objavljenih fur.</div>';
+                    ridesContainer.innerHTML = `<div class="no-rides">${window.t ? window.t('noPublishedRides') : 'Nimate še objavljenih fur.'}</div>`;
                     return;
                 }
                 

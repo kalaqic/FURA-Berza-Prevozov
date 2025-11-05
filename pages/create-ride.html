@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FURA - Vpisi svoj prevoz</title>
+    <title data-translate="createRidePageTitle">FURA - Vpisi svoj prevoz</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/forms.css">
@@ -29,10 +29,34 @@
         <div class="container">
             <nav>
                 <a href="../index.html" class="logo">FURA</a>
-                <div class="auth-buttons">
-                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
-                    <a href="profile.html" class="btn btn-outline">Moj profil</a>
-                    <a href="#" class="btn btn-primary" id="logoutButton">Odjavi se</a>
+                <div class="nav-right">
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span id="currentFlag">🇸🇮</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span>🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span>🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span>🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToSearch">Nazaj na iskanje</a>
+                        <a href="profile.html" class="btn btn-outline" data-translate="profile">Moj profil</a>
+                        <a href="#" class="btn btn-primary" id="logoutButton" data-translate="logout">Odjavi se</a>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -40,28 +64,30 @@
     
     <main class="container">
         <div class="form-container">
-            <h2 class="form-title">Vpisi svoj prevoz</h2>
+            <h2 class="form-title" data-translate="createRideTitle">Vpisi svoj prevoz</h2>
             
             <div class="toggle-container">
-                <div class="toggle-option active" data-toggle="offering">Nudim prevoz</div>
-                <div class="toggle-option" data-toggle="looking">Iščem prevoz</div>
+                <div class="toggle-option active" data-toggle="offering" data-translate="offeringRide">Nudim prevoz</div>
+                <div class="toggle-option" data-toggle="looking" data-translate="lookingForRide">Iščem prevoz</div>
             </div>
             
            
             
             <div class="form-row">
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
-                        <label class="input-label">Iz države</label>
-                        <input type="text" class="input-field country-input" id="fromCountry" placeholder="Država">
-                        <div class="autocomplete-dropdown" id="fromCountryDropdown"></div>
+                    <div class="input-group">
+                        <label class="input-label" data-translate="fromCountry">Iz države</label>
+                        <select class="input-field country-select" id="fromCountry" required>
+                            <option value="" data-translate="selectCountry">Izberi državo</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
-                        <label class="input-label">V državo</label>
-                        <input type="text" class="input-field country-input" id="toCountry" placeholder="Država">
-                        <div class="autocomplete-dropdown" id="toCountryDropdown"></div>
+                    <div class="input-group">
+                        <label class="input-label" data-translate="toCountry">V državo</label>
+                        <select class="input-field country-select" id="toCountry" required>
+                            <option value="" data-translate="selectCountry">Izberi državo</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -79,17 +105,19 @@
             
             <div class="form-row">
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
-                        <label class="input-label">Iz mesta</label>
-                        <input type="text" class="input-field city-input" id="fromCity" placeholder="Mesto">
-                        <div class="autocomplete-dropdown" id="fromCityDropdown"></div>
+                    <div class="input-group">
+                        <label class="input-label" data-translate="fromCity">Iz mesta</label>
+                        <select class="input-field city-select" id="fromCity" required>
+                            <option value="" data-translate="selectCity">Izberi mesto</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
-                        <label class="input-label">V mesto</label>
-                        <input type="text" class="input-field city-input" id="toCity" placeholder="Mesto">
-                        <div class="autocomplete-dropdown" id="toCityDropdown"></div>
+                    <div class="input-group">
+                        <label class="input-label" data-translate="toCity">V mesto</label>
+                        <select class="input-field city-select" id="toCity" required>
+                            <option value="" data-translate="selectCity">Izberi mesto</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -105,11 +133,11 @@
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
                     </span>
-                    Datum in ura
+                    <span data-translate="dateTime">Datum in ura</span>
                 </button>
                 <div class="date-only-option">
                     <label class="checkbox-container">
-                        Brez ure
+                        <span data-translate="dateOnly">Brez ure</span>
                         <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
                         <span class="checkmark"></span>
                     </label>
@@ -117,29 +145,29 @@
             </div>
             
             <div class="input-group">
-                <label class="input-label">Prevozno sredstvo</label>
+                <label class="input-label" data-translate="vehicleType">Prevozno sredstvo</label>
                 <select class="input-field" id="vehicleType" onchange="checkForCustomVehicle()">
-                    <option value="car-transporter">Avtotransporter</option>
-                    <option value="car-tow">Avtovleka</option>
-                    <option value="furgon">Furgon</option>
-                    <option value="van">Kombi</option>
-                    <option value="truck">Vlačilec</option>
-                    <option value="custom">Drugo...</option>
+                    <option value="car-transporter" data-translate="avtotransporter">Avtotransporter</option>
+                    <option value="car-tow" data-translate="avtovleka">Avtovleka</option>
+                    <option value="furgon" data-translate="furgon">Furgon</option>
+                    <option value="van" data-translate="kombi">Kombi</option>
+                    <option value="truck" data-translate="vlačilec">Vlačilec</option>
+                    <option value="custom" data-translate="customVehicle">Drugo...</option>
                 </select>
             </div>
             
             <!-- Custom vehicle type input (hidden by default) -->
             <div class="input-group" id="customVehicleContainer" style="display: none;">
-                <label class="input-label">Vnesite vrsto vozila</label>
-                <input type="text" class="input-field" id="customVehicleType" placeholder="Vnesite vrsto vozila">
+                <label class="input-label" data-translate="enterVehicleType">Vnesite vrsto vozila</label>
+                <input type="text" class="input-field" id="customVehicleType" data-translate-placeholder="enterVehicleType" placeholder="Vnesite vrsto vozila">
             </div>
             
             <div class="input-group">
-                <label class="input-label">Dimenzije vozila</label>
+                <label class="input-label" data-translate="vehicleDimensions">Dimenzije vozila</label>
                 <select class="input-field" id="vehicleSize">
-                    <option value="small">Male dimenzije (auto)</option>
-                    <option value="medium">Srednje dimenzije (kombi)</option>
-                    <option value="large">Velike dimenzije (kamion)</option>
+                    <option value="small" data-translate="smallVehicle">Male dimenzije (auto)</option>
+                    <option value="medium" data-translate="mediumVehicle">Srednje dimenzije (kombi)</option>
+                    <option value="large" data-translate="largeVehicle">Velike dimenzije (kamion)</option>
                 </select>
             </div>
             
@@ -149,40 +177,40 @@
             
             <div class="checkbox-group">
                 <input type="checkbox" id="hasRefrigerator">
-                <label for="hasRefrigerator">Vozilo ima hladilnik</label>
+                <label for="hasRefrigerator" data-translate="vehicleHasRefrigerator">Vozilo ima hladilnik</label>
             </div>
             
             <!-- Price section -->
             <div class="form-section">
-                <h4 class="section-title">Cena prevoza</h4>
+                <h4 class="section-title" data-translate="transportPrice">Cena prevoza</h4>
                 
                 <div class="price-options">
                     <div class="radio-group">
                         <input type="radio" id="priceFree" name="priceOption" value="free" checked>
-                        <label for="priceFree">Brezplačno</label>
+                        <label for="priceFree" data-translate="free">Brezplačno</label>
                     </div>
                     
                     <div class="radio-group">
                         <input type="radio" id="priceNegotiable" name="priceOption" value="negotiable">
-                        <label for="priceNegotiable">Po dogovoru</label>
+                        <label for="priceNegotiable" data-translate="negotiable">Po dogovoru</label>
                     </div>
                     
                     <div class="radio-group">
                         <input type="radio" id="priceFixed" name="priceOption" value="fixed">
-                        <label for="priceFixed">Fiksna cena</label>
+                        <label for="priceFixed" data-translate="fixedPrice">Fiksna cena</label>
                     </div>
                 </div>
                 
                 <div class="form-row price-input-row" id="priceInputSection" style="display: none;">
                     <div class="form-col">
                         <div class="input-group">
-                            <label class="input-label">Znesek</label>
-                            <input type="number" class="input-field" id="priceAmount" placeholder="Vnesite znesek" min="0" step="0.01">
+                            <label class="input-label" data-translate="amount">Znesek</label>
+                            <input type="number" class="input-field" id="priceAmount" data-translate-placeholder="enterAmount" placeholder="Vnesite znesek" min="0" step="0.01">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
-                            <label class="input-label">Valuta</label>
+                            <label class="input-label" data-translate="currency">Valuta</label>
                             <select class="input-field" id="priceCurrency">
                                 <option value="EUR">Euro (€)</option>
                                 <option value="BAM">Konvertibilna marka (KM)</option>
@@ -197,19 +225,20 @@
             </div>
             
             <div class="input-group">
-                <label class="input-label">Opis</label>
-                <textarea class="input-field" rows="4" id="rideDescription" placeholder="Vnesite dodatne informacije o prevozu"></textarea>
+                <label class="input-label" data-translate="description">Opis</label>
+                <textarea class="input-field" rows="4" id="rideDescription" data-translate-placeholder="enterAdditionalInfo" placeholder="Vnesite dodatne informacije o prevozu"></textarea>
             </div>
             
-            <button class="btn btn-primary search-btn" id="submitRideBtn">Objavi prevoz</button>
+            <button class="btn btn-primary search-btn" id="submitRideBtn" data-translate="publishRide">Objavi prevoz</button>
         </div>
     </main>
     
     <!-- Include JavaScript files -->
     <script src="../js/vehicle-dimensions.js"></script>
     <script src="../js/location-data.js"></script> <!-- Add this line -->
+    <script src="../js/translations.js"></script>
     <script src="../js/firestore-rides.js"></script>
-    <script src="../js/autocomplete.js"></script>
+    <script src="../js/dropdown-locations.js"></script>
     <script src="../js/datepicker.js"></script>
     
     <script>
@@ -306,11 +335,24 @@
             const toggleOptions = document.querySelectorAll('.toggle-option');
             let selectedRideType = 'offering'; // Default value
             
+            // Set initial theme
+            document.body.classList.add('offering-mode');
+            
             toggleOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     toggleOptions.forEach(opt => opt.classList.remove('active'));
                     this.classList.add('active');
                     selectedRideType = this.getAttribute('data-toggle');
+                    
+                    // Apply theme based on ride type
+                    const bodyElement = document.body;
+                    bodyElement.classList.remove('looking-mode', 'offering-mode');
+                    
+                    if (selectedRideType === 'looking') {
+                        bodyElement.classList.add('looking-mode');
+                    } else if (selectedRideType === 'offering') {
+                        bodyElement.classList.add('offering-mode');
+                    }
                 });
             });
             

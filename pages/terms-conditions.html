@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splošni pogoji - FURA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Translation System -->
+    <script src="../js/translations.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="nav-right">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span class="flag-icon">🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span class="flag-icon">🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span class="flag-icon">🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToHome">Nazaj na domačo</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="legal-content" style="padding: 20px;">
+                <h1 data-translate="termsConditionsTitle">Splošni pogoji uporabe</h1>
+                <p class="last-updated" data-translate="lastUpdated">Nazadnje posodobljeno: 1. december 2024</p>
+                
+                <section>
+                    <h2 data-translate="acceptanceTitle">1. Sprejem pogojev</h2>
+                    <p data-translate="acceptanceText">Z uporabo platforme FURA se strinjate s temi splošnimi pogoji uporabe. Če se ne strinjate s pogoji, platforme ne smete uporabljati.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="serviceDescriptionTitle">2. Opis storitve</h2>
+                    <p data-translate="serviceDescriptionText">FURA je platforma, ki omogoča uporabnikom objavljanje in iskanje prevozov. Platforma deluje kot posrednik med uporabniki in ne izvaja prevoznih storitev.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="userObligationsTitle">3. Obveznosti uporabnikov</h2>
+                    <h3 data-translate="registrationObligationsTitle">3.1 Registracija</h3>
+                    <ul>
+                        <li data-translate="registrationObligation1">Zagotoviti morate točne in resnične podatke</li>
+                        <li data-translate="registrationObligation2">Obvezni ste ohraniti varnost svojega gesla</li>
+                        <li data-translate="registrationObligation3">Za uporabo računa je odgovorna samo registrirana oseba</li>
+                        <li data-translate="registrationObligation4">Obvezni ste potrditi svoj e-poštni naslov</li>
+                    </ul>
+                    
+                    <h3 data-translate="behaviorObligationsTitle">3.2 Vedenje na platformi</h3>
+                    <ul>
+                        <li data-translate="behaviorObligation1">Spoštovati morate druge uporabnike</li>
+                        <li data-translate="behaviorObligation2">Prepovedano je objavljanje lažnih oglasov</li>
+                        <li data-translate="behaviorObligation3">Prepovedana je uporaba žaljivega jezika</li>
+                        <li data-translate="behaviorObligation4">Spoštovati morate dogovorjene termine</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="ridePostingTitle">4. Objavljanje prevozov</h2>
+                    <ul>
+                        <li data-translate="ridePosting1">Podatki o prevozu morajo biti točni</li>
+                        <li data-translate="ridePosting2">Cene morajo biti jasno navedene</li>
+                        <li data-translate="ridePosting3">Kontaktni podatki morajo biti pravilni</li>
+                        <li data-translate="ridePosting4">Prepovedano je diskriminatorno ravnanje</li>
+                        <li data-translate="ridePosting5">Ohranjamo si pravico odstraniti neprimerne objave</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="safetyTitle">5. Varnost</h2>
+                    <p data-translate="safetyText">Uporabniki so odgovorni za lastno varnost. FURA priporoča:</p>
+                    <ul>
+                        <li data-translate="safety1">Preverite voznika/sopotnika pred vožnjo</li>
+                        <li data-translate="safety2">Delite informacije o vožnji z zaupanja vredno osebo</li>
+                        <li data-translate="safety3">Zaupajte svojim občutkom</li>
+                        <li data-translate="safety4">V sili pokličite policijo (113)</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="paymentsTitle">6. Plačila</h2>
+                    <p data-translate="paymentsText">FURA ne obravnava plačil med uporabniki. Vsa plačila se izvajajo neposredno med uporabniki.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="liabilityTitle">7. Omejitev odgovornosti</h2>
+                    <p data-translate="liabilityText">FURA ne prevzema odgovornosti za:</p>
+                    <ul>
+                        <li data-translate="liability1">Škodo nastalo med prevozom</li>
+                        <li data-translate="liability2">Vedenje drugih uporabnikov</li>
+                        <li data-translate="liability3">Točnost objavljenih podatkov</li>
+                        <li data-translate="liability4">Tehnične motnje platforme</li>
+                        <li data-translate="liability5">Spore med uporabniki</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="prohibitedTitle">8. Prepovedana uporaba</h2>
+                    <p data-translate="prohibitedText">Prepovedano je:</p>
+                    <ul>
+                        <li data-translate="prohibited1">Komercialna uporaba brez dovoljenja</li>
+                        <li data-translate="prohibited2">Zloraba osebnih podatkov drugih uporabnikov</li>
+                        <li data-translate="prohibited3">Objavljanje nezakonitih vsebin</li>
+                        <li data-translate="prohibited4">Motenje delovanja platforme</li>
+                        <li data-translate="prohibited5">Ustvarjanje lažnih računov</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="moderationTitle">9. Moderiranje</h2>
+                    <p data-translate="moderationText">FURA si pridržuje pravico:</p>
+                    <ul>
+                        <li data-translate="moderation1">Odstraniti neprimerne objave</li>
+                        <li data-translate="moderation2">Začasno ali trajno blokirati uporabnike</li>
+                        <li data-translate="moderation3">Spremljati aktivnost na platformi</li>
+                        <li data-translate="moderation4">Sporočiti nezakonito vedenje pristojnim organom</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="intellectualPropertyTitle">10. Intelektualna lastnina</h2>
+                    <p data-translate="intellectualPropertyText">Vsa vsebina platforme FURA je zaščitena z avtorskimi pravicami. Uporabniki zagotavljajo, da imajo pravico do vsebine, ki jo objavljajo.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="terminationTitle">11. Prenehanje uporabe</h2>
+                    <p data-translate="terminationText">Svoj račun lahko kadarkoli izbrišete v nastavitvah profila. FURA si pridržuje pravico prekiniti dostop uporabnikom, ki kršijo te pogoje.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="disputesTitle">12. Reševanje sporov</h2>
+                    <p data-translate="disputesText">Spori se rešujejo po slovenskem pravu. Pristojna so slovenska sodišča. Priporočujemo, da poskusite spore rešiti sporazumno.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="contactTermsTitle">13. Kontakt</h2>
+                    <p data-translate="contactTermsText">Za vprašanja o pogojih uporabe nas kontaktirajte na:</p>
+                    <p><strong>E-pošta:</strong> <a href="mailto:legal@fura.si">legal@fura.si</a></p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="changesTermsTitle">14. Spremembe pogojev</h2>
+                    <p data-translate="changesTermsText">FURA si pridržuje pravico spremeniti te pogoje. O pomembnih spremembah vas bomo obvestili vnaprej.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FURA</h3>
+                    <p data-translate="footerDescription">Platforma za iskanje in nudenje prevozov po Sloveniji in sosednjih državah.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-translate="legalTitle">Pravne informacije</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" data-translate="privacyPolicy">Pravilnik o zasebnosti</a></li>
+                        <li><a href="terms-conditions.html" data-translate="termsConditions">Splošni pogoji</a></li>
+                        <li><a href="about.html" data-translate="about">O nas</a></li>
+                        <li><a href="contact.html" data-translate="contact">Kontakt</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

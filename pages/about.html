@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O nas - FURA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Translation System -->
+    <script src="../js/translations.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="nav-right">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span class="flag-icon">🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span class="flag-icon">🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span class="flag-icon">🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToHome">Nazaj na domačo</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="legal-content" style="padding: 20px;">
+                <h1 data-translate="aboutTitle">O nas</h1>
+                
+                <section>
+                    <h2 data-translate="missionTitle">1. Naša misija</h2>
+                    <p data-translate="missionText">FURA je platforma, ki povezuje ljudi z namenom omogočanja cenovno dostopnih, zanesljivih in varnih prevozov. Naš cilj je ustvariti skupnost uporabnikov, ki si delijo stroške prevoza in zmanjšujejo okoljski vpliv prometa.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="howItWorksTitle">2. Kako deluje</h2>
+                    <p data-translate="howItWorksText">FURA omogoča dvoje:</p>
+                    <ul>
+                        <li data-translate="howItWorks1">Uporabniki lahko objavijo, da iščejo prevoz do določene destinacije</li>
+                        <li data-translate="howItWorks2">Vozniki lahko objavijo, da nudijo prevoz na določeni relaciji</li>
+                        <li data-translate="howItWorks3">Platforma avtomatsko prikaže najboljše ujemanja na podlagi lokacije in časa</li>
+                        <li data-translate="howItWorks4">Uporabniki se lahko kontaktirajo in dogovorijo za skupni prevoz</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="featuresTitle">3. Funkcionalnosti</h2>
+                    <h3 data-translate="searchFeaturesTitle">3.1 Napredni iskalni sistem</h3>
+                    <ul>
+                        <li data-translate="searchFeature1">Iskanje po lokaciji z avtomatskim predlaganjem mest</li>
+                        <li data-translate="searchFeature2">Filtriranje po datumu in času</li>
+                        <li data-translate="searchFeature3">Dodatni filtri (tip vozila, dimenzije, hladilnik)</li>
+                        <li data-translate="searchFeature4">Prikaz približnih ujemanj z manjšimi odstopanji</li>
+                    </ul>
+                    
+                    <h3 data-translate="userFeaturesTitle">3.2 Upravljanje uporabnikov</h3>
+                    <ul>
+                        <li data-translate="userFeature1">Varna registracija z verifikacijo e-pošte</li>
+                        <li data-translate="userFeature2">Profili uporabnikov z osnovnimi informacijami</li>
+                        <li data-translate="userFeature3">Zgodovina objavljenih prevozov</li>
+                        <li data-translate="userFeature4">Enostavno urejanje profilov</li>
+                    </ul>
+                    
+                    <h3 data-translate="techFeaturesTitle">3.3 Tehnične značilnosti</h3>
+                    <ul>
+                        <li data-translate="techFeature1">Večjezična podpora (slovenščina, angleščina, srbščina)</li>
+                        <li data-translate="techFeature2">Odzivna zasnova za vse naprave</li>
+                        <li data-translate="techFeature3">Realno-časovni podatki z Firebase tehnologijo</li>
+                        <li data-translate="techFeature4">Varno shranjevanje podatkov</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="visionTitle">4. Naša vizija</h2>
+                    <p data-translate="visionText">Želimo postati vodilna platforma za iskanje prevozov v Sloveniji in sosednjih državah. Naš cilj je:</p>
+                    <ul>
+                        <li data-translate="vision1">Zmanjšati stroške prevoza za vse uporabnike</li>
+                        <li data-translate="vision2">Prispevati k zmanjšanju prometa in emisij CO2</li>
+                        <li data-translate="vision3">Ustvariti zaupanja vredno skupnost uporabnikov</li>
+                        <li data-translate="vision4">Neprestano izboljševati uporabniško izkušnjo</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="safetyCommitmentTitle">5. Zaveza varnosti</h2>
+                    <p data-translate="safetyCommitmentText">Varnost naših uporabnikov je naša prednostna naloga:</p>
+                    <ul>
+                        <li data-translate="safetyCommitment1">Vsi uporabniki morajo biti registrirani z verificirano e-pošto</li>
+                        <li data-translate="safetyCommitment2">Spodbujamo uporabnike k preverjanju voznikov/sopotnikov</li>
+                        <li data-translate="safetyCommitment3">Zagotavljamo jasne smernice za varen prevoz</li>
+                        <li data-translate="safetyCommitment4">Omogočamo prijavo neprimernega vedenja</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="communityTitle">6. Skupnost</h2>
+                    <p data-translate="communityText">FURA ni le tehnična platforma, ampak skupnost ljudi, ki:</p>
+                    <ul>
+                        <li data-translate="community1">Si delijo stroške in zmanjšujejo okoljski vpliv</li>
+                        <li data-translate="community2">Spoštujejo drug drugega in vozila</li>
+                        <li data-translate="community3">Pomagajo pri ustvarjanju zaupanja vrednega okolja</li>
+                        <li data-translate="community4">Prispevajo k boljši prihodnosti prometa</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="supportTitle">7. Podpora</h2>
+                    <p data-translate="supportText">Naša ekipa je vedno pripravljena pomagati:</p>
+                    <ul>
+                        <li data-translate="support1">Tehnična podpora preko e-pošte</li>
+                        <li data-translate="support2">Odgovori na pogosta vprašanja</li>
+                        <li data-translate="support3">Pomoč pri uporabi platforme</li>
+                        <li data-translate="support4">Reševanje sporov med uporabniki</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="contactAboutTitle">8. Kontakt</h2>
+                    <p data-translate="contactAboutText">Želite izvedeti več ali potrebujete pomoč?</p>
+                    <p><strong>E-pošta:</strong> <a href="mailto:info@fura.si">info@fura.si</a></p>
+                    <p><strong data-translate="technicalSupport">Tehnična podpora:</strong> <a href="mailto:support@fura.si">support@fura.si</a></p>
+                    <p><strong data-translate="businessInquiries">Poslovna vprašanja:</strong> <a href="mailto:business@fura.si">business@fura.si</a></p>
+                </section>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FURA</h3>
+                    <p data-translate="footerDescription">Platforma za iskanje in nudenje prevozov po Sloveniji in sosednjih državah.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-translate="legalTitle">Pravne informacije</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" data-translate="privacyPolicy">Pravilnik o zasebnosti</a></li>
+                        <li><a href="terms-conditions.html" data-translate="termsConditions">Splošni pogoji</a></li>
+                        <li><a href="about.html" data-translate="about">O nas</a></li>
+                        <li><a href="contact.html" data-translate="contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

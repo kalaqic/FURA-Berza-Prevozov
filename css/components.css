@@ -50,39 +50,104 @@
     background-color: var(--primary-color);
 }
 
-/* Results Table */
+/* Results Table - Modern Clean Design */
 .results-table {
     width: 100%;
-    border-radius: var(--border-radius);
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 30px;
 }
 
-.results-table th {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    text-align: left;
-    padding: 15px;
-}
-
-.results-table tr {
-    background-color: #F1F8FF;
-    transition: var(--transition);
-}
-
-.results-table tr:nth-child(odd) {
-    background-color: #E3EEFF;
-}
-
-.results-table tr:hover {
-    background-color: #D4E5FF;
-}
-
+.results-table th,
 .results-table td {
-    padding: 15px;
-    border-bottom: 1px solid #DDD;
+    padding: 18px 20px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Header styling - Clean gradient */
+.results-table th {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white !important;
+    font-weight: 400;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+/* Body rows - Minimal clean styling */
+.results-table tbody tr {
+    background: white;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.results-table tbody tr:hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove zebra striping for cleaner look */
+.results-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Column widths - Optimized spacing */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1) {
+    width: 22%;
+    font-weight: 500;
+}
+
+.results-table th:nth-child(2),
+.results-table td:nth-child(2) {
+    width: 22%;
+    font-weight: 500;
+}
+
+.results-table td:nth-child(3) {
+    width: 12%;
+    color: #64748b;
+}
+
+.results-table th:nth-child(3) {
+    width: 12%;
+    color: white !important;
+}
+
+.results-table td:nth-child(4) {
+    width: 10%;
+    color: #64748b;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.results-table th:nth-child(4) {
+    width: 10%;
+    color: white !important;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.results-table td:nth-child(5) {
+    width: 20%;
+    color: #475569;
+    font-weight: 500;
+}
+
+.results-table th:nth-child(5) {
+    width: 20%;
+    color: white !important;
+    font-weight: 400;
+}
+
+.results-table th:nth-child(6),
+.results-table td:nth-child(6) {
+    width: 14%;
 }
 
 .info-btn {
@@ -103,13 +168,21 @@
     background-color: var(--secondary-color);
 }
 
-.vehicle-icon {
-    display: flex;
-    align-items: center;
+td.vehicle-icon {
+    text-align: center;
+    padding: 18px 20px;
 }
 
-.vehicle-icon svg {
+.vehicle-icon-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.vehicle-icon-content svg {
     margin-right: 5px;
+    flex-shrink: 0;
 }
 
 /* Toggle Switch */
@@ -443,4 +516,62 @@
 
 .form-group {
     position: relative;
+}
+
+/* Custom dropdown styling */
+.country-select, .city-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: white;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.country-select:focus, .city-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Style for disabled city dropdown */
+.city-select:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* Option styling */
+.country-select option, .city-select option {
+    color: var(--text-dark);
+    background: white;
+    padding: 8px;
+}
+
+.country-select option:disabled, .city-select option:disabled {
+    color: #999;
+    background: #f5f5f5;
+}
+
+/* Hover effect for modern browsers */
+.country-select:hover, .city-select:hover {
+    border-color: var(--primary-color);
+}
+
+/* Theme-specific focus styles */
+.looking-mode .country-select:focus, .looking-mode .city-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(232, 126, 56, 0.1);
+}
+
+.offering-mode .country-select:focus, .offering-mode .city-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.1);
 }

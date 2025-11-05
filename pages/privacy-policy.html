@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pravilnik o zasebnosti - FURA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Translation System -->
+    <script src="../js/translations.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">FURA</a>
+                <div class="nav-right">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <span class="flag-icon">🇸🇮</span>
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <span class="flag-icon">🇬🇧</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <span class="flag-icon">🇷🇸</span>
+                                <span>Српски</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToHome">Nazaj na domačo</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="legal-content" style="padding: 20px;">
+                <h1 data-translate="privacyPolicyTitle">Pravilnik o zasebnosti</h1>
+                <p class="last-updated" data-translate="lastUpdated">Nazadnje posodobljeno: 1. december 2024</p>
+                
+                <section>
+                    <h2 data-translate="introductionTitle">1. Uvod</h2>
+                    <p data-translate="introductionText">FURA ("mi", "nas", "naš") spoštuje vašo zasebnost in je zavezana k zaščiti vaših osebnih podatkov. Ta pravilnik o zasebnosti vas obvešča o tem, kako zbiramo, uporabljamo in varovamo vaše podatke, ko uporabljate našo platformo za iskanje in nudenje prevozov.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="dataCollectionTitle">2. Katere podatke zbiramo</h2>
+                    <h3 data-translate="registrationDataTitle">2.1 Podatki ob registraciji</h3>
+                    <ul>
+                        <li data-translate="registrationDataItem1">Ime in priimek</li>
+                        <li data-translate="registrationDataItem2">E-poštni naslov</li>
+                        <li data-translate="registrationDataItem3">Uporabniško ime</li>
+                        <li data-translate="registrationDataItem4">Telefonska številka</li>
+                        <li data-translate="registrationDataItem5">Geslo (šifrirano)</li>
+                    </ul>
+                    
+                    <h3 data-translate="rideDataTitle">2.2 Podatki o prevozih</h3>
+                    <ul>
+                        <li data-translate="rideDataItem1">Lokacije odhoda in prihoda</li>
+                        <li data-translate="rideDataItem2">Datum in čas prevoza</li>
+                        <li data-translate="rideDataItem3">Informacije o vozilu (tip, dimenzije)</li>
+                        <li data-translate="rideDataItem4">Opis prevoza</li>
+                        <li data-translate="rideDataItem5">Cenovne informacije</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="dataUsageTitle">3. Kako uporabljamo vaše podatke</h2>
+                    <ul>
+                        <li data-translate="dataUsageItem1">Za omogočanje registracije in prijave v sistem</li>
+                        <li data-translate="dataUsageItem2">Za objavljanje in iskanje prevozov</li>
+                        <li data-translate="dataUsageItem3">Za komunikacijo med uporabniki glede prevozov</li>
+                        <li data-translate="dataUsageItem4">Za varnost in zaščito platforme</li>
+                        <li data-translate="dataUsageItem5">Za izboljšanje naših storitev</li>
+                        <li data-translate="dataUsageItem6">Za pošiljanje verifikacijskih e-poštnih sporočil</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="dataSharingTitle">4. Deljenje podatkov</h2>
+                    <p data-translate="dataSharingText"><strong>Ne prodajamo vaših podatkov tretjim osebam.</strong> Vaši podatki se delijo samo:</p>
+                    <ul>
+                        <li data-translate="dataSharingItem1">Z drugimi uporabniki, ko objavite prevoz (ime, telefon, e-pošta za komunikacijo)</li>
+                        <li data-translate="dataSharingItem2">S ponudniki storitev, ki nam pomagajo delovati (npr. Firebase, EmailJS)</li>
+                        <li data-translate="dataSharingItem3">Ko to zahteva zakonodaja</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="dataSecurityTitle">5. Varnost podatkov</h2>
+                    <p data-translate="dataSecurityText">Uporabljamo Firebase za varno shranjevanje podatkov z naslednjimi varnostnimi ukrepi:</p>
+                    <ul>
+                        <li data-translate="dataSecurityItem1">Šifriranje podatkov med prenosom (HTTPS)</li>
+                        <li data-translate="dataSecurityItem2">Šifriranje gesell</li>
+                        <li data-translate="dataSecurityItem3">Varnostna pravila Firebase</li>
+                        <li data-translate="dataSecurityItem4">Redne varnostne posodobitve</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="userRightsTitle">6. Vaše pravice</h2>
+                    <p data-translate="userRightsText">Imate pravico do:</p>
+                    <ul>
+                        <li data-translate="userRightsItem1">Dostopa do svojih podatkov</li>
+                        <li data-translate="userRightsItem2">Popravka netočnih podatkov</li>
+                        <li data-translate="userRightsItem3">Brisanja svojega računa in podatkov</li>
+                        <li data-translate="userRightsItem4">Prenosa podatkov</li>
+                        <li data-translate="userRightsItem5">Ugovora obdelavi podatkov</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="cookiesTitle">7. Piškotki</h2>
+                    <p data-translate="cookiesText">Uporabljamo lokalno shranjevanje (localStorage) za:</p>
+                    <ul>
+                        <li data-translate="cookiesItem1">Shranjevanje jezikovnih nastavitev</li>
+                        <li data-translate="cookiesItem2">Začasno shranjevanje podatkov za verifikacijo e-pošte</li>
+                        <li data-translate="cookiesItem3">Izboljšanje uporabniške izkušnje</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 data-translate="dataRetentionTitle">8. Hramber podatkov</h2>
+                    <p data-translate="dataRetentionText">Vaše podatke hranimo, dokler je vaš račun aktiven. Po brisanju računa so podatki trajno odstranjeni v 30 dneh.</p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="contactTitle">9. Kontakt</h2>
+                    <p data-translate="contactText">Za vprašanja o zasebnosti nas kontaktirajte na:</p>
+                    <p><strong>E-pošta:</strong> <a href="mailto:privacy@fura.si">privacy@fura.si</a></p>
+                </section>
+                
+                <section>
+                    <h2 data-translate="changesTitle">10. Spremembe pravilnika</h2>
+                    <p data-translate="changesText">Pridržujemo si pravico do posodobitve tega pravilnika. O spremembah vas bomo obvestili preko e-pošte ali na platformi.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FURA</h3>
+                    <p data-translate="footerDescription">Platforma za iskanje in nudenje prevozov po Sloveniji in sosednjih državah.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-translate="legalTitle">Pravne informacije</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy-policy.html" data-translate="privacyPolicy">Pravilnik o zasebnosti</a></li>
+                        <li><a href="terms-conditions.html" data-translate="termsConditions">Splošni pogoji</a></li>
+                        <li><a href="about.html" data-translate="about">O nas</a></li>
+                        <li><a href="contact.html" data-translate="contact">Kontakt</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
