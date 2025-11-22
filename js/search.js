@@ -3,7 +3,7 @@
  * Updated to work with Firestore
  */
 
-// Main search function with exact and approximate matching
+// Main search function
 async function performSearch() {
   try {
     console.log('Performing search');
@@ -15,29 +15,63 @@ async function performSearch() {
     const searchParams = getSearchParameters();
     console.log('Search parameters:', searchParams);
     
-    // Get all rides from Firestore
-    const allRides = await getAllRidesFromFirebase();
-    console.log(`Retrieved ${allRides.length} total rides from database`);
+    // Get filtered rides from Firestore (with basic optimization)
+    const allRides = await getOptimizedRidesFromFirebase(searchParams);
+    console.log(`Retrieved ${allRides.length} rides from database`);
     
-    // Process exact and approximate matches in parallel
-    const [exactMatches, approximateMatches] = await Promise.all([
-      processExactMatches(allRides, searchParams),
-      processApproximateMatches(allRides, searchParams)
-    ]);
+    // Debug: Show some details about retrieved rides
+    if (allRides.length > 0) {
+      console.log('First few rides:', allRides.slice(0, 3).map(ride => ({
+        id: ride.id,
+        from: `${ride.fromCity}, ${ride.fromCountry}`,
+        to: `${ride.toCity}, ${ride.toCountry}`,
+        type: ride.type
+      })));
+    } else {
+      console.log('No rides retrieved from database at all');
+    }
+    
+    // Process exact matches first
+    const exactMatches = await processExactMatches(allRides, searchParams);
     
     console.log(`Found ${exactMatches.length} exact matches`);
-    console.log(`Found ${approximateMatches.length} approximate matches`);
     
-    // Remove duplicates between exact and approximate matches
-    const uniqueApproximateMatches = removeDuplicateMatches(exactMatches, approximateMatches);
+    // Debug: Show which rides were filtered out
+    if (allRides.length > 0 && exactMatches.length === 0) {
+      console.log('DEBUG: No exact matches found. Checking why...');
+      allRides.slice(0, 3).forEach((ride, index) => {
+        console.log(`Ride ${index + 1}:`, {
+          from: `${ride.fromCity}, ${ride.fromCountry}`,
+          to: `${ride.toCity}, ${ride.toCountry}`,
+          type: ride.type,
+          searchingFor: `${searchParams.fromCity}, ${searchParams.fromCountry} → ${searchParams.toCity}, ${searchParams.toCountry}`,
+          rideTypeFilter: searchParams.rideType
+        });
+      });
+    }
+    
+    // If we have fewer than 4 results AND specific search criteria, search for nearby cities
+    let nearbyMatches = [];
+    const hasSearchCriteria = searchParams.fromCity && searchParams.toCity && 
+                              searchParams.fromCountry && searchParams.toCountry;
+    
+    if (exactMatches.length < 4 && hasSearchCriteria) {
+      nearbyMatches = await findNearbyMatches(allRides, searchParams, exactMatches);
+      console.log(`Found ${nearbyMatches.length} nearby matches`);
+    }
     
     // Sort results
     const sortOption = getSortOption();
     const sortedExactMatches = sortResults(exactMatches, sortOption);
-    const sortedApproximateMatches = sortResults(uniqueApproximateMatches, sortOption);
+    const sortedNearbyMatches = sortResults(nearbyMatches, sortOption);
     
-    // Update UI with results
-    updateSearchResultsUI(sortedExactMatches, sortedApproximateMatches);
+    // Update UI with results - use appropriate function based on whether we have search criteria
+    if (hasSearchCriteria || nearbyMatches.length > 0) {
+      updateSearchResultsWithNearby(sortedExactMatches, sortedNearbyMatches, searchParams);
+    } else {
+      // No specific search criteria, use standard results display
+      updateSearchResults(sortedExactMatches);
+    }
     
     // Scroll to results
     scrollToResults();
@@ -67,10 +101,15 @@ function getSearchParameters() {
     const activeTab = document.querySelector('.tab-btn.active');
     const rideType = activeTab ? activeTab.getAttribute('data-tab') : 'all';
     
-    const fromCountry = document.querySelector('#fromCountry').value;
-    const toCountry = document.querySelector('#toCountry').value;
-    const fromCity = document.querySelector('#fromCity').value;
-    const toCity = document.querySelector('#toCity').value;
+    const fromCountryEl = document.querySelector('#fromCountry');
+    const toCountryEl = document.querySelector('#toCountry');
+    const fromCityEl = document.querySelector('#fromCity');
+    const toCityEl = document.querySelector('#toCity');
+    
+    const fromCountry = fromCountryEl ? fromCountryEl.value : '';
+    const toCountry = toCountryEl ? toCountryEl.value : '';
+    const fromCity = fromCityEl ? fromCityEl.value : '';
+    const toCity = toCityEl ? toCityEl.value : '';
     
   // Get date and time from the date picker button text
   let dateTime = null;
@@ -87,6 +126,8 @@ function getSearchParameters() {
   let vehicleType = '';
   let vehicleSize = '';
   let refrigerated = false;
+  let maxDistance = 100;
+  let timeTolerance = 2;
   
   const vehicleTypeSelect = document.getElementById('vehicleTypeFilter');
   if (vehicleTypeSelect) {
@@ -106,6 +147,18 @@ function getSearchParameters() {
     console.log('Refrigerated filter:', refrigerated);
   }
   
+  const maxDistanceSelect = document.getElementById('maxDistanceFilter');
+  if (maxDistanceSelect) {
+    maxDistance = parseInt(maxDistanceSelect.value) || 100;
+    console.log('Max distance filter:', maxDistance);
+  }
+  
+  const timeToleranceSelect = document.getElementById('timeToleranceFilter');
+  if (timeToleranceSelect) {
+    timeTolerance = parseInt(timeToleranceSelect.value) || 2;
+    console.log('Time tolerance filter:', timeTolerance);
+  }
+  
   return {
     rideType,
     fromCountry,
@@ -115,7 +168,9 @@ function getSearchParameters() {
     dateTime,
     vehicleType,
     vehicleSize,
-    refrigerated
+    refrigerated,
+    maxDistance,
+    timeTolerance
   };
 }
 
@@ -126,37 +181,74 @@ function processExactMatches(allRides, searchParams) {
       console.log('Starting with', exactResults.length, 'rides');
       console.log('Search params:', searchParams);
       
+      // Debug: Show some example rides before filtering
+      if (exactResults.length > 0) {
+        console.log('Example rides before filtering:', exactResults.slice(0, 2).map(ride => ({
+          from: `${ride.fromCity}, ${ride.fromCountry}`,
+          to: `${ride.toCity}, ${ride.toCountry}`,
+          type: ride.type
+        })));
+      }
+      
       // Filter by ride type if not "all"
-  if (searchParams.rideType !== 'all') {
-    exactResults = exactResults.filter(ride => ride.type === searchParams.rideType);
+      if (searchParams.rideType !== 'all') {
+        exactResults = exactResults.filter(ride => ride.type === searchParams.rideType);
         console.log('After ride type filter:', exactResults.length, 'rides');
       }
       
       // Filter by countries
-  if (searchParams.fromCountry) {
-        exactResults = exactResults.filter(ride => 
-      ride.fromCountry && ride.fromCountry.toLowerCase() === searchParams.fromCountry.toLowerCase());
+      if (searchParams.fromCountry) {
+        console.log('Filtering by from country:', searchParams.fromCountry);
+        const beforeCount = exactResults.length;
+        exactResults = exactResults.filter(ride => {
+          const match = ride.fromCountry && ride.fromCountry.toLowerCase() === searchParams.fromCountry.toLowerCase();
+          if (!match && beforeCount > 0) {
+            console.log('Country mismatch - Ride from country:', ride.fromCountry, 'vs search:', searchParams.fromCountry);
+          }
+          return match;
+        });
         console.log('After from country filter:', exactResults.length, 'rides');
       }
       
-  if (searchParams.toCountry) {
-        exactResults = exactResults.filter(ride => 
-      ride.toCountry && ride.toCountry.toLowerCase() === searchParams.toCountry.toLowerCase());
+      if (searchParams.toCountry) {
+        console.log('Filtering by to country:', searchParams.toCountry);
+        const beforeCount = exactResults.length;
+        exactResults = exactResults.filter(ride => {
+          const match = ride.toCountry && ride.toCountry.toLowerCase() === searchParams.toCountry.toLowerCase();
+          if (!match && beforeCount > 0) {
+            console.log('Country mismatch - Ride to country:', ride.toCountry, 'vs search:', searchParams.toCountry);
+          }
+          return match;
+        });
         console.log('After to country filter:', exactResults.length, 'rides');
       }
       
       // Filter by cities (exact match)
-  if (searchParams.fromCity) {
-        exactResults = exactResults.filter(ride => 
-      ride.fromCity && ride.fromCity.toLowerCase() === searchParams.fromCity.toLowerCase());
+      if (searchParams.fromCity) {
+        console.log('Filtering by from city:', searchParams.fromCity);
+        const beforeCount = exactResults.length;
+        exactResults = exactResults.filter(ride => {
+          const match = ride.fromCity && ride.fromCity.toLowerCase() === searchParams.fromCity.toLowerCase();
+          if (!match && beforeCount > 0) {
+            console.log('City mismatch - Ride from city:', ride.fromCity, 'vs search:', searchParams.fromCity);
+          }
+          return match;
+        });
         console.log('After from city filter:', exactResults.length, 'rides');
       }
       
-  if (searchParams.toCity) {
-        exactResults = exactResults.filter(ride => 
-      ride.toCity && ride.toCity.toLowerCase() === searchParams.toCity.toLowerCase());
+      if (searchParams.toCity) {
+        console.log('Filtering by to city:', searchParams.toCity);
+        const beforeCount = exactResults.length;
+        exactResults = exactResults.filter(ride => {
+          const match = ride.toCity && ride.toCity.toLowerCase() === searchParams.toCity.toLowerCase();
+          if (!match && beforeCount > 0) {
+            console.log('City mismatch - Ride to city:', ride.toCity, 'vs search:', searchParams.toCity);
+          }
+          return match;
+        });
         console.log('After to city filter:', exactResults.length, 'rides');
-  }
+      }
   
   // Date filter
   if (searchParams.dateTime) {
@@ -213,23 +305,9 @@ function processExactMatches(allRides, searchParams) {
   return exactResults;
 }
 
-// Process approximate matches
-async function processApproximateMatches(allRides, searchParams) {
-  // Only search for approximate matches if we have enough location data
-  if (searchParams.fromCountry && searchParams.fromCity && searchParams.toCountry && searchParams.toCity) {
-    return await findApproximateRidesSimple(allRides, searchParams.fromCountry, searchParams.fromCity, searchParams.toCountry, searchParams.toCity);
-  }
-  return [];
-}
+// Removed approximate matching functionality
 
-// Remove duplicates between exact and approximate matches
-function removeDuplicateMatches(exactMatches, approximateMatches) {
-    if (approximateMatches.length > 0 && exactMatches.length > 0) {
-      const exactIds = new Set(exactMatches.map(ride => ride.id));
-    return approximateMatches.filter(ride => !exactIds.has(ride.id));
-  }
-  return approximateMatches;
-    }
+// Removed duplicate matching functionality
     
 // Get sort option
 function getSortOption() {
@@ -237,106 +315,93 @@ function getSortOption() {
   return sortSelect ? sortSelect.value : 'date-asc';
 }
 
-// Update search results UI
-function updateSearchResultsUI(exactMatches, approximateMatches) {
-    if (exactMatches.length > 0) {
-      if (approximateMatches.length > 0) {
-        // We have both exact and approximate matches
-        showCombinedResults(exactMatches, approximateMatches);
-      } else {
-        // We only have exact matches
-        updateSearchResults(exactMatches);
-      }
-    } else if (approximateMatches.length > 0) {
-      // We only have approximate matches
-      showApproximateResults(approximateMatches);
-    } else {
-      // No matches at all
-      showNoResultsMessage();
-  }
-}
-
-// New function to show combined results
-// Funkcija za prikaz kombiniranih rezultata
-function showCombinedResults(exactMatches, approximateMatches) {
-  // Store combined results for re-translation when language changes
-  const allResults = [...exactMatches, ...approximateMatches];
-  if (typeof storeSearchResults === 'function') {
-    storeSearchResults(allResults);
-  }
-  
-  // Get the results container
+// Update search results UI with both exact and nearby matches
+function updateSearchResultsWithNearby(exactMatches, nearbyMatches, searchParams) {
   const resultsTable = document.querySelector('.results-table tbody');
   const resultsCount = document.querySelector('.results-count');
   
-  if (!resultsTable) return;
-  
-  // Clear previous results
-  resultsTable.innerHTML = '';
-  
-  // Update results count
-  if (resultsCount) {
-    resultsCount.textContent = window.formatResultsCount 
-      ? window.formatResultsCount(exactMatches.length + approximateMatches.length, exactMatches.length, approximateMatches.length)
-      : `Prikazujem ${exactMatches.length + approximateMatches.length} prevozov (${exactMatches.length} točnih, ${approximateMatches.length} približnih)`;
+  if (!resultsTable || !resultsCount) {
+    console.error('Results table or count element not found');
+    return;
   }
   
-  // First add the exact matches
-  exactMatches.forEach(ride => {
-    addRideToResultsTable(ride, resultsTable, false);
-  });
+  // Clear existing results
+  resultsTable.innerHTML = '';
   
-  // Add a header row for approximate rides if we have any
-  if (approximateMatches.length > 0) {
+  const totalResults = exactMatches.length + nearbyMatches.length;
+  
+  // Update results count using existing formatResultsCount function
+  if (exactMatches.length > 0 && nearbyMatches.length > 0) {
+    resultsCount.textContent = window.formatResultsCount 
+      ? window.formatResultsCount(totalResults, exactMatches.length, nearbyMatches.length)
+      : `Prikazujem ${totalResults} prevozov (${exactMatches.length} točnih, ${nearbyMatches.length} bližnjih)`;
+  } else if (totalResults > 0) {
+    resultsCount.textContent = window.formatResultsCount 
+      ? window.formatResultsCount(totalResults)
+      : `Prikazujem ${totalResults} prevozov`;
+  } else {
+    resultsCount.textContent = window.formatResultsCount 
+      ? window.formatResultsCount(0)
+      : 'Prikazujem 0 prevozov';
+  }
+  
+  // Show exact matches first
+  if (exactMatches.length > 0) {
+    exactMatches.forEach(ride => {
+      addRideToTable(ride, resultsTable, false);
+    });
+  }
+  
+  // Show nearby matches if any
+  if (nearbyMatches.length > 0) {
+    // Add header for nearby results
     const headerRow = document.createElement('tr');
-    headerRow.className = 'approximate-header-row';
+    headerRow.className = 'nearby-header-row';
+    const nearbyHeaderText = window.translateText 
+      ? window.translateText('nearbyResultsHeader', { 
+          fromCity: searchParams.fromCity, 
+          toCity: searchParams.toCity,
+          count: nearbyMatches.length 
+        })
+      : `Prevoze v bližini (${nearbyMatches.length}) - od/do mest blizu ${searchParams.fromCity} ali ${searchParams.toCity}:`;
+    
     headerRow.innerHTML = `
-      <td colspan="6" style="text-align: center; padding: 10px; background-color: #f0f4ff; color: #5C6BC0; font-weight: bold;">
-        Dodatne fure v bližini vaše iskalne poti (${approximateMatches.length})
+      <td colspan="6" style="text-align: center; padding: 15px; background-color: #f8f9fa; color: #495057; font-weight: bold; border-top: 2px solid #dee2e6;">
+        ${nearbyHeaderText}
       </td>
     `;
     resultsTable.appendChild(headerRow);
     
-    // Then add the approximate matches
-    approximateMatches.forEach(ride => {
-      addRideToResultsTable(ride, resultsTable, true);
+    // Add nearby rides
+    nearbyMatches.forEach(ride => {
+      addRideToTable(ride, resultsTable, true);
     });
   }
   
-  // Add CSS for styling if not already added
-  if (!document.getElementById('combined-results-styles')) {
-    const style = document.createElement('style');
-    style.id = 'combined-results-styles';
-    style.innerHTML = `
-      .approximate-badge {
-        display: inline-block;
-        padding: 2px 5px;
-        background-color: #f0ad4e;
-        color: white;
-        border-radius: 4px;
-        font-size: 0.8em;
-        margin-left: 5px;
-        font-weight: bold;
-      }
-      
-      .approximate-ride {
-        background-color: #f0f4ff !important;
-      }
-      
-      .approximate-ride:hover {
-        background-color: #e1e7ff !important;
-      }
-      
-      .approximate-header-row {
-        background-color: #f0f4ff !important;
-      }
+  // If no results at all, show no results message
+  if (totalResults === 0) {
+    const noResultsText = window.translateText ? window.translateText('noResults') : 'Ni najdenih prevozov za to smer.';
+    const suggestionText = window.translateText ? window.translateText('noResultsSuggestion') : 'Poskusite z drugačnimi filtri ali preverite kasneje.';
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td colspan="6" style="text-align: center; padding: 30px;">
+        <div style="color: #666; font-size: 16px;">
+          <strong>${noResultsText}</strong><br>
+          <span style="font-size: 14px; margin-top: 10px; display: block;">
+            ${suggestionText}
+          </span>
+        </div>
+      </td>
     `;
-    document.head.appendChild(style);
+    resultsTable.appendChild(row);
   }
 }
 
-// Helper function to add a ride to results table
-function addRideToResultsTable(ride, resultsTable, isApproximate = false) {
+// Removed combined results functionality
+
+// Add a ride to the results table (handles both exact and nearby rides)
+function addRideToTable(ride, resultsTable, isNearby = false) {
   const tableRow = document.createElement('tr');
   
   // Add class based on ride type
@@ -346,15 +411,23 @@ function addRideToResultsTable(ride, resultsTable, isApproximate = false) {
     tableRow.classList.add('looking-ride');
   }
   
-  // If it's an approximate ride, add that class
-  if (isApproximate || ride.isApproximate) {
-    tableRow.classList.add('approximate-ride');
+  // Add nearby class if applicable
+  if (isNearby || ride.isNearby) {
+    tableRow.classList.add('nearby-ride');
   }
   
   // Add click handler to show details
   tableRow.addEventListener('click', function() {
-    showRideDetails(ride.id);
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+      window.showRideDetails(ride.id);
+    } else {
+      window.showLoginModal();
+      window.showLoginRequiredMessage();
+    }
   });
+  
+  tableRow.style.cursor = 'pointer';
   
   // Set ride type text and class
   const typeText = translateRideType(ride.type);
@@ -368,30 +441,102 @@ function addRideToResultsTable(ride, resultsTable, isApproximate = false) {
   const fromCountry = (ride.originalFromCountry || ride.fromCountry) ? translateCountry(ride.originalFromCountry || ride.fromCountry) : '';
   const toCity = ride.toCity || 'N/A';
   const toCountry = (ride.originalToCountry || ride.toCountry) ? translateCountry(ride.originalToCountry || ride.toCountry) : '';
-  // Extract only date part (no time) for the date column
+  
+  // Extract only date part for the date column
   let dateOnly = 'Ni datuma';
   if (ride.date) {
     dateOnly = formatDisplayDate(ride.date);
   } else if (ride.formattedDate) {
-    // If formattedDate contains time, extract just the date part
     dateOnly = ride.formattedDate.split(' ')[0] || ride.formattedDate;
   } else if (ride.displayDate) {
-    // If displayDate contains time, extract just the date part  
     dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
   }
+  
   const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
   
-  // Add info about approximate location if applicable
+  // Prepare location text with distance badges for nearby rides
   let fromLocationText = `${fromCity}${fromCountry ? ', ' + fromCountry : ''}`;
   let toLocationText = `${toCity}${toCountry ? ', ' + toCountry : ''}`;
   
-  if (isApproximate || ride.isApproximate) {
-    if (ride.approximateType === 'departure' || ride.approximateType === 'both') {
-      fromLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
+  if (isNearby || ride.isNearby) {
+    const maxDistance = 200; // Same as in findNearbyMatches
+    
+    // Determine which distances to show based on match type
+    let showFromDistance = false;
+    let showToDistance = false;
+    
+    if (ride.nearbyType) {
+      switch (ride.nearbyType) {
+        case 'same_from':
+          // Same from city, show distance to destination if within limit
+          showToDistance = ride.toDistance !== undefined && ride.toDistance > 0 && ride.toDistance <= maxDistance;
+          break;
+        case 'same_to':
+          // Same to city, show distance from origin if within limit
+          showFromDistance = ride.fromDistance !== undefined && ride.fromDistance > 0 && ride.fromDistance <= maxDistance;
+          break;
+        case 'same_from_near_to':
+          // Same from, nearby to - show to distance
+          showToDistance = ride.toDistance !== undefined && ride.toDistance > 0;
+          break;
+        case 'near_from_same_to':
+          // Nearby from, same to - show from distance
+          showFromDistance = ride.fromDistance !== undefined && ride.fromDistance > 0;
+          break;
+        case 'both_nearby':
+          // Both cities nearby - show both distances
+          showFromDistance = ride.fromDistance !== undefined && ride.fromDistance > 0;
+          showToDistance = ride.toDistance !== undefined && ride.toDistance > 0;
+          break;
+        case 'from_nearby':
+          // Only from is nearby
+          showFromDistance = ride.fromDistance !== undefined && ride.fromDistance > 0;
+          break;
+        case 'to_nearby':
+          // Only to is nearby
+          showToDistance = ride.toDistance !== undefined && ride.toDistance > 0;
+          break;
+        default:
+          // Default behavior - show distances if within radius and not exact
+          showFromDistance = ride.fromDistance !== undefined && ride.fromDistance <= maxDistance && ride.fromDistance > 0;
+          showToDistance = ride.toDistance !== undefined && ride.toDistance <= maxDistance && ride.toDistance > 0;
+      }
+    } else {
+      // Fallback for rides without nearbyType
+      showFromDistance = ride.fromDistance !== undefined && ride.fromDistance <= maxDistance && ride.fromDistance > 0;
+      showToDistance = ride.toDistance !== undefined && ride.toDistance <= maxDistance && ride.toDistance > 0;
     }
     
-    if (ride.approximateType === 'destination' || ride.approximateType === 'both') {
-      toLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
+    // Debug logging
+    console.log(`🎯 Displaying ride: ${ride.fromCity} → ${ride.toCity}, nearbyType: ${ride.nearbyType}`);
+    console.log(`  fromDistance: ${ride.fromDistance}km, toDistance: ${ride.toDistance}km`);
+    console.log(`  maxDistance limit: ${maxDistance}km`);
+    console.log(`  showFromDistance: ${showFromDistance}, showToDistance: ${showToDistance}`);
+    
+    // Show from distance badge if applicable
+    if (showFromDistance) {
+      const fromTooltip = window.translateText 
+        ? window.translateText('distanceTooltip', { 
+            distance: Math.round(ride.fromDistance), 
+            searchCity: ride.searchFromCity 
+          })
+        : `${Math.round(ride.fromDistance)}km od iskane lokacije ${ride.searchFromCity}`;
+      
+      fromLocationText += ` <span class="distance-badge" title="${fromTooltip}">${Math.round(ride.fromDistance)}km</span>`;
+      console.log(`  Added FROM distance badge: ${Math.round(ride.fromDistance)}km`);
+    }
+    
+    // Show to distance badge if applicable
+    if (showToDistance) {
+      const toTooltip = window.translateText 
+        ? window.translateText('distanceTooltip', { 
+            distance: Math.round(ride.toDistance), 
+            searchCity: ride.searchToCity 
+          })
+        : `${Math.round(ride.toDistance)}km od iskane lokacije ${ride.searchToCity}`;
+      
+      toLocationText += ` <span class="distance-badge" title="${toTooltip}">${Math.round(ride.toDistance)}km</span>`;
+      console.log(`  Added TO distance badge: ${Math.round(ride.toDistance)}km`);
     }
   }
   
@@ -409,74 +554,6 @@ function addRideToResultsTable(ride, resultsTable, isApproximate = false) {
   return tableRow;
 }
 
-// Helper function to add a ride to the results table
-function addRideToResults(ride, resultsTable) {
-  const tableRow = document.createElement('tr');
-  
-  // Add class based on ride type
-  if (ride.type === 'offering') {
-    tableRow.classList.add('offering-ride');
-  } else {
-    tableRow.classList.add('looking-ride');
-  }
-  
-  // Add click handler to show details
-  tableRow.addEventListener('click', function() {
-    showRideDetails(ride.id);
-  });
-  
-  // Set ride type text and class
-  const typeText = translateRideType(ride.type);
-  const typeClass = ride.type === 'offering' ? 'offering' : 'looking';
-  
-  // Format time with "Prilagodljivo" for rides without time
-  const timeDisplay = ride.formattedTime || ride.displayTime || translateFlexibleTime();
-  
-  // Ensure we have all required fields
-  const fromCity = ride.fromCity || 'N/A';
-  const fromCountry = (ride.originalFromCountry || ride.fromCountry) ? translateCountry(ride.originalFromCountry || ride.fromCountry) : '';
-  const toCity = ride.toCity || 'N/A';
-  const toCountry = (ride.originalToCountry || ride.toCountry) ? translateCountry(ride.originalToCountry || ride.toCountry) : '';
-  // Extract only date part (no time) for the date column
-  let dateOnly = 'Ni datuma';
-  if (ride.date) {
-    dateOnly = formatDisplayDate(ride.date);
-  } else if (ride.formattedDate) {
-    // If formattedDate contains time, extract just the date part
-    dateOnly = ride.formattedDate.split(' ')[0] || ride.formattedDate;
-  } else if (ride.displayDate) {
-    // If displayDate contains time, extract just the date part  
-    dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
-  }
-  const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
-  
-  // Add info about approximate location if applicable
-  let fromLocationText = `${fromCity}${fromCountry ? ', ' + fromCountry : ''}`;
-  let toLocationText = `${toCity}${toCountry ? ', ' + toCountry : ''}`;
-  
-  if (ride.isApproximate) {
-    if (ride.approximateType === 'departure' || ride.approximateType === 'both') {
-      fromLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
-    }
-    
-    if (ride.approximateType === 'destination' || ride.approximateType === 'both') {
-      toLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
-    }
-  }
-  
-  // Populate the row
-  tableRow.innerHTML = `
-    <td>${fromLocationText}</td>
-    <td>${toLocationText}</td>
-    <td>${dateOnly}</td>
-    <td>${timeDisplay}</td>
-    <td>${vehicleTypeDisplay}</td>
-    <td><div class="ride-type-badge ${typeClass}">${typeText}</div></td>
-  `;
-  
-  resultsTable.appendChild(tableRow);
-  return tableRow;
-}
 
 // Helper function to get all rides from Firestore
 async function getAllRidesFromFirestore() {
@@ -614,11 +691,24 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Initializing search functionality');
   initAdvancedSearch();
   
-  // Add event listener to search button
+  // Add event listener to search button with validation
   const searchBtn = document.querySelector('.search-btn');
   if (searchBtn) {
-      searchBtn.addEventListener('click', performSearch);
+      searchBtn.addEventListener('click', function(event) {
+        if (validateSearchCriteria()) {
+          performSearch();
+        } else {
+          event.preventDefault();
+          showSearchValidationMessage();
+        }
+      });
   }
+  
+  // Add validation listeners to form fields
+  setupValidationListeners();
+  
+  // Make validation function globally available
+  window.updateSearchButtonState = updateSearchButtonState;
   
   // Add event listeners to tabs for quick filtering
   const tabBtns = document.querySelectorAll('.tab-btn');
@@ -784,132 +874,12 @@ async function filterByType(type) {
       updateSearchResults(sortedRides);
   } catch (error) {
       console.error(`Error filtering rides by type ${type}:`, error);
-      alert(`Napaka pri filtriranju prevozov: ${error.message}`);
+      utils.showNotification(`Napaka pri filtriranju prevozov: ${error.message}`, 'error');
   }
 }
 
 
-// Function to display approximate results
-function showApproximateResults(approximateRides) {
-  // Get the results container
-  const resultsTable = document.querySelector('.results-table tbody');
-  const resultsCount = document.querySelector('.results-count');
-  
-  if (!resultsTable) return;
-  
-  // Clear previous results
-  resultsTable.innerHTML = '';
-  
-  // Add approximate header row
-  const headerRow = document.createElement('tr');
-  headerRow.innerHTML = `
-      <td colspan="6" style="text-align: center; padding: 10px; background-color: #fcf8e3; color: #8a6d3b; font-weight: bold;">
-          Nismo našli točnih prevozov za vašo pot. Prikazujemo približne prevoze v bližini.
-      </td>
-  `;
-  resultsTable.appendChild(headerRow);
-  
-  // Update results count
-  if (resultsCount) {
-      resultsCount.textContent = window.formatResultsCount ? window.formatResultsCount(approximateRides.length) : `Prikazujem ${approximateRides.length} približnih prevozov`;
-  }
-  
-  // Add each ride to the table
-  approximateRides.forEach(ride => {
-      const tableRow = document.createElement('tr');
-      
-      // Add class based on ride type
-      if (ride.type === 'offering') {
-          tableRow.classList.add('offering-ride');
-      } else {
-          tableRow.classList.add('looking-ride');
-      }
-      
-      // Add approximate class
-      tableRow.classList.add('approximate-ride');
-      
-      // Add click handler to show details
-      tableRow.addEventListener('click', function() {
-          showRideDetails(ride.id);
-      });
-      
-      // Set ride type text and class
-      const typeText = translateRideType(ride.type);
-      const typeClass = ride.type === 'offering' ? 'offering' : 'looking';
-      
-      // Format time with "Prilagodljivo" for rides without time
-      const timeDisplay = ride.formattedTime || ride.displayTime || translateFlexibleTime();
-      
-      // Ensure we have all required fields
-      const fromCity = ride.fromCity || 'N/A';
-      const fromCountry = (ride.originalFromCountry || ride.fromCountry) ? translateCountry(ride.originalFromCountry || ride.fromCountry) : '';
-      const toCity = ride.toCity || 'N/A';
-      const toCountry = (ride.originalToCountry || ride.toCountry) ? translateCountry(ride.originalToCountry || ride.toCountry) : '';
-      // Extract only date part (no time) for the date column
-  let dateOnly = 'Ni datuma';
-  if (ride.date) {
-    dateOnly = formatDisplayDate(ride.date);
-  } else if (ride.formattedDate) {
-    // If formattedDate contains time, extract just the date part
-    dateOnly = ride.formattedDate.split(' ')[0] || ride.formattedDate;
-  } else if (ride.displayDate) {
-    // If displayDate contains time, extract just the date part  
-    dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
-  }
-      const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
-      
-      // Add info about approximate location
-      let fromLocationText = `${fromCity}${fromCountry ? ', ' + fromCountry : ''}`;
-      let toLocationText = `${toCity}${toCountry ? ', ' + toCountry : ''}`;
-      
-      if (ride.approximateType === 'departure' || ride.approximateType === 'both') {
-          fromLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
-      }
-      
-      if (ride.approximateType === 'destination' || ride.approximateType === 'both') {
-          toLocationText += ` <span class="approximate-badge" title="Približno ${ride.approximateDistance.toFixed(1)}km od iskane lokacije">~${ride.approximateDistance.toFixed(1)}km</span>`;
-      }
-      
-      // Populate the row
-      tableRow.innerHTML = `
-          <td>${fromLocationText}</td>
-          <td>${toLocationText}</td>
-          <td>${dateOnly}</td>
-          <td>${timeDisplay}</td>
-          <td>${vehicleTypeDisplay}</td>
-          <td><div class="ride-type-badge ${typeClass}">${typeText}</div></td>
-      `;
-      
-      resultsTable.appendChild(tableRow);
-  });
-  
-  // Add CSS for approximate badges if not already added
-  if (!document.getElementById('approximate-styles')) {
-      const style = document.createElement('style');
-      style.id = 'approximate-styles';
-      style.innerHTML = `
-          .approximate-badge {
-              display: inline-block;
-              padding: 2px 5px;
-              background-color: #f0ad4e;
-              color: white;
-              border-radius: 4px;
-              font-size: 0.8em;
-              margin-left: 5px;
-              font-weight: bold;
-          }
-          
-          .approximate-ride {
-              background-color: #fcf8e3 !important;
-          }
-          
-          .approximate-ride:hover {
-              background-color: #f7f3d7 !important;
-          }
-      `;
-      document.head.appendChild(style);
-  }
-}
+// Removed approximate results functionality
 
 // Reset all filters and show all rides
 async function resetFilters() {
@@ -1022,7 +992,7 @@ async function resetFilters() {
       updateSearchResults(sortedRides);
   } catch (error) {
       console.error('Error resetting filters:', error);
-      alert('Napaka pri ponastavljanju filtrov: ' + error.message);
+      utils.showNotification('Napaka pri ponastavljanju filtrov: ' + error.message, 'error');
   }
 }
 
@@ -1118,8 +1088,13 @@ function updateSearchResults(results, shouldStore = true) {
   if (results.length === 0) {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td colspan="5" style="text-align: center; padding: 20px;">
-        Ni najdenih prevozov z izbranimi filtri.
+      <td colspan="6" style="text-align: center; padding: 30px;">
+        <div style="color: #666; font-size: 16px;">
+          <strong>Ni najdenih prevozov za to smer.</strong><br>
+          <span style="font-size: 14px; margin-top: 10px; display: block;">
+            Poskusite z drugačnimi filtri ali preverite kasneje.
+          </span>
+        </div>
       </td>
     `;
     resultsTable.appendChild(row);
@@ -1267,74 +1242,7 @@ function formatDisplayDate(dateStr) {
 
 // Function to show login required message
 function showLoginRequiredMessage() {
-  // Create a toast message or notification
-  const loginMessage = document.createElement('div');
-  loginMessage.className = 'login-message';
-  loginMessage.innerHTML = `
-      <div class="login-message-content">
-          Za ogled podrobnosti se morate prijaviti.
-          <span class="close-message">✕</span>
-      </div>
-  `;
-  
-  document.body.appendChild(loginMessage);
-  
-  // Add style for message
-  const style = document.createElement('style');
-  style.textContent = `
-      .login-message {
-          position: fixed;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: var(--primary-color);
-          color: white;
-          padding: 12px 20px;
-          border-radius: var(--border-radius);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 1000;
-          animation: slideUp 0.3s ease-out;
-      }
-      
-      .login-message-content {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-      }
-      
-      .close-message {
-          cursor: pointer;
-          font-weight: bold;
-      }
-      
-      @keyframes slideUp {
-          from {
-              opacity: 0;
-              transform: translate(-50%, 20px);
-          }
-          to {
-              opacity: 1;
-              transform: translate(-50%, 0);
-          }
-      }
-  `;
-  
-  document.head.appendChild(style);
-  
-  // Add event listener to close button
-  const closeBtn = loginMessage.querySelector('.close-message');
-  if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-          document.body.removeChild(loginMessage);
-      });
-  }
-  
-  // Automatically remove after 5 seconds
-  setTimeout(() => {
-      if (document.body.contains(loginMessage)) {
-          document.body.removeChild(loginMessage);
-      }
-  }, 5000);
+  utils.showNotification('Za ogled podrobnosti se morate prijaviti.', 'info');
 }
 
 // Set up optimized real-time updates for rides
@@ -1586,6 +1494,77 @@ function showErrorMessage(message) {
 }
 
 // Simple function to get all rides from Firebase
+// Optimized function to get rides with basic filtering at database level
+async function getOptimizedRidesFromFirebase(searchParams) {
+  try {
+    let query = firebase.firestore().collection('rides');
+    
+    // Add basic filtering at database level for performance
+    if (searchParams.rideType && searchParams.rideType !== 'all') {
+      query = query.where('type', '==', searchParams.rideType);
+      console.log('Applied database filter for ride type:', searchParams.rideType);
+    }
+    
+    // TEMPORARILY DISABLED: Date filtering - only get rides for today and future dates
+    // This helps reduce the dataset significantly
+    const today = new Date();
+    const todayString = today.getFullYear() + '-' + 
+                       String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(today.getDate()).padStart(2, '0');
+    
+    // query = query.where('date', '>=', todayString);
+    console.log('TEMP DISABLED: database filter for dates >= today:', todayString);
+    
+    // If searching for specific date, add upper bound for performance
+    if (searchParams.dateTime) {
+      const searchDateInfo = parseSearchDateTime(searchParams.dateTime);
+      if (searchDateInfo && searchDateInfo.date) {
+        // Add a range query for dates within 7 days of search date for approximate matching
+        const searchDate = new Date(searchDateInfo.date);
+        const endDate = new Date(searchDate);
+        endDate.setDate(searchDate.getDate() + 7);
+        const endDateString = endDate.getFullYear() + '-' + 
+                             String(endDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                             String(endDate.getDate()).padStart(2, '0');
+        
+        // query = query.where('date', '<=', endDateString);
+        console.log('TEMP DISABLED: database filter for dates <= search date + 7 days:', endDateString);
+      }
+    } else {
+      // If no specific date, limit to next 30 days for performance
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      const futureDateString = futureDate.getFullYear() + '-' + 
+                              String(futureDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(futureDate.getDate()).padStart(2, '0');
+      
+      // query = query.where('date', '<=', futureDateString);
+      console.log('TEMP DISABLED: database filter for dates <= next 30 days:', futureDateString);
+    }
+    
+    // Execute the query
+    const snapshot = await query.get();
+    const rides = [];
+    
+    snapshot.forEach(doc => {
+      rides.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    console.log(`Database optimization reduced dataset from all rides to ${rides.length} rides`);
+    return rides;
+    
+  } catch (error) {
+    console.error('Error getting optimized rides:', error);
+    // Fallback to getting all rides if optimized query fails
+    console.log('Falling back to getting all rides...');
+    return await getAllRidesFromFirebase();
+  }
+}
+
+// Fallback function to get all rides
 async function getAllRidesFromFirebase() {
   try {
     const snapshot = await firebase.firestore().collection('rides').get();
@@ -1603,144 +1582,330 @@ async function getAllRidesFromFirebase() {
   }
 }
 
-// Simplified function to find approximate rides
-async function findApproximateRidesSimple(allRides, fromCountry, fromCity, toCountry, toCity, maxDistance = 100) {
+// Removed approximate ride matching functionality
+
+// Find nearby city matches when there are fewer than 4 exact matches
+async function findNearbyMatches(allRides, searchParams, exactMatches) {
   try {
-    console.log('Finding approximate rides with params:', { fromCountry, fromCity, toCountry, toCity });
-    
-    // Make sure location data is available
-    if (!window.locationData || !window.locationData.cityCoordinates) {
-      console.error('Location data not available');
+    if (!window.locationData?.cityCoordinates) {
+      console.log('No coordinate data available for nearby search');
       return [];
     }
+
+    const searchFromCoords = getCoordinatesForCity(searchParams.fromCountry, searchParams.fromCity);
+    const searchToCoords = getCoordinatesForCity(searchParams.toCountry, searchParams.toCity);
     
-    // Check if we have coordinates for the cities
-    const haveFromCoords = window.locationData.cityCoordinates[fromCountry] && 
-                          window.locationData.cityCoordinates[fromCountry][fromCity];
-    
-    const haveToCoords = window.locationData.cityCoordinates[toCountry] && 
-                        window.locationData.cityCoordinates[toCountry][toCity];
-    
-    if (!haveFromCoords || !haveToCoords) {
-      console.error('Missing coordinates for cities:', { 
-        haveFromCoords, 
-        haveToCoords,
-        fromCity, 
-        fromCountry, 
-        toCity, 
-        toCountry 
-      });
+    if (!searchFromCoords || !searchToCoords) {
+      console.log('Could not get coordinates for search cities');
       return [];
     }
-    
-    const fromCoords = window.locationData.cityCoordinates[fromCountry][fromCity];
-    const toCoords = window.locationData.cityCoordinates[toCountry][toCity];
-    
-    console.log('Search coordinates:', { fromCoords, toCoords });
-    
-    // Check each ride to see if it's approximately what we're looking for
-    const approximateMatches = [];
-    
+
+    const nearbyMatches = [];
+    const exactIds = new Set(exactMatches.map(ride => ride.id));
+    const maxDistance = 200; // Max distance in km for nearby cities
+    const maxDistanceForSameCityMatches = 200; // Max distance for the other city in same-city matches
+
     for (const ride of allRides) {
-      // Skip if we don't have enough location data
-      if (!ride.fromCountry || !ride.fromCity || !ride.toCountry || !ride.toCity) {
+      // Skip exact matches and rides without required data
+      if (exactIds.has(ride.id) || !ride.fromCity || !ride.toCity || !ride.fromCountry || !ride.toCountry) {
         continue;
       }
-      
-      // Skip exact matches (these would have been shown already)
-      if (ride.fromCountry.toLowerCase() === fromCountry.toLowerCase() && 
-          ride.fromCity.toLowerCase() === fromCity.toLowerCase() &&
-          ride.toCountry.toLowerCase() === toCountry.toLowerCase() && 
-          ride.toCity.toLowerCase() === toCity.toLowerCase()) {
+
+      // Skip if ride type doesn't match filter
+      if (searchParams.rideType !== 'all' && ride.type !== searchParams.rideType) {
         continue;
       }
-      
-      // Check if we have coordinates for this ride's locations
-      const haveRideFromCoords = window.locationData.cityCoordinates[ride.fromCountry] && 
-                               window.locationData.cityCoordinates[ride.fromCountry][ride.fromCity];
-      
-      const haveRideToCoords = window.locationData.cityCoordinates[ride.toCountry] && 
-                             window.locationData.cityCoordinates[ride.toCountry][ride.toCity];
-      
-      if (!haveRideFromCoords || !haveRideToCoords) {
-        console.log('Missing coordinates for ride:', { 
-          rideId: ride.id,
-          fromCity: ride.fromCity, 
-          fromCountry: ride.fromCountry, 
-          toCity: ride.toCity, 
-          toCountry: ride.toCountry 
-        });
+
+      const rideFromCoords = getCoordinatesForCity(ride.fromCountry, ride.fromCity);
+      const rideToCoords = getCoordinatesForCity(ride.toCountry, ride.toCity);
+
+      if (!rideFromCoords || !rideToCoords) {
         continue;
       }
-      
-      const rideFromCoords = window.locationData.cityCoordinates[ride.fromCountry][ride.fromCity];
-      const rideToCoords = window.locationData.cityCoordinates[ride.toCountry][ride.toCity];
-      
+
       // Calculate distances
-      const fromDistance = window.locationData.calculateDistance(
-        fromCoords.lat, fromCoords.lng,
-        rideFromCoords.lat, rideFromCoords.lng
-      );
+      const fromDistance = calculateDistanceKm(searchFromCoords, rideFromCoords);
+      const toDistance = calculateDistanceKm(searchToCoords, rideToCoords);
       
-      const toDistance = window.locationData.calculateDistance(
-        toCoords.lat, toCoords.lng,
-        rideToCoords.lat, rideToCoords.lng
-      );
-      
-      console.log(`Ride ${ride.id} distances:`, { fromDistance, toDistance });
-      
-      // Check if either the FROM or TO location is within our distance threshold
-      let isApproximate = false;
-      let approximateType = '';
-      let approximateDistance = 0;
-      
-      // If FROM location matches exactly, but TO location is approximate
-      if (ride.fromCountry.toLowerCase() === fromCountry.toLowerCase() && 
-          ride.fromCity.toLowerCase() === fromCity.toLowerCase() && 
-          toDistance <= maxDistance) {
-        isApproximate = true;
-        approximateType = 'destination';
-        approximateDistance = toDistance;
+      // Debug high-distance rides that might be problematic
+      if (toDistance > 500 || fromDistance > 500) {
+        console.log(`🔍 Checking long-distance ride: ${ride.fromCity} → ${ride.toCity}`);
+        console.log(`  Search cities: ${searchParams.fromCity} → ${searchParams.toCity}`);
+        console.log(`  FROM distance: ${Math.round(fromDistance)}km, TO distance: ${Math.round(toDistance)}km`);
+        console.log(`  isExactFromMatch: ${fromDistance === 0}, isExactToMatch: ${toDistance === 0}`);
       }
-      // If TO location matches exactly, but FROM location is approximate
-      else if (ride.toCountry.toLowerCase() === toCountry.toLowerCase() && 
-               ride.toCity.toLowerCase() === toCity.toLowerCase() && 
-               fromDistance <= maxDistance) {
-        isApproximate = true;
-        approximateType = 'departure';
-        approximateDistance = fromDistance;
+
+      // Check for different types of matches:
+      // 1. Exact city matches (0km distance)
+      // 2. Nearby city matches (within maxDistance)
+      let matchType = null;
+      let relevantDistance = null;
+
+      const isExactFromMatch = fromDistance === 0; // Same from city
+      const isExactToMatch = toDistance === 0;     // Same to city
+      const isNearFromMatch = fromDistance <= maxDistance;
+      const isNearToMatch = toDistance <= maxDistance;
+
+      if (isExactFromMatch && isExactToMatch) {
+        // This would be an exact match, skip it (already processed)
+        continue;
+      } else if (isExactFromMatch && isNearToMatch) {
+        // Same FROM city, nearby TO city (e.g., Ljubljana → nearby Hamburg)
+        matchType = 'same_from_near_to';
+        relevantDistance = toDistance;
+      } else if (isNearFromMatch && isExactToMatch) {
+        // Nearby FROM city, same TO city (e.g., nearby Ljubljana → Hamburg)
+        matchType = 'near_from_same_to';
+        relevantDistance = fromDistance;
+      } else if (isExactFromMatch && toDistance <= maxDistanceForSameCityMatches) {
+        // Same FROM city, TO city within reasonable distance (e.g., Ljubljana → nearby destination)
+        matchType = 'same_from';
+        relevantDistance = toDistance;
+        console.log(`✓ same_from match: ${ride.fromCity} → ${ride.toCity} (TO distance: ${Math.round(toDistance)}km ≤ ${maxDistanceForSameCityMatches}km)`);
+      } else if (isExactToMatch && fromDistance <= maxDistanceForSameCityMatches) {
+        // FROM city within reasonable distance, same TO city (e.g., nearby origin → Hamburg)
+        matchType = 'same_to';
+        relevantDistance = fromDistance;
+        console.log(`✓ same_to match: ${ride.fromCity} → ${ride.toCity} (FROM distance: ${Math.round(fromDistance)}km ≤ ${maxDistanceForSameCityMatches}km)`);
+      } else if (isNearFromMatch && isNearToMatch) {
+        // Both cities are nearby
+        matchType = 'both_nearby';
+        relevantDistance = Math.max(fromDistance, toDistance);
+      } else if (isNearFromMatch && toDistance <= maxDistanceForSameCityMatches) {
+        // From city is nearby AND to city is within reasonable distance
+        matchType = 'from_nearby';
+        relevantDistance = fromDistance;
+        console.log(`✓ from_nearby match: ${ride.fromCity} → ${ride.toCity} (FROM: ${Math.round(fromDistance)}km, TO: ${Math.round(toDistance)}km ≤ ${maxDistanceForSameCityMatches}km)`);
+      } else if (isNearToMatch && fromDistance <= maxDistanceForSameCityMatches) {
+        // To city is nearby AND from city is within reasonable distance
+        matchType = 'to_nearby';
+        relevantDistance = toDistance;
+        console.log(`✓ to_nearby match: ${ride.fromCity} → ${ride.toCity} (FROM: ${Math.round(fromDistance)}km ≤ ${maxDistanceForSameCityMatches}km, TO: ${Math.round(toDistance)}km)`);
       }
-      // Both locations are approximate but within threshold
-      else if (fromDistance <= maxDistance && toDistance <= maxDistance) {
-        isApproximate = true;
-        approximateType = 'both';
-        approximateDistance = fromDistance + toDistance;
-      }
-      
-      if (isApproximate) {
-        approximateMatches.push({
-          ...ride,
-          isApproximate: true,
-          approximateType: approximateType,
-          approximateDistance: approximateDistance
-        });
+
+      if (matchType) {
+        console.log(`✓ Adding nearby match: ${ride.fromCity} → ${ride.toCity}`);
+        console.log(`  Search: ${searchParams.fromCity} → ${searchParams.toCity}`);
+        console.log(`  From distance: ${Math.round(fromDistance)}km, To distance: ${Math.round(toDistance)}km`);
+        console.log(`  Match type: ${matchType}`);
         
-        console.log(`Found approximate ride ${ride.id}:`, {
-          from: `${ride.fromCity}, ${ride.fromCountry}`,
-          to: `${ride.toCity}, ${ride.toCountry}`,
-          type: approximateType,
-          distance: approximateDistance
+        nearbyMatches.push({
+          ...ride,
+          isNearby: true,
+          nearbyType: matchType,
+          fromDistance: fromDistance,
+          toDistance: toDistance,
+          relevantDistance: relevantDistance,
+          searchFromCity: searchParams.fromCity,
+          searchToCity: searchParams.toCity
         });
+      } else {
+        // Log why this ride was rejected in more detail
+        const reasons = [];
+        if (isExactFromMatch && toDistance > maxDistanceForSameCityMatches) {
+          reasons.push(`same_from rejected: TO distance ${Math.round(toDistance)}km > ${maxDistanceForSameCityMatches}km`);
+        }
+        if (isExactToMatch && fromDistance > maxDistanceForSameCityMatches) {
+          reasons.push(`same_to rejected: FROM distance ${Math.round(fromDistance)}km > ${maxDistanceForSameCityMatches}km`);
+        }
+        if (isNearFromMatch && toDistance > maxDistanceForSameCityMatches) {
+          reasons.push(`from_nearby rejected: TO distance ${Math.round(toDistance)}km > ${maxDistanceForSameCityMatches}km`);
+        }
+        if (isNearToMatch && fromDistance > maxDistanceForSameCityMatches) {
+          reasons.push(`to_nearby rejected: FROM distance ${Math.round(fromDistance)}km > ${maxDistanceForSameCityMatches}km`);
+        }
+        if (!isNearFromMatch && !isExactFromMatch) {
+          reasons.push(`FROM distance: ${Math.round(fromDistance)}km > ${maxDistance}km`);
+        }
+        if (!isNearToMatch && !isExactToMatch) {
+          reasons.push(`TO distance: ${Math.round(toDistance)}km > ${maxDistance}km`);
+        }
+        
+        if (reasons.length > 0) {
+          console.log(`✗ Rejected: ${ride.fromCity} → ${ride.toCity} (${reasons.join(', ')})`);
+        } else {
+          console.log(`✗ Rejected: ${ride.fromCity} → ${ride.toCity} (no matching criteria)`);
+        }
+      }
+    }
+
+    // Sort by relevance (prioritize exact city matches, then by distance)
+    nearbyMatches.sort((a, b) => {
+      // Priority order:
+      // 1. Same from city (e.g., Ljubljana → anywhere)
+      // 2. Same to city (e.g., anywhere → Hamburg)  
+      // 3. Same from + near to
+      // 4. Near from + same to
+      // 5. Both nearby
+      // 6. Single nearby (from or to)
+      
+      const priority = {
+        'same_from': 1,
+        'same_to': 2,
+        'same_from_near_to': 3,
+        'near_from_same_to': 4,
+        'both_nearby': 5,
+        'from_nearby': 6,
+        'to_nearby': 6
+      };
+      
+      const aPriority = priority[a.nearbyType] || 10;
+      const bPriority = priority[b.nearbyType] || 10;
+      
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      
+      // Same priority, sort by distance
+      return a.relevantDistance - b.relevantDistance;
+    });
+
+    // Limit to reasonable number
+    return nearbyMatches.slice(0, 10);
+
+  } catch (error) {
+    console.error('Error finding nearby matches:', error);
+    return [];
+  }
+}
+
+// Helper function to get coordinates for a city
+function getCoordinatesForCity(country, city) {
+  try {
+    return window.locationData.cityCoordinates[country]?.[city] || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+// Helper function to calculate distance between two coordinate points
+function calculateDistanceKm(coords1, coords2) {
+  if (!coords1 || !coords2) return Infinity;
+  return window.locationData.calculateDistance(coords1.lat, coords1.lng, coords2.lat, coords2.lng);
+}
+
+// Validation functions
+function validateSearchCriteria() {
+  const fromCountryEl = document.querySelector('#fromCountry');
+  const toCountryEl = document.querySelector('#toCountry');
+  const fromCityEl = document.querySelector('#fromCity');
+  const toCityEl = document.querySelector('#toCity');
+  
+  const fromCountry = fromCountryEl ? fromCountryEl.value : '';
+  const toCountry = toCountryEl ? toCountryEl.value : '';
+  const fromCity = fromCityEl ? fromCityEl.value : '';
+  const toCity = toCityEl ? toCityEl.value : '';
+  
+  // Require both from and to locations to be filled
+  const hasFromLocation = fromCountry && fromCity;
+  const hasToLocation = toCountry && toCity;
+  
+  return hasFromLocation && hasToLocation;
+}
+
+function showSearchValidationMessage() {
+  const message = window.translateText 
+    ? window.translateText('searchValidationMessage')
+    : 'Prosimo izberite mesta "Od" in "Do" za iskanje prevoza.';
+    
+  // Create or update validation message
+  let messageEl = document.querySelector('.search-validation-message');
+  if (!messageEl) {
+    messageEl = document.createElement('div');
+    messageEl.className = 'search-validation-message';
+    
+    const searchButtons = document.querySelector('.search-buttons');
+    if (searchButtons) {
+      searchButtons.parentNode.insertBefore(messageEl, searchButtons);
+    }
+  }
+  
+  messageEl.innerHTML = `
+    <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; border: 1px solid #ffeaa7;">
+      <strong>⚠️ ${message}</strong>
+    </div>
+  `;
+  
+  // Hide message after 4 seconds
+  setTimeout(() => {
+    if (messageEl) {
+      messageEl.remove();
+    }
+  }, 4000);
+}
+
+function setupValidationListeners() {
+  const fields = ['#fromCountry', '#toCountry', '#fromCity', '#toCity'];
+  
+  fields.forEach(selector => {
+    const field = document.querySelector(selector);
+    if (field) {
+      // Listen to both change and input events for better coverage
+      field.addEventListener('change', updateSearchButtonState);
+      field.addEventListener('input', updateSearchButtonState);
+    }
+  });
+  
+  // Initial state check
+  updateSearchButtonState();
+}
+
+function updateSearchButtonState() {
+  const searchBtn = document.querySelector('.search-btn');
+  if (!searchBtn) return;
+  
+  const isValid = validateSearchCriteria();
+  
+  if (isValid) {
+    searchBtn.disabled = false;
+    searchBtn.style.opacity = '1';
+    searchBtn.style.cursor = 'pointer';
+    searchBtn.title = '';
+  } else {
+    searchBtn.disabled = true;
+    searchBtn.style.opacity = '0.5';
+    searchBtn.style.cursor = 'not-allowed';
+    searchBtn.title = window.translateText 
+      ? window.translateText('searchValidationTooltip')
+      : 'Izberi mesta za iskanje prevoza';
+  }
+}
+
+// Parse search date time (utility function)
+function parseSearchDateTime(dateTimeString) {
+  try {
+    if (dateTimeString.includes(' ob ')) {
+      const parts = dateTimeString.split(' ob ');
+      const dateParts = parts[0].split('.');
+      
+      if (dateParts.length === 3) {
+        const day = dateParts[0].padStart(2, '0');
+        const month = dateParts[1].padStart(2, '0');
+        const year = dateParts[2];
+        
+        return {
+          date: `${year}-${month}-${day}`,
+          time: parts[1]
+        };
+      }
+    } else {
+      const dateParts = dateTimeString.split('.');
+      if (dateParts.length === 3) {
+        const day = dateParts[0].padStart(2, '0');
+        const month = dateParts[1].padStart(2, '0');
+        const year = dateParts[2];
+        
+        return {
+          date: `${year}-${month}-${day}`,
+          time: null
+        };
       }
     }
     
-    // Sort by approximate distance
-    approximateMatches.sort((a, b) => a.approximateDistance - b.approximateDistance);
-    
-    return approximateMatches;
+    return null;
   } catch (error) {
-    console.error('Error finding approximate rides:', error);
-    return [];
+    console.warn('Error parsing date time:', error);
+    return null;
   }
 }
 

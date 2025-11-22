@@ -107,6 +107,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     fromCity.value = tempToCity;
                     toCity.value = tempFromCity;
+                    
+                    // Update search button validation state after swap
+                    if (typeof updateSearchButtonState === 'function') {
+                        updateSearchButtonState();
+                    }
                 }, 50);
             }
         });

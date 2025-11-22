@@ -30,9 +30,118 @@
     --light-panel: #F3F9FF;
 }
 
-/* Apply orange theme to body background when in looking mode */
+/* Custom Keyframe Animations for Tabs */
+@keyframes pulseOrange {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(232, 126, 56, 0.4), 0 0 0 0 rgba(232, 126, 56, 0.5);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(232, 126, 56, 0.4), 0 0 0 6px rgba(232, 126, 56, 0);
+    }
+}
+
+@keyframes pulseBlue {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4), 0 0 0 0 rgba(33, 150, 243, 0.5);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4), 0 0 0 6px rgba(33, 150, 243, 0);
+    }
+}
+
+@keyframes pulsePurple {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(92, 107, 192, 0.4), 0 0 0 0 rgba(92, 107, 192, 0.5);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(92, 107, 192, 0.4), 0 0 0 6px rgba(92, 107, 192, 0);
+    }
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateX(-100%) scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* Ripple effect on tab click */
+.tab-btn.active {
+    animation-duration: 0.6s;
+    animation-name: ripple;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 8px 25px rgba(92, 107, 192, 0.4);
+    }
+}
+
+/* Floating sparkles effect */
+.search-panel::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 20%;
+    left: 85%;
+    animation: sparkle 4s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: translateY(0) scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1);
+    }
+}
+
+@keyframes backgroundShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Apply orange theme to body background when in looking mode with animation */
 body.looking-mode {
-    background-color: var(--light-bg);
+    background: linear-gradient(135deg, #FFF3E0, #FFF8F0, #FFECB3);
+    background-size: 300% 300%;
+    animation: backgroundShift 10s ease-in-out infinite;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Orange theme for table headers in looking mode */
@@ -76,9 +185,12 @@ body.looking-mode {
 
 /* ========== OFFERING MODE (LIGHTER BLUE) STYLES ========== */
 
-/* Apply lighter blue theme to body background when in offering mode */
+/* Apply lighter blue theme to body background when in offering mode with animation */
 body.offering-mode {
-    background-color: var(--light-bg);
+    background: linear-gradient(135deg, #E3F2FD, #F3F9FF, #BBDEFB);
+    background-size: 300% 300%;
+    animation: backgroundShift 10s ease-in-out infinite;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Lighter blue theme for table headers in offering mode */
@@ -125,11 +237,14 @@ body.offering-mode {
 }
 
 body {
-    background-color: var(--light-bg);
+    background: linear-gradient(135deg, #E3F2FD, #F8FAFC, #E8EAF6);
+    background-size: 300% 300%;
+    animation: backgroundShift 12s ease-in-out infinite;
     color: var(--text-dark);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .container {
@@ -265,20 +380,26 @@ nav {
 
 /* Search Panel */
 .search-panel {
-    background-color: var(--light-panel);
-    border-radius: var(--border-radius);
-    padding: 30px;
-    margin: 30px 0;
-    box-shadow: var(--box-shadow);
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 1px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
 }
 
 .ride-type-tabs {
     display: flex;
     margin-bottom: 20px;
-    border-radius: var(--border-radius);
+    border-radius: 14px;
     overflow: hidden;
-    background-color: white;
-    box-shadow: var(--box-shadow);
+    background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+    padding: 4px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -301,38 +422,195 @@ nav {
 
 .tab-btn {
     flex: 1;
-    padding: 15px;
+    padding: 12px 16px;
     text-align: center;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    border-radius: 12px;
+    margin: 2px;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    z-index: 2;
 }
 
 .tab-btn.active[data-tab="looking"] {
-    background-color: var(--accent-color) !important;
+    background: linear-gradient(135deg, #E87E38, #FF9800, #FFA726) !important;
+    box-shadow: 0 8px 25px rgba(232, 126, 56, 0.5) !important;
+    animation: pulseOrange 2s infinite ease-in-out !important;
 }
 
 .tab-btn.active[data-tab="offering"] {
-    background-color:  var(--primary-color) !important; 
+    background: linear-gradient(135deg, #2196F3, #64B5F6, #90CAF9) !important;
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5) !important;
+    animation: pulseBlue 2s infinite ease-in-out !important;
 }
 
 .tab-btn.active[data-tab="all"] {
-    background-color: var(--primary-color) !important;
+    background: linear-gradient(135deg, #5C6BC0, #7986CB, #9575CD) !important;
+    box-shadow: 0 4px 15px rgba(92, 107, 192, 0.4) !important;
+    animation: pulsePurple 3s infinite ease-in-out !important;
 }
 
 
 .tab-btn.active {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
+    box-shadow: 0 8px 25px rgba(92, 107, 192, 0.4);
+    transform: scale(1.05) translateY(-2px);
+    z-index: 10;
 }
 
 .tab-btn:not(.active) {
-    background-color: white;
-    color: var(--text-dark);
+    background-color: transparent;
+    color: #64748b;
+    border: none;
+    transform: scale(0.95);
 }
 
 .tab-btn:not(.active):hover {
-    background-color: #E8EAF6;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+    color: var(--primary-color);
+    transform: scale(1) translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Add glowing border effect on hover */
+.tab-btn:not(.active):hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.6;
+    z-index: -1;
+}
+
+/* Dynamic background animation for search panel */
+.search-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        rgba(92, 107, 192, 0.05), 
+        rgba(232, 126, 56, 0.05), 
+        rgba(33, 150, 243, 0.05),
+        rgba(149, 117, 205, 0.05)
+    );
+    background-size: 400% 400%;
+    animation: backgroundShift 8s ease-in-out infinite;
+    border-radius: 20px;
+    z-index: -1;
+}
+
+/* Add floating particles effect for active tabs */
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 16px;
+    background: inherit;
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-3px) scale(1.02);
+    }
+}
+
+/* Special glow effect for active tabs */
+.tab-btn.active::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 20px;
+    padding: 4px;
+    background: inherit;
+    opacity: 0.4;
+    filter: blur(8px);
+    animation: glow 2s ease-in-out infinite alternate;
+    z-index: -2;
+}
+
+@keyframes glow {
+    0% {
+        opacity: 0.4;
+        transform: scale(0.98);
+    }
+    100% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+}
+
+/* Enhanced theme mode transitions */
+body.looking-mode .search-panel {
+    border: 2px solid rgba(232, 126, 56, 0.3);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.95));
+}
+
+body.offering-mode .search-panel {
+    border: 2px solid rgba(33, 150, 243, 0.3);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(243, 249, 255, 0.95));
+}
+
+/* FORCE REMOVE ALL SELECT DROPDOWN ARROWS */
+select,
+.country-select,
+.city-select,
+.input-field[type="select"],
+select.input-field {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 0 !important;
+}
+
+/* Target specific select IDs */
+#fromCountry,
+#toCountry, 
+#fromCity,
+#toCity,
+#vehicleTypeFilter,
+#vehicleSizeFilter {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    background: #fafafa !important;
+}
+
+/* Remove all pseudo-elements that might create arrows */
+select::after,
+select::before {
+    display: none !important;
+}
+
+/* Override any existing background images */
+select[style*="background-image"] {
+    background-image: none !important;
 }
 
 /* Swap button */
@@ -548,6 +826,22 @@ tr.looking-ride:hover {
     font-weight: bold;
 }
 
+.distance-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 6px;
+    font-size: 0.75em;
+    margin-left: 5px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(92, 107, 192, 0.2);
+}
+
+.time-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
 .approximate-ride {
     background-color: #fcf8e3 !important;
 }
@@ -651,4 +945,157 @@ main {
     .social-links {
         justify-content: center;
     }
+}
+
+/* FINAL OVERRIDE - Remove ALL dropdown arrows with maximum specificity */
+html body .search-panel select,
+html body select.country-select,
+html body select.city-select,
+html body select.input-field,
+html body #fromCountry,
+html body #toCountry,
+html body #fromCity,
+html body #toCity {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    background-color: #fafafa !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+}
+
+/* Remove any vendor-specific dropdown styling */
+select::-webkit-inner-spin-button,
+select::-webkit-outer-spin-button,
+select::-webkit-calendar-picker-indicator,
+select::-webkit-datetime-edit,
+select::-webkit-datetime-edit-fields-wrapper {
+    display: none !important;
+    -webkit-appearance: none !important;
+}
+
+/* Remove Edge/IE arrows */
+select::-ms-expand {
+    display: none !important;
+}
+
+/* Additional input field enhancements */
+.input-field {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle shimmer effect on focus */
+.input-field:focus::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent
+    );
+    animation: shimmer 1.5s ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Improve the form container spacing */
+.search-panel .form-group {
+    margin-bottom: 8px;
+}
+
+/* Ensure all select field labels are positioned correctly */
+.input-group select + label,
+.input-group select + .input-label {
+    top: 8px !important;
+    font-size: 0.7rem !important;
+    background: white !important;
+    color: var(--primary-color) !important;
+    opacity: 1 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    z-index: 10 !important;
+    padding: 2px 6px !important;
+}
+
+/* Force label positioning for all select elements */
+select.country-select ~ .input-label,
+select.city-select ~ .input-label,
+#fromCountry ~ .input-label,
+#toCountry ~ .input-label,
+#fromCity ~ .input-label,
+#toCity ~ .input-label {
+    position: absolute;
+    top: 8px !important;
+    left: 16px;
+    font-size: 0.7rem !important;
+    background: white !important;
+    color: var(--primary-color) !important;
+    opacity: 1 !important;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    line-height: 1.2;
+}
+
+/* Add subtle pulse on input focus */
+.input-field:focus {
+    animation: inputPulse 0.3s ease-out;
+}
+
+@keyframes inputPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.01);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Additional calendar positioning fixes */
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.container {
+    overflow: visible !important;
+}
+
+main {
+    overflow: visible !important;
+}
+
+/* Ensure calendar appears above animated elements */
+.flatpickr-calendar {
+    z-index: 10001 !important;
+}
+
+/* Fix any issues with search panel clipping */
+.search-panel {
+    position: relative;
+    overflow: visible !important;
+    z-index: 1;
+}
+
+/* Ensure date picker button has proper stacking */
+.date-picker-button {
+    position: relative;
+    z-index: 10;
 }

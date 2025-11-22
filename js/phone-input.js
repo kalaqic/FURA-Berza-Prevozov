@@ -147,7 +147,27 @@ const countryCodes = [
       
       // Listen for phone number changes
       if (phoneNumberInput) {
-        phoneNumberInput.addEventListener('input', updateFullPhoneNumber);
+        // Prevent letters and special characters, allow only numbers, spaces, dashes, parentheses, and plus
+        phoneNumberInput.addEventListener('keypress', function(event) {
+          const allowedChars = /[0-9\s\-\(\)\+]/;
+          const inputChar = String.fromCharCode(event.charCode);
+          
+          if (!allowedChars.test(inputChar) && event.charCode !== 0) {
+            event.preventDefault();
+          }
+        });
+        
+        // Handle input events to filter out invalid characters and update phone number
+        phoneNumberInput.addEventListener('input', function(event) {
+          const value = event.target.value;
+          const filteredValue = value.replace(/[^0-9\s\-\(\)\+]/g, '');
+          
+          if (value !== filteredValue) {
+            event.target.value = filteredValue;
+          }
+          
+          updateFullPhoneNumber();
+        });
       }
       
       // Initial update

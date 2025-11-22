@@ -189,3 +189,7 @@ FURA is a web-based transport marketplace platform that connects people who need
 - Progressive enhancement approach
 
 This platform serves the Slovenian and Balkan region transport marketplace, focusing on simplicity, real-time functionality, and user-friendly ride matching.
+
+
+
+Every time we create something new make sure it is translatable to other languages

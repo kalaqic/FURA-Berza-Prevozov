@@ -15,7 +15,7 @@ window.showModal = function(modalId) {
   }
 };
 
-// Close a modal by ID - using reliable direct manipulation
+// Close a modal by ID - with enhanced closing animation
 window.closeModal = function(modalId) {
   console.log('Closing modal with ID:', modalId);
   
@@ -31,9 +31,19 @@ window.closeModal = function(modalId) {
   
   const modal = document.getElementById(modalId);
   if (modal) {
-    console.log('Modal element found, setting display to none');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Re-enable scrolling
+    console.log('Modal element found, starting closing animation');
+    
+    // Add closing class to trigger animations
+    modal.classList.add('closing');
+    
+    // Wait for animations to complete before hiding modal
+    setTimeout(() => {
+      modal.style.display = 'none';
+      modal.classList.remove('closing');
+      document.body.style.overflow = 'auto'; // Re-enable scrolling
+      console.log('Modal closed after animation');
+    }, 400); // Match the backdrop fade-out duration
+    
   } else {
     console.error('Modal element not found with ID:', modalId);
   }
@@ -56,96 +66,7 @@ window.showRegisterModal = function() {
 // Show login required message
 // Function to show login required message
 function showLoginRequiredMessage() {
-  // Create a toast message or notification
-  const loginMessage = document.createElement('div');
-  loginMessage.className = 'login-message';
-  loginMessage.innerHTML = `
-      <div class="login-message-content">
-          Za ogled podrobnosti se morate prijaviti.
-          <span class="close-message">✕</span>
-      </div>
-  `;
-  
-  document.body.appendChild(loginMessage);
-  
-  // Add style for message
-  const style = document.createElement('style');
-  style.textContent = `
-      .login-message {
-          position: fixed;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: var(--primary-color);
-          color: white;
-          padding: 12px 20px;
-          border-radius: var(--border-radius);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 1000;
-          animation: slideUp 0.3s ease-out;
-      }
-      
-      .login-message-content {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-      }
-      
-      .close-message {
-          cursor: pointer;
-          font-weight: bold;
-      }
-      
-      @keyframes slideUp {
-          from {
-              opacity: 0;
-              transform: translate(-50%, 20px);
-          }
-          to {
-              opacity: 1;
-              transform: translate(-50%, 0);
-          }
-      }
-      
-      @keyframes fadeOut {
-          from {
-              opacity: 1;
-          }
-          to {
-              opacity: 0;
-          }
-      }
-  `;
-  
-  document.head.appendChild(style);
-  
-  // Add event listener to close button
-  const closeBtn = loginMessage.querySelector('.close-message');
-  if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-          removeLoginMessage(loginMessage);
-      });
-  }
-  
-  // Automatically remove after 5 seconds
-  setTimeout(() => {
-      removeLoginMessage(loginMessage);
-  }, 5000);
-  
-  // Helper function to remove message with animation
-  function removeLoginMessage(messageElement) {
-      if (document.body.contains(messageElement)) {
-          // Add fade out animation
-          messageElement.style.animation = 'fadeOut 0.5s ease-out forwards';
-          
-          // Remove from DOM after animation completes
-          setTimeout(() => {
-              if (document.body.contains(messageElement)) {
-                  document.body.removeChild(messageElement);
-              }
-          }, 500);
-      }
-  }
+  utils.showNotification('Za ogled podrobnosti se morate prijaviti.', 'info');
 }
 
 // Show ride details modal - updated to use Firebase auth directly
@@ -172,7 +93,7 @@ window.showRideDetails = async function(rideId) {
     
     if (!rideDoc.exists) {
       console.error('Ride not found:', rideId);
-      alert('Napaka pri nalaganju podatkov o prevozu.');
+      utils.showNotification('Napaka pri nalaganju podatkov o prevozu.', 'error');
       return;
     }
     
@@ -204,7 +125,7 @@ window.showRideDetails = async function(rideId) {
     
     if (!detailRows || detailRows.length < 7) {
       console.error('Detail rows not found or insufficient:', detailRows?.length);
-      alert('Napaka pri prikazu podrobnosti prevozu.');
+      utils.showNotification('Napaka pri prikazu podrobnosti prevozu.', 'error');
       return;
     }
     
@@ -315,15 +236,20 @@ window.showRideDetails = async function(rideId) {
         contactLabel.textContent = t('contact') + ':';
         
         if (ride.contact) {
+          const email = ride.contact.email || ride.userEmail || t('notAvailable');
+          const phone = ride.contact.phone || t('notAvailable');
+          
           contactValue.innerHTML = `
             <p>${ride.contact.name || t('notAvailable')}</p>
-            <p>${ride.contact.email || ride.userEmail || t('notAvailable')}</p>
-            <p>${ride.contact.phone || t('notAvailable')}</p>
+            <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
+            <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
           `;
         } else {
+          const email = ride.userEmail || t('notAvailable');
+          
           contactValue.innerHTML = `
             <p>${t('notAvailable')}</p>
-            <p>${ride.userEmail || t('notAvailable')}</p>
+            <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
             <p>${t('notAvailable')}</p>
           `;
         }
@@ -365,16 +291,6 @@ window.showRideDetails = async function(rideId) {
           }
         };
         modalFooter.appendChild(deleteButton);
-      } else {
-        // Add contact button for other users' rides
-        const contactButton = document.createElement('button');
-        contactButton.className = 'btn btn-accent';
-        contactButton.textContent = t('contactOwner');
-        contactButton.onclick = function() {
-          alert(t('contactingOwner'));
-          // Here you could add code to show a contact form or email the ride owner
-        };
-        modalFooter.appendChild(contactButton);
       }
     }
     
@@ -388,7 +304,7 @@ window.showRideDetails = async function(rideId) {
     }
   } catch (error) {
     console.error('Error showing ride details:', error);
-    alert('Napaka pri prikazu podrobnosti: ' + error.message);
+    utils.showNotification('Napaka pri prikazu podrobnosti: ' + error.message, 'error');
   }
 };
 
@@ -402,7 +318,7 @@ async function deleteRide(rideId) {
     window.closeModal('rideDetailsModal');
     
     // Show success message
-    alert(t('rideDeleted'));
+    utils.showNotification(t('rideDeleted'), 'success');
     
     // Reload rides if we're on the profile page
     if (window.location.pathname.includes('profile.html') && typeof loadUserRides === 'function') {
@@ -415,7 +331,7 @@ async function deleteRide(rideId) {
     }
   } catch (error) {
     console.error('Error deleting ride:', error);
-    alert(t('errorDeletingRide') + ': ' + error.message);
+    utils.showNotification(t('errorDeletingRide') + ': ' + error.message, 'error');
   }
 }
 
@@ -488,7 +404,7 @@ window.handleLoginSubmit = async function() {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
     console.error('Login form elements not found');
-    alert('Error: Login form not available. Please refresh the page.');
+    utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
     return;
   }
   
@@ -498,7 +414,7 @@ window.handleLoginSubmit = async function() {
   if (!email || !password) {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
-    alert('Vnesite e-poštni naslov in geslo.');
+    utils.showNotification('Vnesite e-poštni naslov in geslo.', 'warning');
     return;
   }
   
@@ -521,7 +437,7 @@ window.handleLoginSubmit = async function() {
     loadingOverlay.style.display = 'none';
     
     // Show success message
-    alert('Uspešna prijava!');
+    utils.showNotification('Uspešna prijava!', 'success');
     
     // Update UI
     updateUIAfterLogin(user);
@@ -530,7 +446,7 @@ window.handleLoginSubmit = async function() {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
     console.error('Login error:', error);
-    alert('Napaka pri prijavi: ' + error.message);
+    utils.showNotification('Napaka pri prijavi: ' + error.message, 'error');
   }
 };
 
@@ -634,11 +550,11 @@ window.handleLogout = function() {
         `;
       }
       
-      alert('Uspešno ste se odjavili.');
+      utils.showNotification('Uspešno ste se odjavili.', 'success');
     })
     .catch(error => {
       console.error('Logout error:', error);
-      alert('Napaka pri odjavi: ' + error.message);
+      utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
     });
 };
 
@@ -685,7 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.handleRegisterSubmit();
       } else {
         console.error('Registration handler not found in auth.js');
-        alert('Registration handler not loaded. Please refresh the page.');
+        utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
       }
     });
   }
@@ -711,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
           window.handleRegisterSubmit();
         } else {
           console.error('Registration handler not found in auth.js');
-          alert('Registration handler not loaded. Please refresh the page.');
+          utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
         }
       }
     });

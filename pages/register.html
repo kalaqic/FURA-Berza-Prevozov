@@ -100,6 +100,7 @@
         </div>
     </main>
     
+    <script src="../js/utils.js"></script>
     <script>
 function register() {
     // Get form values
@@ -114,24 +115,24 @@ function register() {
     
     // Validate inputs
     if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
-        alert('Prosimo izpolnite vsa obvezna polja!');
+        utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
         return;
     }
     
     if (password !== confirmPassword) {
-        alert('Gesli se ne ujemata!');
+        utils.showNotification('Gesli se ne ujemata!', 'warning');
         return;
     }
     
     if (!terms) {
-        alert('Morate se strinjati s pogoji uporabe in politiko zasebnosti!');
+        utils.showNotification('Morate se strinjati s pogoji uporabe in politiko zasebnosti!', 'warning');
         return;
     }
     
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        alert('Vnesite veljaven email naslov!');
+        utils.showNotification('Vnesite veljaven email naslov!', 'warning');
         return;
     }
     
@@ -141,7 +142,7 @@ function register() {
     // In a real app, you would send the registration data to the server
     
     // For demo purposes, we'll just simulate a successful registration
-    alert('Registracija uspešna! Zdaj se lahko prijavite.');
+    utils.showNotification('Registracija uspešna! Zdaj se lahko prijavite.', 'success');
     window.location.href = 'login.html';
 }
     </script>

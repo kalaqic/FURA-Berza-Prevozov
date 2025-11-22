@@ -207,6 +207,32 @@
                         </div>
                     </div>
                     
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="maxDistance">Največ km stran</label>
+                                <select class="input-field" id="maxDistanceFilter">
+                                    <option value="50">50 km</option>
+                                    <option value="100" selected>100 km</option>
+                                    <option value="150">150 km</option>
+                                    <option value="200">200 km</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="timeTolerance">Toleranca ure</label>
+                                <select class="input-field" id="timeToleranceFilter">
+                                    <option value="0">Točno isto uro</option>
+                                    <option value="1">± 1 ura</option>
+                                    <option value="2" selected>± 2 uri</option>
+                                    <option value="4">± 4 ure</option>
+                                    <option value="24">Kdaj koli isti dan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="checkbox-group">
                         <input type="checkbox" id="refrigerated">
                         <label for="refrigerated" data-translate="refrigeratedOnly">Samo vozila s hladilnikom</label>
@@ -432,7 +458,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
+                <p>&copy; 2025 FURA. <span data-translate="allRightsReserved">Vse pravice pridržane.</span></p>
             </div>
         </div>
     </footer>

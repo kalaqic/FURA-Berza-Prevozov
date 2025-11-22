@@ -236,6 +236,7 @@
     <!-- Include JavaScript files -->
     <script src="../js/vehicle-dimensions.js"></script>
     <script src="../js/location-data.js"></script> <!-- Add this line -->
+    <script src="../js/utils.js"></script>
     <script src="../js/translations.js"></script>
     <script src="../js/firestore-rides.js"></script>
     <script src="../js/dropdown-locations.js"></script>
@@ -266,7 +267,7 @@
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
                     // If not logged in, redirect to login page
-                    alert('Za dodavanje prevozov se morate prijaviti.');
+                    utils.showNotification('Za dodavanje prevozov se morate prijaviti.', 'info');
                     window.location.href = '../index.html';
                 } else {
                     console.log('User is authenticated:', user.email);
@@ -296,12 +297,12 @@
                 logoutButton.addEventListener('click', function() {
                     firebase.auth().signOut()
                         .then(() => {
-                            alert('Uspešno ste se odjavili.');
+                            utils.showNotification('Uspešno ste se odjavili.', 'success');
                             window.location.href = '../index.html';
                         })
                         .catch(error => {
                             console.error('Logout error:', error);
-                            alert('Napaka pri odjavi: ' + error.message);
+                            utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
                         });
                 });
             }
@@ -501,7 +502,7 @@
                             if (!customValue) {
                                 // If no custom value provided but required, show error
                                 loadingOverlay.style.display = 'none';
-                                alert('Vnesite vrsto vozila.');
+                                utils.showNotification('Vnesite vrsto vozila.', 'warning');
                                 return;
                             }
                             
@@ -529,7 +530,7 @@
                             if (!priceAmount || isNaN(parseFloat(priceAmount))) {
                                 // Hide loading overlay
                                 loadingOverlay.style.display = 'none';
-                                alert('Prosimo vnesite veljavni znesek.');
+                                utils.showNotification('Prosimo vnesite veljavni znesek.', 'warning');
                                 return;
                             }
                             
@@ -541,7 +542,7 @@
                         if (!fromCountry || !toCountry || !fromCity || !toCity || !date) {
                             // Hide loading overlay
                             loadingOverlay.style.display = 'none';
-                            alert('Prosimo izpolnite vsa obvezna polja!');
+                            utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
                             return;
                         }
                         
@@ -619,16 +620,16 @@
                         loadingOverlay.style.display = 'none';
                         
                         if (result.success) {
-                            alert('Prevoz uspešno objavljen!');
+                            utils.showNotification('Prevoz uspešno objavljen!', 'success');
                             window.location.href = '../index.html';
                         } else {
-                            alert('Napaka pri objavi prevoza: ' + result.message);
+                            utils.showNotification('Napaka pri objavi prevoza: ' + result.message, 'error');
                         }
                     } catch (error) {
                         // Hide loading overlay
                         loadingOverlay.style.display = 'none';
                         console.error('Error creating ride:', error);
-                        alert('Napaka pri objavi prevoza: ' + error.message);
+                        utils.showNotification('Napaka pri objavi prevoza: ' + error.message, 'error');
                     }
                 });
             }

@@ -3,28 +3,75 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 25px 0;
+    margin: 16px 0;
 }
 
 .date-picker-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 25px;
+    padding: 10px 20px;
     background-color: white;
     color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: var(--transition);
-    min-width: 200px;
+    transition: all 0.2s ease;
+    min-width: 180px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    letter-spacing: 0.3px;
 }
 
 .date-picker-button:hover {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92, 107, 192, 0.2);
+}
+
+/* Fix calendar dropdown z-index and positioning */
+.flatpickr-calendar {
+    z-index: 9999 !important;
+    position: absolute !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 12px !important;
+    overflow: visible !important;
+}
+
+/* Ensure calendar container doesn't clip */
+.date-picker-container {
+    position: relative;
+    z-index: 1000;
+    overflow: visible;
+}
+
+/* Fix calendar positioning */
+.flatpickr-wrapper {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Override any container overflow settings */
+.search-panel {
+    overflow: visible !important;
+}
+
+.form-group {
+    overflow: visible !important;
+}
+
+/* Flatpickr specific fixes */
+.flatpickr-calendar.open {
+    z-index: 10000 !important;
+    position: fixed !important;
+}
+
+.flatpickr-calendar.static {
+    position: absolute !important;
+    z-index: 9999 !important;
 }
 
 .date-picker-button:hover .calendar-icon svg {

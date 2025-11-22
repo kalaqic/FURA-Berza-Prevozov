@@ -221,6 +221,7 @@
     <!-- Include JavaScript files -->
     <script src="../js/vehicle-dimensions.js"></script>
     <script src="../js/location-data.js"></script> <!-- Add this line -->
+    <script src="../js/utils.js"></script>
     <script src="../js/firestore-rides.js"></script>
     <script src="../js/autocomplete.js"></script>
     <script src="../js/datepicker.js"></script>
@@ -792,7 +793,7 @@ function toggleDateTimePickerMode(dateOnly) {
                 
                 // Validation
                 if (!fromCountry || !toCountry || !fromCity || !toCity || !description) {
-                    alert('Prosimo izpolnite vsa obvezna polja!');
+                    utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
                     loadingOverlay.style.display = 'none';
                     return;
                 }

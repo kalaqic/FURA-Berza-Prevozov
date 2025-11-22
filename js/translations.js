@@ -79,7 +79,14 @@ const translations = {
     rides: "prevozov",
     exactMatches: "točnih",
     approximateMatches: "približnih",
+    nearbyMatches: "bližnjih",
     noRidesFound: "Ni najdenih prevozov z izbranimi filtri.",
+    noResults: "Ni najdenih prevozov za to smer.",
+    noResultsSuggestion: "Poskusite z drugačnimi filtri ali preverite kasneje.",
+    nearbyResultsHeader: "Prevoze v bližini ({count}) - od/do mest blizu {fromCity} ali {toCity}:",
+    distanceTooltip: "{distance}km od iskane lokacije {searchCity}",
+    searchValidationMessage: "Prosimo izberite mest 'Od' in 'Do' za iskanje prevoza.",
+    searchValidationTooltip: "Izberi mesta za iskanje prevoza",
     
     // Table Headers
     fromLocation: "OD",
@@ -170,6 +177,8 @@ const translations = {
     rideDeleted: "Fura uspešno izbrisana!",
     errorDeletingRide: "Napaka pri brisanju fure",
     noExactRidesFound: "Nismo našli točnih prevozov za vašo pot. Prikazujemo približne prevoze v bližini.",
+    maxDistance: "Največ km stran",
+    timeTolerance: "Toleranca ure",
     
     // Vehicle Types
     avtotransporter: "Avtotransporter",
@@ -483,7 +492,14 @@ const translations = {
     rides: "rides",
     exactMatches: "exact",
     approximateMatches: "approximate",
+    nearbyMatches: "nearby",
     noRidesFound: "No rides found with selected filters.",
+    noResults: "No rides found for this direction.",
+    noResultsSuggestion: "Try different filters or check back later.",
+    nearbyResultsHeader: "Nearby rides ({count}) - from/to cities near {fromCity} or {toCity}:",
+    distanceTooltip: "{distance}km from searched location {searchCity}",
+    searchValidationMessage: "Please select both 'From' and 'To' cities to search for rides.",
+    searchValidationTooltip: "Select cities to search for rides",
     
     // Table Headers
     fromLocation: "FROM",
@@ -886,7 +902,14 @@ const translations = {
     rides: "вожњи",
     exactMatches: "тачних",
     approximateMatches: "приближних",
+    nearbyMatches: "оближњих",
     noRidesFound: "Није пронађена ниједна вожња са изабраним филтерима.",
+    noResults: "Није пронађена ниједна вожња за овај смер.",
+    noResultsSuggestion: "Пробајте друге филтере или проверите касније.",
+    nearbyResultsHeader: "Оближње вожње ({count}) - од/до градова близу {fromCity} или {toCity}:",
+    distanceTooltip: "{distance}км од тражене локације {searchCity}",
+    searchValidationMessage: "Молимо изаберите градове 'Од' и 'До' за претрагу вожњи.",
+    searchValidationTooltip: "Изаберите градове за претрагу вожњи",
     
     // Table Headers
     fromLocation: "ОД",
@@ -1349,12 +1372,27 @@ function updateResultsCountWithCurrentValues() {
 }
 
 // Helper function to format results count with translation
-function formatResultsCount(total, exact = null, approximate = null) {
-  if (exact !== null && approximate !== null) {
-    return `${t('showingRides')} ${total} ${t('rides')} (${exact} ${t('exactMatches')}, ${approximate} ${t('approximateMatches')})`;
+function formatResultsCount(total, exact = null, nearby = null) {
+  if (exact !== null && nearby !== null) {
+    return `${t('showingRides')} ${total} ${t('rides')} (${exact} ${t('exactMatches')}, ${nearby} ${t('nearbyMatches')})`;
   } else {
     return `${t('showingRides')} ${total} ${t('rides')}`;
   }
+}
+
+// Helper function to translate text with parameter replacement
+function translateText(key, params = {}) {
+  let text = t(key);
+  
+  // Replace parameters in the text
+  if (params && typeof params === 'object') {
+    Object.keys(params).forEach(param => {
+      const placeholder = `{${param}}`;
+      text = text.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), params[param]);
+    });
+  }
+  
+  return text;
 }
 
 // Helper function to translate ride type
@@ -1584,6 +1622,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Make functions available globally
 window.t = t;
+window.translateText = translateText;
 window.setLanguage = setLanguage;
 window.updateUI = updateUI;
 window.toggleLanguageDropdown = toggleLanguageDropdown;

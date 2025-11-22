@@ -161,7 +161,7 @@ async function sendVerificationEmailFallback(email, firstName, verificationCode)
     );
   } else {
     // Fallback to alert if utils not available
-    alert(`Razvojni način: Vaša potrditvena koda je ${verificationCode}`);
+    utils.showNotification(`Razvojni način: Vaša potrditvena koda je ${verificationCode}`, 'info', 10000);
   }
 }
 
@@ -257,11 +257,11 @@ window.logoutUser = function() {
     .then(() => {
       console.log('Logout successful');
       window.updateAuthUI();
-      alert('Uspešno ste se odjavili.');
+      utils.showNotification('Uspešno ste se odjavili.', 'success');
     })
     .catch(error => {
       console.error('Logout error:', error);
-      alert('Napaka pri odjavi: ' + error.message);
+      utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
     });
 };
 
@@ -280,7 +280,7 @@ window.handleLoginSubmit = async function() {
     if (!emailInput || !passwordInput) {
       console.error('Login form elements not found');
       loadingOverlay.style.display = 'none';
-      alert('Error: Login form not available. Please refresh the page.');
+      utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
       return;
     }
     
@@ -289,7 +289,7 @@ window.handleLoginSubmit = async function() {
     
     if (!email || !password) {
       loadingOverlay.style.display = 'none';
-      alert('Vnesite e-poštni naslov in geslo.');
+      utils.showNotification('Vnesite e-poštni naslov in geslo.', 'warning');
       return;
     }
     
@@ -311,7 +311,7 @@ window.handleLoginSubmit = async function() {
     window.closeModal('loginModal');
     
     // Show success message
-    alert('Uspešna prijava!');
+    utils.showNotification('Uspešna prijava!', 'success');
     
     // Update UI
     window.updateAuthUI();
@@ -319,7 +319,7 @@ window.handleLoginSubmit = async function() {
   } catch (error) {
     console.error('Login error:', error);
     loadingOverlay.style.display = 'none';
-    alert('Napaka pri prijavi: ' + error.message);
+    utils.showNotification('Napaka pri prijavi: ' + error.message, 'error');
   }
 };
 
@@ -344,7 +344,7 @@ window.handleRegisterSubmit = async function() {
     if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
       console.error('Register form elements not found');
       loadingOverlay.style.display = 'none';
-      alert('Error: Registration form not available. Please refresh the page.');
+      utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
       return;
     }
     
@@ -361,13 +361,13 @@ window.handleRegisterSubmit = async function() {
     // Validation
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       loadingOverlay.style.display = 'none';
-      alert('Izpolnite vsa obvezna polja.');
+      utils.showNotification('Izpolnite vsa obvezna polja.', 'warning');
       return;
     }
     
     if (password !== confirmPassword) {
       loadingOverlay.style.display = 'none';
-      alert('Gesli se ne ujemata.');
+      utils.showNotification('Gesli se ne ujemata.', 'warning');
       return;
     }
     
@@ -406,7 +406,7 @@ window.handleRegisterSubmit = async function() {
       console.log('Verification modal should now be visible');
     } catch (error) {
       console.error('Error showing verification modal:', error);
-      alert('Registracija uspešna, vendar se modal za potrditev ni prikazal. Poskusite znova.');
+      utils.showNotification('Registracija uspešna, vendar se modal za potrditev ni prikazal. Poskusite znova.', 'warning');
     }
     
     // Show success notification
@@ -417,13 +417,13 @@ window.handleRegisterSubmit = async function() {
         5000
       );
     } else {
-      alert('Registracija uspešna! Preverite e-pošto za potrditveno kodo.');
+      utils.showNotification('Registracija uspešna! Preverite e-pošto za potrditveno kodo.', 'success');
     }
     
   } catch (error) {
     console.error('Registration error:', error);
     loadingOverlay.style.display = 'none';
-    alert('Napaka pri registraciji: ' + error.message);
+    utils.showNotification('Napaka pri registraciji: ' + error.message, 'error');
     
     // Debug info
     console.log('Registration failed. Error details:', {
@@ -867,14 +867,14 @@ async function handleResendVerificationCode() {
         'success'
       );
     } else {
-      alert('Nova potrditvena koda je bila poslana na vaš e-poštni naslov.');
+      utils.showNotification('Nova potrditvena koda je bila poslana na vaš e-poštni naslov.', 'success');
     }
   } catch (error) {
     console.error('Resend error:', error);
     if (window.utils && window.utils.showNotification) {
       window.utils.showNotification(error.message, 'error');
     } else {
-      alert('Napaka: ' + error.message);
+      utils.showNotification('Napaka: ' + error.message, 'error');
     }
   }
 };
@@ -937,7 +937,7 @@ async function updateEmailAddress() {
   
   const newEmail = newEmailInput.value.trim();
   if (!newEmail) {
-    alert('Vnesite veljaven e-poštni naslov.');
+    utils.showNotification('Vnesite veljaven e-poštni naslov.', 'warning');
     return;
   }
   
@@ -982,11 +982,11 @@ async function updateEmailAddress() {
     // Hide change email form
     hideChangeEmailForm();
     
-    alert('E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.');
+    utils.showNotification('E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.', 'success');
     
   } catch (error) {
     console.error('Error updating email:', error);
-    alert('Napaka pri posodabljanju e-poštnega naslova: ' + error.message);
+    utils.showNotification('Napaka pri posodabljanju e-poštnega naslova: ' + error.message, 'error');
   }
 }
 

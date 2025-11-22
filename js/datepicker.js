@@ -124,8 +124,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Date-only checkbox changed, checked:', this.checked);
                 enableTimeSelection = !this.checked;
                 
-                // Preserve selected date if there is one
-                const currentSelectedDate = dateTimePickerButton.getAttribute('data-selected-date');
+                // Preserve selected date if there is one, but remove time if switching to date-only
+                let currentSelectedDate = dateTimePickerButton.getAttribute('data-selected-date');
+                let processedSelectedDate = '';
+                
+                if (currentSelectedDate && currentSelectedDate !== '') {
+                    if (this.checked) {
+                        // Remove time component if switching to date-only mode
+                        // Parse the date and format it without time
+                        const dateParts = currentSelectedDate.split(' ')[0]; // Take only the date part (before space)
+                        processedSelectedDate = dateParts;
+                        console.log('Removing time from date:', currentSelectedDate, '->', processedSelectedDate);
+                    } else {
+                        // Keep full date with time if switching back
+                        processedSelectedDate = currentSelectedDate;
+                    }
+                    
+                    // Update the stored date to reflect the new format
+                    dateTimePickerButton.setAttribute('data-selected-date', processedSelectedDate);
+                }
                 
                 // Destroy current picker
                 picker.destroy();
@@ -134,13 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset button text while keeping any previously selected date
                 const dateTextElement = dateTimePickerButton.querySelector('.date-text');
                 if (dateTextElement) {
-                    if (currentSelectedDate && currentSelectedDate !== '') {
-                        dateTextElement.textContent = currentSelectedDate;
+                    if (processedSelectedDate && processedSelectedDate !== '') {
+                        dateTextElement.textContent = processedSelectedDate;
                     } else {
                         dateTextElement.textContent = this.checked ? (window.t ? window.t('date') : 'Datum') : (window.t ? window.t('dateTime') : 'Datum in ura');
                     }
                 } else {
-                    if (currentSelectedDate && currentSelectedDate !== '') {
+                    if (processedSelectedDate && processedSelectedDate !== '') {
                         dateTimePickerButton.innerHTML = `
                             <span class="calendar-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -150,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            <span class="date-text">${currentSelectedDate}</span>
+                            <span class="date-text">${processedSelectedDate}</span>
                         `;
                     } else {
                         dateTimePickerButton.innerHTML = `
@@ -178,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     minuteIncrement: 15,
                     allowInput: false,
                     static: true,
-                    defaultDate: currentSelectedDate || undefined,
+                    defaultDate: processedSelectedDate || undefined,
                     onChange: function(selectedDates, dateStr, instance) {
                         console.log('New picker onChange with:', dateStr);
                         // Store the selected date

@@ -4,7 +4,7 @@
 
 .form-row {
     display: flex;
-    gap: 20px;
+    gap: 12px;
 }
 
 .form-col {
@@ -15,31 +15,141 @@
 
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .input-label {
     position: absolute;
     align-items: center;
-    left: 15px;
+    left: 16px;
     top: 12px;
-    color: var(--text-light);
-    font-size: 0.9rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
     pointer-events: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    z-index: 10;
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    padding: 3px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+}
+
+/* Enhanced hover state for input fields */
+.input-field:hover {
+    border-color: #cbd5e1;
+    background: linear-gradient(145deg, #ffffff, #fafbfc);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-0.5px);
+}
+
+/* Enhanced focus state for labels */
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label,
+.input-field:not([value=""]) + .input-label,
+select.input-field:not([value=""]) + .input-label {
+    color: var(--primary-color);
+    opacity: 1;
+    top: 8px;
+    font-size: 0.7rem;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+}
+
+/* Disabled state improvements */
+.input-field:disabled {
+    background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+    color: #94a3b8;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+    opacity: 0.7;
+}
+
+/* Special styling for select fields */
+select.input-field {
+    cursor: pointer;
+    background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+    position: relative;
+}
+
+select.input-field:hover {
+    background: linear-gradient(145deg, #ffffff, #fafbfc) !important;
+}
+
+select.input-field:focus {
+    background: linear-gradient(145deg, #ffffff, #ffffff) !important;
+}
+
+/* Enhanced input group styling */
+.input-group {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.input-group:hover .input-label {
+    color: var(--primary-color);
+    opacity: 0.9;
+}
+
+/* Improve form row spacing */
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+/* Better visual hierarchy */
+.form-col {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Special handling for select fields to ensure labels stay visible */
+select.input-field + .input-label,
+select.country-select + .input-label,
+select.city-select + .input-label,
+#fromCountry + .input-label,
+#toCountry + .input-label,
+#fromCity + .input-label,
+#toCity + .input-label {
+    top: 8px !important;
+    font-size: 0.7rem !important;
+    background: white !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    color: var(--primary-color) !important;
+    opacity: 1 !important;
+    padding: 2px 6px !important;
 }
 
 .input-field {
     width: 100%;
-    padding: 25px 15px 10px;
-    border: 1px solid #DDD;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    transition: var(--transition);
+    padding: 32px 16px 8px;
+    min-height: 64px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    font-weight: 500;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
 }
 
 .input-field:focus {
     border-color: var(--primary-color);
     outline: none;
+    background: linear-gradient(145deg, #ffffff, #ffffff);
+    box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.12), 0 4px 12px rgba(92, 107, 192, 0.15);
+    transform: translateY(-1px);
 }
 
 .date-input {
@@ -94,6 +204,54 @@
 
 .form-footer a:hover {
     text-decoration: underline;
+}
+
+/* Complete removal of dropdown arrows from ALL select fields */
+select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    padding-right: 15px !important;
+}
+
+/* Specific targeting for country and city selects */
+.country-select,
+.city-select,
+select.country-select,
+select.city-select,
+#fromCountry,
+#toCountry,
+#fromCity,
+#toCity {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.7rem center !important;
+    background-size: 0 !important;
+}
+
+/* Remove arrows from disabled select fields */
+select:disabled {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Remove Firefox specific dropdown arrow */
+select::-ms-expand {
+    display: none;
+}
+
+/* Remove IE dropdown arrow */
+select::-ms-value {
+    background-color: transparent;
+    color: inherit;
 }
 
 /* Detail items for ride details */

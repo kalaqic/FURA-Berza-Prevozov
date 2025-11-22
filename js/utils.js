@@ -285,89 +285,48 @@ window.utils = {
     };
   },
 
-  // Show notification message
-  showNotification(message, type = 'info', duration = 5000) {
+  // Show notification message at bottom of screen
+  showNotification(message, type = 'info', duration = 4000) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notif => {
+      notif.classList.add('hide');
+      setTimeout(() => notif.remove(), 400);
+    });
+    
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-      <div class="notification-content">
-        ${message}
-        <span class="notification-close">×</span>
-      </div>
-    `;
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
     
     document.body.appendChild(notification);
     
-    // Add styles if not already added
-    if (!document.getElementById('notificationStyles')) {
-      const style = document.createElement('style');
-      style.id = 'notificationStyles';
-      style.textContent = `
-        .notification {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 12px 20px;
-          border-radius: 4px;
-          color: white;
-          font-weight: 500;
-          z-index: 10000;
-          animation: slideIn 0.3s ease-out;
-        }
-        
-        .notification-info {
-          background-color: var(--primary-color);
-        }
-        
-        .notification-success {
-          background-color: #4caf50;
-        }
-        
-        .notification-error {
-          background-color: #f44336;
-        }
-        
-        .notification-warning {
-          background-color: #ff9800;
-        }
-        
-        .notification-content {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        
-        .notification-close {
-          cursor: pointer;
-          font-weight: bold;
-          font-size: 18px;
-        }
-        
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(100%);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    // Show notification with animation
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 50);
     
-    // Add close functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-      notification.remove();
+    // Auto hide after duration
+    setTimeout(() => {
+      notification.classList.remove('show');
+      notification.classList.add('hide');
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          notification.remove();
+        }
+      }, 400);
+    }, duration);
+    
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+      notification.classList.remove('show');
+      notification.classList.add('hide');
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          notification.remove();
+        }
+      }, 400);
     });
     
-    // Auto remove after duration
-    setTimeout(() => {
-      if (document.body.contains(notification)) {
-        notification.remove();
-      }
-    }, duration);
+    return notification;
   }
 };

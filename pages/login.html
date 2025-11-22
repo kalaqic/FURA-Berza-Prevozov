@@ -44,6 +44,7 @@
         </div>
     </main>
     
+    <script src="../js/utils.js"></script>
     <script>
         function login() {
             const username = document.getElementById('username').value;
@@ -51,14 +52,14 @@
             
             // Validate inputs
             if (!username || !password) {
-                alert('Prosimo vnesite uporabniško ime/email in geslo!');
+                utils.showNotification('Prosimo vnesite uporabniško ime/email in geslo!', 'warning');
                 return;
             }
             
             // In a real app, you would send these credentials to the server for authentication
             
             // For demo purposes, we'll just simulate a successful login
-            alert('Uspešna prijava!');
+            utils.showNotification('Uspešna prijava!', 'success');
             window.location.href = '../index.html';
         }
     </script>
