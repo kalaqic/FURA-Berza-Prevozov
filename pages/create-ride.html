@@ -32,23 +32,31 @@
                 <div class="nav-right">
                     <div class="language-selector">
                         <div class="current-language" onclick="toggleLanguageDropdown()">
-                            <span id="currentFlag">🇸🇮</span>
+                            <img id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
                         <div class="language-dropdown" id="languageDropdown">
                             <div class="language-option" onclick="changeLanguage('sl')">
-                                <span>🇸🇮</span>
+                                <img src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                                 <span>Slovenščina</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('en')">
-                                <span>🇬🇧</span>
+                                <img src="../assets/flags/england.svg" alt="England" width="20" height="15">
                                 <span>English</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('sr')">
-                                <span>🇷🇸</span>
+                                <img src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
                                 <span>Српски</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('it')">
+                                <img src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <span>Italiano</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('de')">
+                                <span>🇩🇪</span>
+                                <span>Deutsch</span>
                             </div>
                         </div>
                     </div>
@@ -260,6 +268,11 @@
 
         // Authentication check
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language UI
+            if (window.updateUI) {
+                window.updateUI();
+            }
+            
             // Check for custom vehicle on page load
             checkForCustomVehicle();
             
@@ -316,11 +329,14 @@
                 function updateDimensionsDisplay() {
                     const selectedSize = vehicleSizeSelect.value;
                     const dimensions = getDimensionsBySize(selectedSize);
+                    const currentLang = getCurrentLanguage();
+                    const dimensionsText = translations[currentLang]?.dimensions || 'Dimenzije';
+                    const volumeText = translations[currentLang]?.volume || 'Volumen';
                     
                     dimensionsDisplay.innerHTML = `
                         <div class="dimensions-info">
-                            <p>Dimenzije: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
-                            <p>Volumen: ${dimensions.cubicMeters} m³</p>
+                            <p>${dimensionsText}: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
+                            <p>${volumeText}: ${dimensions.cubicMeters} m³</p>
                         </div>
                     `;
                 }
@@ -330,6 +346,9 @@
                 
                 // Update when selection changes
                 vehicleSizeSelect.addEventListener('change', updateDimensionsDisplay);
+                
+                // Update dimensions when language changes
+                window.addEventListener('languageChanged', updateDimensionsDisplay);
             }
             
             // Toggle options for ride type
@@ -394,7 +413,7 @@
                         loadingOverlay.id = 'loadingOverlay';
                         loadingOverlay.innerHTML = `
                             <div class="loading-spinner"></div>
-                            <div class="loading-text">Objavljanje fure...</div>
+                            <div class="loading-text" data-translate="publishingRide">Objavljanje fure...</div>
                         `;
                         document.body.appendChild(loadingOverlay);
                         

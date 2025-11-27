@@ -3,20 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FURA - Prijava</title>
+    <title data-translate="loginPageTitle">FURA - Prijava</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/forms.css">
     <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Translation System -->
+    <script src="../js/translations.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
             <nav>
                 <a href="../index.html" class="logo">FURA</a>
-                <div class="auth-buttons">
-                    <a href="../index.html" class="btn btn-outline">Nazaj na iskanje</a>
-                    <a href="register.html" class="btn btn-primary">Registracija</a>
+                <div class="nav-right">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <div class="current-language" onclick="toggleLanguageDropdown()">
+                            <img id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="changeLanguage('sl')">
+                                <img src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
+                                <span>Slovenščina</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('en')">
+                                <img src="../assets/flags/england.svg" alt="England" width="20" height="15">
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('sr')">
+                                <img src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
+                                <span>Српски</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('it')">
+                                <img src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <span>Italiano</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('de')">
+                                <img src="../assets/flags/germany.svg" alt="Germany" width="20" height="15">
+                                <span>Deutsch</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <a href="../index.html" class="btn btn-outline" data-translate="backToSearch">Nazaj na iskanje</a>
+                        <a href="register.html" class="btn btn-primary" data-translate="register">Registracija</a>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -24,22 +61,22 @@
     
     <main class="container">
         <div class="form-container">
-            <h2 class="form-title">Prijava</h2>
+            <h2 class="form-title" data-translate="loginTitle">Prijava</h2>
             
             <div class="input-group">
-                <label class="input-label">Email ali uporabniško ime</label>
+                <label class="input-label" data-translate="emailOrUsername">Email ali uporabniško ime</label>
                 <input type="text" id="username" class="input-field" placeholder="Vnesite email ali uporabniško ime">
             </div>
             
             <div class="input-group">
-                <label class="input-label">Geslo</label>
+                <label class="input-label" data-translate="password">Geslo</label>
                 <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
             </div>
             
-            <button class="btn btn-primary search-btn" onclick="login()">Prijava</button>
+            <button class="btn btn-primary search-btn" onclick="login()" data-translate="loginButton">Prijava</button>
             
             <div class="form-footer">
-                <p>Nimate računa? <a href="register.html">Registrirajte se</a></p>
+                <p><span data-translate="noAccount">Nimate računa?</span> <a href="register.html" data-translate="registerLink">Registrirajte se</a></p>
             </div>
         </div>
     </main>

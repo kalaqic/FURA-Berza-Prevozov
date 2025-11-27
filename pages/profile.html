@@ -27,23 +27,31 @@
                 <div class="nav-right">
                     <div class="language-selector">
                         <div class="current-language" onclick="toggleLanguageDropdown()">
-                            <span id="currentFlag">🇸🇮</span>
+                            <img id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
                         <div class="language-dropdown" id="languageDropdown">
                             <div class="language-option" onclick="changeLanguage('sl')">
-                                <span>🇸🇮</span>
+                                <img src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                                 <span>Slovenščina</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('en')">
-                                <span>🇬🇧</span>
+                                <img src="../assets/flags/england.svg" alt="England" width="20" height="15">
                                 <span>English</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('sr')">
-                                <span>🇷🇸</span>
+                                <img src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
                                 <span>Српски</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('it')">
+                                <img src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <span>Italiano</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('de')">
+                                <span>🇩🇪</span>
+                                <span>Deutsch</span>
                             </div>
                         </div>
                     </div>
@@ -183,6 +191,11 @@
         
         // Check if user is logged in
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language UI
+            if (window.updateUI) {
+                window.updateUI();
+            }
+            
             // Check authentication status
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
@@ -372,34 +385,39 @@
                     const rideCard = document.createElement('div');
                     rideCard.className = `ride-card ${ride.type === 'offering' ? 'offering-ride' : 'looking-ride'}`;
                     
-                    const dateDisplay = ride.formattedDate || ride.displayDate || 'Ni datuma';
+                    const currentLang = getCurrentLanguage();
+                    const trans = translations[currentLang] || translations.sl;
+                    
+                    const dateDisplay = ride.formattedDate || ride.displayDate || trans.noDate || 'Ni datuma';
                     const timeDisplay = ride.formattedTime || ride.displayTime || '';
-                    // Izmenjeni deo - dodavanje "Prilagodljivo" za vožnje bez vremena
+                    const flexibleText = trans.flexible || 'Prilagodljivo';
+                    const atText = trans.at || 'ob';
+                    
                     const dateTimeDisplay = timeDisplay ? 
-                        `${dateDisplay} ob ${timeDisplay}` : 
-                        `${dateDisplay} (Prilagodljivo)`;
+                        `${dateDisplay} ${atText} ${timeDisplay}` : 
+                        `${dateDisplay} (${flexibleText})`;
                     
                     rideCard.innerHTML = `
                         <div class="ride-header">
                             <div class="ride-type">
-                                ${ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz'}
+                                ${ride.type === 'offering' ? (trans.offeringRide || 'Nudim prevoz') : (trans.lookingForRide || 'Iščem prevoz')}
                             </div>
                             <div class="ride-date">${dateTimeDisplay}</div>
                         </div>
                         <div class="ride-locations">
                             <div class="ride-location">
-                                <strong>Iz:</strong> ${ride.fromCity}, ${ride.fromCountry}
+                                <strong>${trans.from || 'Iz'}:</strong> ${ride.fromCity}, ${translateCountry(ride.fromCountry)}
                             </div>
                             <div class="ride-location">
-                                <strong>V:</strong> ${ride.toCity}, ${ride.toCountry}
+                                <strong>${trans.to || 'V'}:</strong> ${ride.toCity}, ${translateCountry(ride.toCountry)}
                             </div>
                         </div>
                         <div class="ride-details">
                             <div class="ride-vehicle">
-                                ${ride.vehicleTypeDisplay || ride.vehicleType}
+                                ${translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)}
                             </div>
                             <div class="ride-actions">
-                                <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">Podrobnosti</button>
+                                <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">${trans.details || 'Podrobnosti'}</button>
                             </div>
                         </div>
                     `;
@@ -419,7 +437,8 @@
                 console.error('Error loading user rides:', error);
                 const ridesContainer = document.getElementById('userRides');
                 if (ridesContainer) {
-                    ridesContainer.innerHTML = '<div class="error-message">Napaka pri nalaganju fur.</div>';
+                    const errorMessage = window.t ? window.t('errorLoadingRides') : 'Napaka pri nalaganju fur.';
+                    ridesContainer.innerHTML = `<div class="error-message">${errorMessage}</div>`;
                 }
             }
         }
@@ -495,8 +514,10 @@
                 const typeValue = detailRows[0].querySelector('.detail-value');
                 
                 if (typeLabel && typeValue) {
-                  typeLabel.textContent = 'Vrsta prevoza:';
-                  typeValue.textContent = ride.type === 'offering' ? 'Nudim prevoz' : 'Iščem prevoz';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  typeLabel.textContent = (trans.rideType || 'Vrsta prevoza') + ':';
+                  typeValue.textContent = ride.type === 'offering' ? (trans.offeringRide || 'Nudim prevoz') : (trans.lookingForRide || 'Iščem prevoz');
                 }
                 
                 // Drugi red: Odhod
@@ -504,8 +525,10 @@
                 const departureValue = detailRows[1].querySelector('.detail-value');
                 
                 if (departureLabel && departureValue) {
-                  departureLabel.textContent = 'Odhod:';
-                  departureValue.textContent = `${ride.fromCity}, ${ride.fromCountry}`;
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  departureLabel.textContent = (trans.departure || 'Odhod') + ':';
+                  departureValue.textContent = `${ride.fromCity}, ${translateCountry(ride.fromCountry)}`;
                 }
                 
                 // Treći red: Destinacija
@@ -513,8 +536,10 @@
                 const destinationValue = detailRows[2].querySelector('.detail-value');
                 
                 if (destinationLabel && destinationValue) {
-                  destinationLabel.textContent = 'Destinacija:';
-                  destinationValue.textContent = `${ride.toCity}, ${ride.toCountry}`;
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  destinationLabel.textContent = (trans.destination || 'Destinacija') + ':';
+                  destinationValue.textContent = `${ride.toCity}, ${translateCountry(ride.toCountry)}`;
                 }
                 
                 // Četvrti red: Datum in ura - IZMENJEN ZA PRIKAZ "Prilagodljivo"
@@ -522,8 +547,12 @@
                 const dateValue = detailRows[3].querySelector('.detail-value');
                 
                 if (dateLabel && dateValue) {
-                  dateLabel.textContent = 'Datum in ura:';
-                  const timeDisplay = ride.formattedTime ? `ob ${ride.formattedTime}` : '(Prilagodljivo)';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  dateLabel.textContent = (trans.dateTime || 'Datum in ura') + ':';
+                  const flexibleText = trans.flexible || 'Prilagodljivo';
+                  const atText = trans.at || 'ob';
+                  const timeDisplay = ride.formattedTime ? `${atText} ${ride.formattedTime}` : `(${flexibleText})`;
                   dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
                 }
                 
@@ -532,7 +561,9 @@
                 const vehicleValue = detailRows[4].querySelector('.detail-value');
                 
                 if (vehicleLabel && vehicleValue) {
-                  vehicleLabel.textContent = 'Vozilo:';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  vehicleLabel.textContent = (trans.vehicle || 'Vozilo') + ':';
                   const dimensions = ride.vehicleDimensions;
                   vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
                 }
@@ -542,8 +573,10 @@
                 const refrigeratorValue = detailRows[5].querySelector('.detail-value');
                 
                 if (refrigeratorLabel && refrigeratorValue) {
-                  refrigeratorLabel.textContent = 'Hladilnik:';
-                  refrigeratorValue.textContent = ride.hasRefrigerator ? 'Da' : 'Ne';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  refrigeratorLabel.textContent = (trans.refrigerator || 'Hladilnik') + ':';
+                  refrigeratorValue.textContent = ride.hasRefrigerator ? (trans.yes || 'Da') : (trans.no || 'Ne');
                 }
                 
                 // Sedmi red: Opis
@@ -551,7 +584,9 @@
                 const descriptionValue = detailRows[6].querySelector('.detail-value');
                 
                 if (descriptionLabel && descriptionValue) {
-                  descriptionLabel.textContent = 'Opis:';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  descriptionLabel.textContent = (trans.description || 'Opis') + ':';
                   descriptionValue.textContent = ride.description;
                 }
                 
@@ -560,13 +595,20 @@
                 const priceValue = detailRows[7].querySelector('.detail-value');
                 
                 if (priceLabel && priceValue) {
-                  priceLabel.textContent = 'Cena:';
+                  const currentLang = getCurrentLanguage();
+                  const trans = translations[currentLang] || translations.sl;
+                  priceLabel.textContent = (trans.price || 'Cena') + ':';
                   priceValue.textContent = formatPrice(ride.price);
                 }
               }
               
               // Show the modal
               showModal('rideDetailsModal');
+              
+              // Retranslate modal content
+              if (window.retranslateRideDetailsModal) {
+                window.retranslateRideDetailsModal();
+              }
             }
           } catch (error) {
             console.error('Error showing ride details:', error);

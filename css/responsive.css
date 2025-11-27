@@ -6,6 +6,7 @@
         gap: 0;
     }
     
+    
     .results-table th:nth-child(5),
     .results-table td:nth-child(5) {
         display: none;
@@ -13,6 +14,36 @@
     
     .auth-buttons {
         flex-direction: column;
+    }
+    
+    /* Mobile date picker adjustments */
+    .date-picker-container {
+        margin: 10px 0;
+    }
+    
+    .date-picker-button {
+        padding: 12px 16px;
+        min-width: auto;
+        width: 100%;
+        max-width: 280px;
+        font-size: 0.9rem;
+    }
+    
+    .date-picker-button .date-text {
+        padding: 0 8px;
+    }
+    
+    
+    /* Tab button mobile alignment */
+    .ride-type-tabs {
+        margin-bottom: 16px;
+    }
+    
+    .tab-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
     }
     
 }
@@ -43,10 +74,40 @@
     .tab-btn {
         padding: 10px 5px;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px; /* Ensure adequate tap target size on mobile */
     }
     
     .modal-content {
         width: 95%;
+    }
+    
+    /* Mobile date picker refinements */
+    .date-picker-button {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        max-width: 250px;
+    }
+    
+    .date-picker-button .calendar-icon {
+        margin-right: 8px;
+    }
+    
+    .date-picker-button .date-text {
+        padding: 0 6px;
+        letter-spacing: 0.2px;
+    }
+    
+    /* Hide any potential duplicate Flatpickr inputs that might be created */
+    .flatpickr-input:not(#dateTimePicker) {
+        display: none !important;
+    }
+    
+    /* Ensure only the main date picker container is visible */
+    .date-picker-container:not(:first-of-type) {
+        display: none !important;
     }
 }
 
@@ -67,5 +128,13 @@
     .detail-label {
         width: 100%;
         margin-bottom: 5px;
+    }
+    
+    /* Additional tab button refinements for very small screens */
+    .tab-btn {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+        min-height: 40px;
+        line-height: 1.2;
     }
 }

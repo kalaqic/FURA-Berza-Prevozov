@@ -30,7 +30,10 @@ window.utils = {
   },
 
   // Show loading state in results table
-  showResultsLoading(message = 'Iskanje prevozov...') {
+  showResultsLoading(message = null) {
+    if (!message) {
+      message = window.t ? window.t('searchingRides') : 'Iskanje prevozov...';
+    }
     const elements = this.getResultsElements();
     if (elements.table) {
       elements.table.innerHTML = `

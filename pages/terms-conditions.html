@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Splošni pogoji - FURA</title>
+    <title data-translate="termsPageTitle">Splošni pogoji - FURA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/forms.css">
@@ -24,23 +24,31 @@
                     <!-- Language Selector -->
                     <div class="language-selector">
                         <div class="current-language" onclick="toggleLanguageDropdown()">
-                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <img id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                             <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
                         <div class="language-dropdown" id="languageDropdown">
                             <div class="language-option" onclick="changeLanguage('sl')">
-                                <span class="flag-icon">🇸🇮</span>
+                                <img src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                                 <span>Slovenščina</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('en')">
-                                <span class="flag-icon">🇬🇧</span>
+                                <img src="../assets/flags/england.svg" alt="England" width="20" height="15">
                                 <span>English</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('sr')">
-                                <span class="flag-icon">🇷🇸</span>
+                                <img src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
                                 <span>Српски</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('it')">
+                                <img src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <span>Italiano</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('de')">
+                                <img src="../assets/flags/germany.svg" alt="Germany" width="20" height="15">
+                                <span>Deutsch</span>
                             </div>
                         </div>
                     </div>
@@ -203,5 +211,14 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language UI
+            if (window.updateUI) {
+                window.updateUI();
+            }
+        });
+    </script>
 </body>
 </html>

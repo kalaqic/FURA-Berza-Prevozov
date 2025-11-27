@@ -305,77 +305,239 @@ nav {
 .current-language {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 8px 12px;
-    background-color: white;
-    border: 2px solid var(--primary-color);
-    border-radius: var(--border-radius);
+    gap: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    border: 2px solid transparent;
+    border-radius: 12px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    min-width: 50px;
+}
+
+.current-language::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-color), #64B5F6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
 }
 
 .current-language:hover {
-    background-color: var(--light-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-color: rgba(100, 181, 246, 0.3);
+}
+
+.current-language:hover::before {
+    opacity: 0.05;
+}
+
+.current-language:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.current-language.open {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 16px rgba(100, 181, 246, 0.2);
 }
 
 .flag-icon {
     font-size: 18px;
     line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* SVG flag icons styling */
+img.flag-icon, .language-option img, #currentFlag {
+    width: 22px;
+    height: 16px;
+    vertical-align: middle;
+    border-radius: 3px;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.current-language:hover img,
+.current-language:hover .flag-icon {
+    transform: scale(1.05);
 }
 
 .dropdown-arrow {
     color: var(--primary-color);
-    transition: transform 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.7;
+    margin-left: auto;
 }
 
 .current-language.open .dropdown-arrow {
     transform: rotate(180deg);
+    opacity: 1;
 }
 
 .language-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 6px);
     right: 0;
-    background-color: white;
-    border: 2px solid var(--primary-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    min-width: 160px;
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border: 1px solid rgba(100, 181, 246, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.05);
+    min-width: 180px;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
 }
 
 .language-dropdown.show {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .language-option {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
+    gap: 12px;
+    padding: 14px 18px;
     cursor: pointer;
-    transition: var(--transition);
-    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    font-weight: 500;
+}
+
+.language-option:first-child {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .language-option:last-child {
     border-bottom: none;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 .language-option:hover {
-    background-color: var(--light-bg);
+    background: linear-gradient(135deg, rgba(100, 181, 246, 0.08), rgba(100, 181, 246, 0.04));
+    transform: translateX(2px);
+    padding-left: 20px;
 }
 
 .language-option.active {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), #64B5F6);
     color: white;
+    font-weight: 600;
+}
+
+.language-option.active:hover {
+    background: linear-gradient(135deg, #42A5F5, var(--primary-color));
+    transform: translateX(2px);
+    padding-left: 20px;
+}
+
+.language-option img,
+.language-option .flag-icon {
+    transition: transform 0.2s ease;
+}
+
+.language-option:hover img,
+.language-option:hover .flag-icon {
+    transform: scale(1.1);
+}
+
+.language-option span {
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+/* Responsive language selector */
+@media (max-width: 768px) {
+    .language-selector {
+        margin-right: 10px;
+    }
+    
+    .current-language {
+        padding: 8px 12px;
+        gap: 6px;
+    }
+    
+    .language-dropdown {
+        min-width: 160px;
+        right: -10px;
+    }
+    
+    .language-option {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+    
+    .language-option span {
+        font-size: 13px;
+    }
+    
+    img.flag-icon, .language-option img, #currentFlag {
+        width: 20px;
+        height: 14px;
+    }
+    
+    /* Mobile vehicle icons */
+    .vehicle-cell {
+        gap: 6px;
+    }
+    
+    .vehicle-icon {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    .vehicle-text {
+        font-size: 13px;
+    }
+}
+
+/* Vehicle Icons in Table */
+.vehicle-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vehicle-icon {
+  border-radius: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+  transform: translateY(-3px);
+}
+
+.vehicle-text {
+  font-size: 14px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+/* Special styling for poljubno vozilo icon */
+.vehicle-icon[src*="poljubno-vozilo"] {
+  width: 28px !important;
+  height: 28px !important;
+  transform: translateY(-1px);
 }
 
 /* Search Panel */

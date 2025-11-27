@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FURA - Isci/Nudi Prevoz</title>
+    <title data-translate="homePageTitle">FURA - Isci/Nudi Prevoz</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/forms.css">
@@ -38,23 +38,31 @@
                     <!-- Language Selector -->
                     <div class="language-selector">
                         <div class="current-language" onclick="toggleLanguageDropdown()">
-                            <span class="flag-icon" id="currentFlag">🇸🇮</span>
+                            <img class="flag-icon" id="currentFlag" src="assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                             <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
                         <div class="language-dropdown" id="languageDropdown">
                             <div class="language-option" onclick="changeLanguage('sl')">
-                                <span class="flag-icon">🇸🇮</span>
+                                <img class="flag-icon" src="assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                                 <span>Slovenščina</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('en')">
-                                <span class="flag-icon">🇬🇧</span>
+                                <img class="flag-icon" src="assets/flags/england.svg" alt="England" width="20" height="15">
                                 <span>English</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('sr')">
-                                <span class="flag-icon">🇷🇸</span>
+                                <img class="flag-icon" src="assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
                                 <span>Српски</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('it')">
+                                <img class="flag-icon" src="assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <span>Italiano</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('de')">
+                                <img class="flag-icon" src="assets/flags/germany.svg" alt="Germany" width="20" height="15">
+                                <span>Deutsch</span>
                             </div>
                         </div>
                     </div>
@@ -75,7 +83,7 @@
         <div class="loading-container">
             <div class="loading-logo">FURA</div>
             <div class="loading-spinner"></div>
-            <div class="loading-text">Iskanje prevozov...</div>
+            <div class="loading-text" data-translate="searchingRides">Iskanje prevozov...</div>
         </div>
     </div>
         <div class="search-panel">
@@ -189,7 +197,6 @@
                                     <option value="kombi" data-translate="kombi">Kombi</option>
                                     <option value="vlačilec" data-translate="vlačilec">Vlačilec</option>
                                     <option value="truck" data-translate="truck">Tovornjak</option>
-                                    <option value="van" data-translate="van">Kombi/Van</option>
                                     <option value="other" data-translate="other">Drugo</option>
                                 </select>
                             </div>
@@ -223,11 +230,11 @@
                             <div class="input-group">
                                 <label class="input-label" data-translate="timeTolerance">Toleranca ure</label>
                                 <select class="input-field" id="timeToleranceFilter">
-                                    <option value="0">Točno isto uro</option>
-                                    <option value="1">± 1 ura</option>
-                                    <option value="2" selected>± 2 uri</option>
-                                    <option value="4">± 4 ure</option>
-                                    <option value="24">Kdaj koli isti dan</option>
+                                    <option value="0" data-translate="exactSameTime">Točno isto uro</option>
+                                    <option value="1" data-translate="plusMinus1Hour">± 1 ura</option>
+                                    <option value="2" selected data-translate="plusMinus2Hours">± 2 uri</option>
+                                    <option value="4" data-translate="plusMinus4Hours">± 4 ure</option>
+                                    <option value="24" data-translate="anytimeSameDay">Kdaj koli isti dan</option>
                                 </select>
                             </div>
                         </div>
@@ -526,6 +533,12 @@ let globalLoadingTimeout;
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, setting up loading screen logic');
+    
+    // Initialize language UI
+    if (window.updateUI) {
+        window.updateUI();
+    }
+    
     const loadingScreen = document.getElementById('initialLoadingScreen');
     
     // Funkcija za uklanjanje loading screena
@@ -657,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // Create badge HTML including "Moja fura" badge if it's the user's ride
           let badgeHtml = `<div class="ride-type-badge ${typeClass}">${typeText}</div>`;
           if (isMyRide) {
-            badgeHtml += `<span class="my-ride-badge">Moja fura</span>`;
+            badgeHtml += `<span class="my-ride-badge">${t('myRideBadge')}</span>`;
           }
           
           // Populate the row

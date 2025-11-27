@@ -5,12 +5,26 @@
 // Initialize the date time picker when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing datepicker...');
+    
     const dateTimePickerButton = document.getElementById('dateTimePicker');
     const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
     let enableTimeSelection = true;
     
     if (dateTimePickerButton) {
         console.log('Found datepicker button element');
+        
+        // Clean up any existing flatpickr instances and hidden inputs
+        if (dateTimePickerButton._flatpickr) {
+            dateTimePickerButton._flatpickr.destroy();
+        }
+        
+        // Remove any hidden flatpickr inputs that might cause duplication
+        const existingInputs = document.querySelectorAll('.flatpickr-input:not(#dateTimePicker)');
+        existingInputs.forEach(input => {
+            if (input.parentNode) {
+                input.parentNode.removeChild(input);
+            }
+        });
         
         // Add a span for the text to make it easier to extract later
         dateTimePickerButton.innerHTML = `

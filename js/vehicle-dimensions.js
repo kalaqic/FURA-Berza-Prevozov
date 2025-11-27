@@ -10,7 +10,7 @@ const vehicleDimensions = {
       length: 4.5,
       width: 1.8,
       height: 1.5,
-      displayName: "Male dimenzije (auto)",
+      displayNameKey: "smallVehicle",
       cubicMeters: 12.15 // calculated as length * width * height
     },
     
@@ -19,7 +19,7 @@ const vehicleDimensions = {
       length: 5.5,
       width: 2.0,
       height: 2.2,
-      displayName: "Srednje dimenzije (kombi)",
+      displayNameKey: "mediumVehicle",
       cubicMeters: 24.2
     },
     
@@ -28,7 +28,7 @@ const vehicleDimensions = {
       length: 8.0,
       width: 2.5,
       height: 2.8,
-      displayName: "Velike dimenzije (kamion)",
+      displayNameKey: "largeVehicle",
       cubicMeters: 56.0
     }
   };
@@ -40,9 +40,12 @@ const vehicleDimensions = {
   
   // Function to get all available sizes for select dropdowns
   function getAvailableSizes() {
+    const currentLang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'sl';
+    const trans = window.translations && window.translations[currentLang] ? window.translations[currentLang] : {};
+    
     return Object.keys(vehicleDimensions).map(key => ({
       value: key,
-      displayName: vehicleDimensions[key].displayName
+      displayName: trans[vehicleDimensions[key].displayNameKey] || vehicleDimensions[key].displayNameKey
     }));
   }
   

@@ -89,7 +89,7 @@ function showSearchLoadingState() {
       resultsTable.innerHTML = `
         <tr>
           <td colspan="6" style="text-align: center; padding: 20px;">
-            Iskanje prevozov...
+            ${window.t ? window.t('searchingRides') : 'Iskanje prevozov...'}
           </td>
         </tr>
       `;
@@ -453,8 +453,11 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
   }
   
   const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
+  const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
   
   // Prepare location text with distance badges for nearby rides
+  // fromCountry is already translated, no need to translate again
+  // toCountry is already translated, no need to translate again
   let fromLocationText = `${fromCity}${fromCountry ? ', ' + fromCountry : ''}`;
   let toLocationText = `${toCity}${toCountry ? ', ' + toCountry : ''}`;
   
@@ -546,7 +549,12 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
     <td>${toLocationText}</td>
     <td>${dateOnly}</td>
     <td>${timeDisplay}</td>
-    <td>${vehicleTypeDisplay}</td>
+    <td>
+      <div class="vehicle-cell">
+        <img src="${vehicleIconPath}" alt="${vehicleTypeDisplay}" class="vehicle-icon" width="24" height="24">
+        <span class="vehicle-text">${vehicleTypeDisplay}</span>
+      </div>
+    </td>
     <td><div class="ride-type-badge ${typeClass}">${typeText}</div></td>
   `;
   
@@ -1131,39 +1139,7 @@ function updateSearchResults(results, shouldStore = true) {
       row.classList.add('looking-ride');
     }
     
-    // Choose icon based on vehicle type
-    let vehicleIcon = '';
-    
-    if (ride.vehicleType === 'car') {
-      vehicleIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M5 9l2 3h8l2 -6M2 5h4.5l2 5M2 8h12M9 17h6M13 4l1.5 5h.5"></path>
-      </svg>
-      `;
-    } else if (ride.vehicleType === 'van') {
-      vehicleIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="8" width="20" height="12" rx="2"></rect>
-        <path d="M6 11h12m-9 4h6M7 5h10"></path>
-      </svg>
-      `;
-    } else if (ride.vehicleType === 'truck') {
-      vehicleIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="1" y="8" width="22" height="12" rx="2"></rect>
-        <path d="M3 8V5h18v3M5 12h14M8 16h8"></path>
-      </svg>
-      `;
-    } else {
-      vehicleIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="9" cy="7" r="4"></circle>
-        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path>
-      </svg>
-      `;
-    }
+    // Vehicle icon is now handled by getVehicleIcon function
     
     // Create a badge for ride type
     const rideTypeBadge = ride.type === 'offering' 
@@ -1200,6 +1176,7 @@ function updateSearchResults(results, shouldStore = true) {
     
     // Translate vehicle type
     const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
+    const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
     
     row.innerHTML = `
       <td>${fromLocation}</td>
@@ -1207,9 +1184,9 @@ function updateSearchResults(results, shouldStore = true) {
       <td>${displayDate}</td>
       <td>${displayTime}</td>
       <td>
-        <div class="vehicle-icon-content">
-          ${vehicleIcon}
-          ${vehicleTypeDisplay}
+        <div class="vehicle-cell">
+          <img src="${vehicleIconPath}" alt="${vehicleTypeDisplay}" class="vehicle-icon" width="24" height="24">
+          <span class="vehicle-text">${vehicleTypeDisplay}</span>
         </div>
       </td>
       <td>
@@ -1412,6 +1389,7 @@ function createRideRow(ride) {
     dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
   }
   const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
+  const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
   
   // Populate the row
   row.innerHTML = `
@@ -1419,7 +1397,12 @@ function createRideRow(ride) {
     <td>${toCity}${toCountry ? ', ' + toCountry : ''}</td>
     <td>${dateOnly}</td>
     <td>${timeDisplay}</td>
-    <td>${vehicleTypeDisplay}</td>
+    <td>
+      <div class="vehicle-cell">
+        <img src="${vehicleIconPath}" alt="${vehicleTypeDisplay}" class="vehicle-icon" width="24" height="24">
+        <span class="vehicle-text">${vehicleTypeDisplay}</span>
+      </div>
+    </td>
     <td><div class="ride-type-badge ${typeClass}">${typeText}</div></td>
   `;
   
