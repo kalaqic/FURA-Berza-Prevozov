@@ -100,15 +100,6 @@
         letter-spacing: 0.2px;
     }
     
-    /* Hide any potential duplicate Flatpickr inputs that might be created */
-    .flatpickr-input:not(#dateTimePicker) {
-        display: none !important;
-    }
-    
-    /* Ensure only the main date picker container is visible */
-    .date-picker-container:not(:first-of-type) {
-        display: none !important;
-    }
 }
 
 @media (max-width: 480px) {
