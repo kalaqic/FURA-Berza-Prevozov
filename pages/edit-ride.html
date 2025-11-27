@@ -912,6 +912,9 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 // Get vehicle dimensions
                 const dimensions = window.getDimensionsBySize(vehicleSize);
                 
+                // Get the translated display name for vehicle size
+                const vehicleSizeDisplayName = window.t ? window.t(dimensions.displayNameKey) : dimensions.displayNameKey;
+                
                 // Get price information
                 const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked');
                 if (!selectedPriceOption) {
@@ -967,7 +970,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                         width: dimensions.width,
                         height: dimensions.height
                     },
-                    vehicleSizeDisplay: dimensions.displayName,
+                    vehicleSizeDisplay: vehicleSizeDisplayName,
                     hasRefrigerator,
                     description,
                     price: priceInfo,

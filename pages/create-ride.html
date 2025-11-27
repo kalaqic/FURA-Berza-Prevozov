@@ -568,6 +568,9 @@
                         // Get vehicle dimensions based on selected size
                         const dimensions = getDimensionsBySize(vehicleSize);
                         
+                        // Get the translated display name for vehicle size
+                        const vehicleSizeDisplayName = window.t ? window.t(dimensions.displayNameKey) : dimensions.displayNameKey;
+                        
                         // Prepare contact information
                         let contactInfo = {
                             name: '',
@@ -622,7 +625,7 @@
                                 width: dimensions.width,
                                 height: dimensions.height
                             },
-                            vehicleSizeDisplay: dimensions.displayName,
+                            vehicleSizeDisplay: vehicleSizeDisplayName,
                             hasRefrigerator,
                             description,
                             price: priceInfo,
