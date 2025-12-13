@@ -28,31 +28,43 @@
                 <div class="nav-right">
                     <div class="language-selector">
                         <div class="current-language" onclick="toggleLanguageDropdown()">
-                            <img id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <img class="flag-icon" id="currentFlag" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
                         <div class="language-dropdown" id="languageDropdown">
                             <div class="language-option" onclick="changeLanguage('sl')">
-                                <img src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
+                                <img class="flag-icon" src="../assets/flags/slovenia.svg" alt="Slovenia" width="20" height="15">
                                 <span>Slovenščina</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('en')">
-                                <img src="../assets/flags/england.svg" alt="England" width="20" height="15">
+                                <img class="flag-icon" src="../assets/flags/england.svg" alt="England" width="20" height="15">
                                 <span>English</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('sr')">
-                                <img src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
+                                <img class="flag-icon" src="../assets/flags/serbia.svg" alt="Serbia" width="20" height="15">
                                 <span>Српски</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('it')">
-                                <img src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
+                                <img class="flag-icon" src="../assets/flags/italy.svg" alt="Italy" width="20" height="15">
                                 <span>Italiano</span>
                             </div>
                             <div class="language-option" onclick="changeLanguage('de')">
-                                <span>🇩🇪</span>
+                                <img class="flag-icon" src="../assets/flags/germany.svg" alt="Germany" width="20" height="15">
                                 <span>Deutsch</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('bs')">
+                                <img class="flag-icon" src="../assets/flags/bosnia.svg" alt="Bosnia" width="20" height="15">
+                                <span>Bosanski</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('hr')">
+                                <img class="flag-icon" src="../assets/flags/croatia.svg" alt="Croatia" width="20" height="15">
+                                <span>Hrvatski</span>
+                            </div>
+                            <div class="language-option" onclick="changeLanguage('me')">
+                                <img class="flag-icon" src="../assets/flags/montenegro.svg" alt="Montenegro" width="20" height="15">
+                                <span>Crnogorski</span>
                             </div>
                         </div>
                     </div>
