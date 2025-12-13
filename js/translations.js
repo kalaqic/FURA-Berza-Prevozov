@@ -2561,21 +2561,21 @@ const translations = {
     logout: "Odjava",
     
     // Search functionality  
-    searchTransport: "Pretraži prijevoz",
+    searchTransport: "Pretraži prevoz",
     whereFrom: "Odakle?",
     whereTo: "Kuda?",
     dateTime: "Datum i vrijeme",
-    lookingFor: "Tražim prijevoz",
-    offering: "Nudim prijevoz",
+    lookingFor: "Tražim prevoz",
+    offering: "Nudim prevoz",
     searchButton: "Pretraži",
-    allRides: "Svi prijevozi",
+    allRides: "Svi prevozi",
     
     // Search filters
     refrigeratedOnly: "Samo vozila s hladnjakom",
     
     // Results
     showingRides: "Prikazujem",
-    rides: "prijevoza",
+    rides: "prevoza",
     exactMatches: "točnih",
     approximateMatches: "približnih",
     nearbyMatches: "obližnjih",
@@ -2611,14 +2611,14 @@ const translations = {
     
     // Search results
     searchResults: "Rezultati pretrage",
-    foundRides: "Pronađeni prijevozi",
+    foundRides: "Pronađeni prevozi",
     noResults: "Nema rezultata",
-    noResultsMessage: "Nema pronađenih prijevoza za zadane kriterije.",
+    noResultsMessage: "Nema pronađenih prevoza za zadane kriterije.",
     clearFilters: "Očisti filtere",
     
     // Ride details
-    rideDetails: "Detalji prijevoza",
-    rideType: "Tip prijevoza",
+    rideDetails: "Detalji prevoza",
+    rideType: "Tip prevoza",
     vehicleType: "Tip vozila",
     vehicleSize: "Veličina vozila",
     hasRefrigerator: "Ima hladnjak",
@@ -2654,7 +2654,7 @@ const translations = {
     validationError: "Molimo unesite sve potrebne podatke",
     
     // Footer
-    footerDescription: "Platforma za pronalaženje i nude prijevoza po Sloveniji i susjednim zemljama.",
+    footerDescription: "Platforma za pronalaženje i nude prevoza po Sloveniji i susjednim zemljama.",
     legalTitle: "Pravne informacije",
     privacyPolicy: "Pravilnik o privatnosti",
     termsConditions: "Opći uvjeti",
@@ -2683,8 +2683,8 @@ const translations = {
     allRightsReserved: "Sva prava zadržana.",
     
     // Forms
-    createRide: "Dodaj prijevoz",
-    editRide: "Uredi prijevoz",
+    createRide: "Dodaj prevoz",
+    editRide: "Uredi prevoz",
     selectOption: "Odaberi opciju",
     required: "Obavezno",
     optional: "Neobavezno",
@@ -2704,10 +2704,10 @@ const translations = {
     dateDesc: "Datum silazno",
     
     // Create ride page
-    createRideTitle: "Dodaj novi prijevoz",
-    rideTypeSelection: "Tip prijevoza",
-    lookingForRide: "Tražim prijevoz",
-    offeringRide: "Nudim prijevoz",
+    createRideTitle: "Dodaj novi prevoz",
+    rideTypeSelection: "Tip prevoza",
+    lookingForRide: "Tražim prevoz",
+    offeringRide: "Nudim prevoz",
     routeInformation: "Informacije o ruti",
     selectFromCountry: "Odaberi zemlju polaska",
     selectToCountry: "Odaberi zemlju odredišta",
@@ -2725,9 +2725,9 @@ const translations = {
     enterPrice: "Unesite cijenu",
     selectCurrency: "Odaberi valutu",
     additionalInformation: "Dodatne informacije",
-    enterDescription: "Unesite opis prijevoza",
-    enterAdditionalInfo: "Unesite dodatne informacije o prijevozu",
-    publishRide: "Objavi prijevoz",
+    enterDescription: "Unesite opis prevoza",
+    enterAdditionalInfo: "Unesite dodatne informacije o prevozu",
+    publishRide: "Objavi prevoz",
     customVehicle: "Ostalo...",
     vlačilec: "Vučno vozilo",
     
@@ -2749,8 +2749,8 @@ const translations = {
     loginLink: "Prijavite se",
     
     // Edit ride page
-    editRideTitle: "Uredi prijevoz",
-    loadingRideData: "Učitavanje podataka o prijevozu...",
+    editRideTitle: "Uredi prevoz",
+    loadingRideData: "Učitavanje podataka o prevozu...",
     fromCountry: "Iz zemlje",
     toCountry: "U zemlju",
     fromCity: "Iz grada",
@@ -2760,29 +2760,29 @@ const translations = {
     cancelEditingText: "Jeste li sigurni da želite otkazati uređivanje? Sve promjene će biti izgubljene.",
     continueEditing: "Nastavi uređivanje",
     cancelEditing: "Otkaži uređivanje",
-    updatingRide: "Ažuriranje prijevoza...",
+    updatingRide: "Ažuriranje prevoza...",
     
     // Create ride page  
-    publishingRide: "Objavljujem prijevoz...",
+    publishingRide: "Objavljujem prevoz...",
     
     // My ride badge
-    myRideBadge: "Moj prijevoz",
+    myRideBadge: "Moj prevoz",
     
     // Page titles
-    homePageTitle: "FURA - Platforma za prijevoz",
+    homePageTitle: "FURA - Platforma za prevoz",
     aboutPageTitle: "O nama - FURA",
     privacyPageTitle: "Pravilnik o privatnosti - FURA",
     termsPageTitle: "Opći uvjeti - FURA",
     loginPageTitle: "Prijava - FURA",
     registerPageTitle: "Registracija - FURA",
-    createRidePageTitle: "Dodaj prijevoz - FURA",
-    editRidePageTitle: "Uredi prijevoz - FURA",
+    createRidePageTitle: "Dodaj prevoz - FURA",
+    editRidePageTitle: "Uredi prevoz - FURA",
     
     // Privacy policy page
     privacyPolicyTitle: "Pravilnik o privatnosti",
     lastUpdated: "Zadnje ažuriranje: 1. decembar 2024",
     introductionTitle: "1. Uvod",
-    introductionText: "FURA (\"mi\", \"nas\", \"naš\") poštuje vašu privatnost i posvećena je zaštiti vaših osobnih podataka. Ovaj pravilnik o privatnosti vas obavještava o tome kako prikupljamo, koristimo i štitimo vaše podatke kada koristite našu platformu za pronalaženje i nude prijevoza.",
+    introductionText: "FURA (\"mi\", \"nas\", \"naš\") poštuje vašu privatnost i posvećena je zaštiti vaših osobnih podataka. Ovaj pravilnik o privatnosti vas obavještava o tome kako prikupljamo, koristimo i štitimo vaše podatke kada koristite našu platformu za pronalaženje i nude prevoza.",
     dataCollectionTitle: "2. Koje podatke prikupljamo",
     registrationDataTitle: "2.1 Podaci pri registraciji",
     registrationDataItem1: "Ime i prezime",
@@ -2790,22 +2790,22 @@ const translations = {
     registrationDataItem3: "Korisničko ime",
     registrationDataItem4: "Broj telefona",
     registrationDataItem5: "Šifra (enkriptirana)",
-    rideDataTitle: "2.2 Podaci o prijevozima",
+    rideDataTitle: "2.2 Podaci o prevozima",
     rideDataItem1: "Lokacije polaska i odredišta",
-    rideDataItem2: "Datum i vrijeme prijevoza",
+    rideDataItem2: "Datum i vrijeme prevoza",
     rideDataItem3: "Informacije o vozilu (tip, dimenzije)",
-    rideDataItem4: "Opis prijevoza",
+    rideDataItem4: "Opis prevoza",
     rideDataItem5: "Cjenovne informacije",
     dataUsageTitle: "3. Kako koristimo vaše podatke",
     dataUsageItem1: "Za omogućavanje registracije i prijave u sistem",
-    dataUsageItem2: "Za objavljuovanje i pronalaženje prijevoza",
-    dataUsageItem3: "Za komunikaciju između korisnika o prijevozima",
+    dataUsageItem2: "Za objavljuovanje i pronalaženje prevoza",
+    dataUsageItem3: "Za komunikaciju između korisnika o prevozima",
     dataUsageItem4: "Za sigurnost i zaštitu platforme",
     dataUsageItem5: "Za poboljšavanje naših usluga",
     dataUsageItem6: "Za slanje verifikacijskih e-mail poruka",
     dataSharingTitle: "4. Dijeljenje podataka",
     dataSharingText: "<strong>Ne prodajemo vaše podatke trećim stranama.</strong> Vaši podaci se dijele samo:",
-    dataSharingItem1: "Sa drugim korisnicima kada objavite prijevoz (ime, telefon, e-pošta za komunikaciju)",
+    dataSharingItem1: "Sa drugim korisnicima kada objavite prevoz (ime, telefon, e-pošta za komunikaciju)",
     dataSharingItem2: "Sa pružaocima usluga koji nam pomažu da funkcioniramo (npr. Firebase, EmailJS)",
     dataSharingItem3: "Kada to zahtijeva zakon",
     dataSecurityTitle: "5. Sigurnost podataka",
@@ -2838,7 +2838,7 @@ const translations = {
     acceptanceTitle: "1. Prihvaćanje uvjeta",
     acceptanceText: "Korištenjem platforme FURA slažete se sa ovim općim uvjetima korištenja. Ako se ne slažete sa uvjetima, ne smijete koristiti platformu.",
     serviceDescriptionTitle: "2. Opis usluge",
-    serviceDescriptionText: "FURA je platforma koja omogućuje korisnicima objavljuovanje i pronalaženje prijevoza. Platforma djeluje kao posrednik između korisnika i ne izvršava prijevozne usluge.",
+    serviceDescriptionText: "FURA je platforma koja omogućuje korisnicima objavljuovanje i pronalaženje prevoza. Platforma djeluje kao posrednik između korisnika i ne izvršava prevozne usluge.",
     userObligationsTitle: "3. Obveze korisnika",
     registrationObligationsTitle: "3.1 Registracija",
     registrationObligation1: "Morate dati točne i istinite podatke",
@@ -2850,8 +2850,8 @@ const translations = {
     behaviorObligation2: "Zabranjeno je objavljivanje lažnih oglasa",
     behaviorObligation3: "Zabranjeno je korištenje uvredljivog jezika",
     behaviorObligation4: "Morate poštovati dogovorene termine",
-    ridePostingTitle: "4. Objavljivanje prijevoza",
-    ridePosting1: "Podaci o prijevozu moraju biti točni",
+    ridePostingTitle: "4. Objavljivanje prevoza",
+    ridePosting1: "Podaci o prevozu moraju biti točni",
     ridePosting2: "Cijene moraju biti jasno navedene",
     ridePosting3: "Kontaktni podaci moraju biti ispravni",
     ridePosting4: "Zabranjeno je diskriminirajuće ponašanje",
@@ -2866,7 +2866,7 @@ const translations = {
     paymentsText: "FURA ne obrađuje plaćanja između korisnika. Sva plaćanja se vrše direktno između korisnika.",
     liabilityTitle: "7. Ograničenje odgovornosti",
     liabilityText: "FURA ne preuzima odgovornost za:",
-    liability1: "Štetu nastalu tokom prijevoza",
+    liability1: "Štetu nastalu tokom prevoza",
     liability2: "Ponašanje drugih korisnika",
     liability3: "Točnost objavljenih podataka",
     liability4: "Tehničke smetnje platforme",
@@ -2898,9 +2898,9 @@ const translations = {
     // About page
     aboutPageTitle: "O nama - FURA",
     aboutTitle: "O FURA",
-    aboutText1: "FURA je moderna platforma koja povezuje ljude koji trebaju prijevoz sa onima koji ga mogu pružiti.",
-    aboutText2: "Naš cilj je olakšati pronalaženje sigurnog i povoljnog prijevoza kroz Sloveniju i susjedne zemlje.",
-    aboutText3: "Platforma omogućuje korisnicima da brzo i jednostavno objave zahtjeve za prijevoz ili ponude svoju uslugu.",
+    aboutText1: "FURA je moderna platforma koja povezuje ljude koji trebaju prevoz sa onima koji ga mogu pružiti.",
+    aboutText2: "Naš cilj je olakšati pronalaženje sigurnog i povoljnog prevoza kroz Sloveniju i susjedne zemlje.",
+    aboutText3: "Platforma omogućuje korisnicima da brzo i jednostavno objave zahtjeve za prevoz ili ponude svoju uslugu.",
     
     // Dimensions and volume
     dimensions: "Dimenzije",
@@ -2917,9 +2917,9 @@ const translations = {
     withoutRefrigerator: "Bez hladnjaka",
     
     // Ride status and badges
-    activeRide: "Aktivan prijevoz",
-    expiredRide: "Istekao prijevoz", 
-    upcomingRide: "Predstojući prijevoz",
+    activeRide: "Aktivan prevoz",
+    expiredRide: "Istekao prevoz", 
+    upcomingRide: "Predstojući prevoz",
     
     // Time and date formatting
     at: "u",
@@ -2944,9 +2944,9 @@ const translations = {
     passwordsNotMatch: "Šifre se ne poklapaju",
     
     // Success messages
-    rideCreated: "Prijevoz uspješno stvoren",
-    rideUpdated: "Prijevoz uspješno ažuriran",
-    rideDeleted: "Prijevoz uspješno obrisan",
+    rideCreated: "Prevoz uspješno stvoren",
+    rideUpdated: "Prevoz uspješno ažuriran",
+    rideDeleted: "Prevoz uspješno obrisan",
     profileUpdated: "Profil uspješno ažuriran",
     
     // Error messages  
@@ -2971,7 +2971,7 @@ const translations = {
     applyFilters: "Primijeni filtere",
     
     // Distance and location
-    nearbyRides: "Prijevozi u blizini",
+    nearbyRides: "Prevozi u blizini",
     exactLocation: "Točna lokacija",
     approximateLocation: "Približna lokacija",
     
@@ -2982,17 +2982,17 @@ const translations = {
     
     // Loading states
     loadingResults: "Učitavanje rezultata...",
-    searchingRides: "Pretraga prijevoza...",
+    searchingRides: "Pretraga prevoza...",
     loadingMore: "Učitavanje više...",
     
     // Empty states
-    noRidesFound: "Nisu pronađeni prijevozi",
-    noRidesMessage: "Trenutno nema dostupnih prijevoza za vaše kriterije.",
-    createFirstRide: "Dodaj prvi prijevoz",
+    noRidesFound: "Nisu pronađeni prevozi",
+    noRidesMessage: "Trenutno nema dostupnih prevoza za vaše kriterije.",
+    createFirstRide: "Dodaj prvi prevoz",
     
     // User feedback
-    helpfulRide: "Koristan prijevoz",
-    reportRide: "Prijavi prijevoz",
+    helpfulRide: "Koristan prevoz",
+    reportRide: "Prijavi prevoz",
     contactSupport: "Kontaktiraj podršku",
     
     // Settings and preferences  
@@ -3009,7 +3009,7 @@ const translations = {
     deleteAccount: "Obriši račun",
     
     // Social and sharing
-    shareRide: "Dijeli prijevoz",
+    shareRide: "Dijeli prevoz",
     copyLink: "Kopiraj link",
     sendMessage: "Pošalji poruku",
     
@@ -3020,7 +3020,7 @@ const translations = {
     priceRange: "Cjenovni opseg",
     
     // Booking and reservations
-    bookRide: "Rezerviraj prijevoz",
+    bookRide: "Rezerviraj prevoz",
     confirmBooking: "Potvrdi rezervaciju", 
     cancelBooking: "Otkaži rezervaciju",
     bookingConfirmed: "Rezervacija potvrđena",
@@ -3155,21 +3155,21 @@ const translations = {
     logout: "Odjava",
     
     // Search functionality  
-    searchTransport: "Pretraži prijevoz",
+    searchTransport: "Pretraži prevoz",
     whereFrom: "Odakle?",
     whereTo: "Kamo?",
     dateTime: "Datum i vrijeme",
-    lookingFor: "Tražim prijevoz",
-    offering: "Nudim prijevoz",
+    lookingFor: "Tražim prevoz",
+    offering: "Nudim prevoz",
     searchButton: "Pretraži",
-    allRides: "Svi prijevozi",
+    allRides: "Svi prevozi",
     
     // Search filters
     refrigeratedOnly: "Samo vozila s hladnjakom",
     
     // Results
     showingRides: "Prikazujem",
-    rides: "prijevoza",
+    rides: "prevoza",
     exactMatches: "točnih",
     approximateMatches: "približnih",
     nearbyMatches: "obližnjih",
@@ -3205,14 +3205,14 @@ const translations = {
     
     // Search results
     searchResults: "Rezultati pretrage",
-    foundRides: "Pronađeni prijevozi",
+    foundRides: "Pronađeni prevozi",
     noResults: "Nema rezultata",
-    noResultsMessage: "Nema pronađenih prijevoza za zadane kriterije.",
+    noResultsMessage: "Nema pronađenih prevoza za zadane kriterije.",
     clearFilters: "Očisti filtere",
     
     // Ride details
-    rideDetails: "Detalji prijevoza",
-    rideType: "Tip prijevoza",
+    rideDetails: "Detalji prevoza",
+    rideType: "Tip prevoza",
     vehicleType: "Tip vozila",
     vehicleSize: "Veličina vozila",
     hasRefrigerator: "Ima hladnjak",
@@ -3255,8 +3255,8 @@ const translations = {
     allRightsReserved: "Sva prava pridržana.",
     
     // Forms
-    createRide: "Dodaj prijevoz",
-    editRide: "Uredi prijevoz",
+    createRide: "Dodaj prevoz",
+    editRide: "Uredi prevoz",
     selectOption: "Odaberite opciju",
     required: "Obavezno",
     optional: "Neobavezno",
@@ -3276,10 +3276,10 @@ const translations = {
     dateDesc: "Datum silazno",
     
     // Create ride page
-    createRideTitle: "Dodaj novi prijevoz",
-    rideTypeSelection: "Tip prijevoza",
-    lookingForRide: "Tražim prijevoz",
-    offeringRide: "Nudim prijevoz",
+    createRideTitle: "Dodaj novi prevoz",
+    rideTypeSelection: "Tip prevoza",
+    lookingForRide: "Tražim prevoz",
+    offeringRide: "Nudim prevoz",
     routeInformation: "Informacije o ruti",
     selectFromCountry: "Odaberite zemlju polaska",
     selectToCountry: "Odaberite zemlju odredišta",
@@ -3297,9 +3297,9 @@ const translations = {
     enterPrice: "Unesite cijenu",
     selectCurrency: "Odaberite valutu",
     additionalInformation: "Dodatne informacije",
-    enterDescription: "Unesite opis prijevoza",
-    enterAdditionalInfo: "Unesite dodatne informacije o prijevozu",
-    publishRide: "Objavi prijevoz",
+    enterDescription: "Unesite opis prevoza",
+    enterAdditionalInfo: "Unesite dodatne informacije o prevozu",
+    publishRide: "Objavi prevoz",
     customVehicle: "Ostalo...",
     vlačilec: "Vučno vozilo",
     
@@ -3321,8 +3321,8 @@ const translations = {
     loginLink: "Prijavite se",
     
     // Edit ride page
-    editRideTitle: "Uredi prijevoz",
-    loadingRideData: "Učitavanje podataka o prijevozu...",
+    editRideTitle: "Uredi prevoz",
+    loadingRideData: "Učitavanje podataka o prevozu...",
     fromCountry: "Iz zemlje",
     toCountry: "U zemlju",
     fromCity: "Iz grada",
@@ -3332,23 +3332,23 @@ const translations = {
     cancelEditingText: "Jeste li sigurni da želite otkazati uređivanje? Sve promjene će biti izgubljene.",
     continueEditing: "Nastavi uređivanje",
     cancelEditing: "Otkaži uređivanje",
-    updatingRide: "Ažuriranje prijevoza...",
+    updatingRide: "Ažuriranje prevoza...",
     
     // Create ride page  
-    publishingRide: "Objavljujem prijevoz...",
+    publishingRide: "Objavljujem prevoz...",
     
     // My ride badge
-    myRideBadge: "Moj prijevoz",
+    myRideBadge: "Moj prevoz",
     
     // Page titles
-    homePageTitle: "FURA - Platforma za prijevoz",
+    homePageTitle: "FURA - Platforma za prevoz",
     aboutPageTitle: "O nama - FURA",
     privacyPageTitle: "Pravilnik o privatnosti - FURA",
     termsPageTitle: "Opći uvjeti - FURA",
     loginPageTitle: "Prijava - FURA",
     registerPageTitle: "Registracija - FURA",
-    createRidePageTitle: "Dodaj prijevoz - FURA",
-    editRidePageTitle: "Uredi prijevoz - FURA",
+    createRidePageTitle: "Dodaj prevoz - FURA",
+    editRidePageTitle: "Uredi prevoz - FURA",
     
     // Privacy policy page
     privacyPolicyTitle: "Pravilnik o privatnosti",
@@ -3362,16 +3362,16 @@ const translations = {
     registrationDataItem3: "Korisničko ime",
     registrationDataItem4: "Broj telefona",
     registrationDataItem5: "Lozinka (kriptirana)",
-    rideDataTitle: "2.2 Podaci o prijevozima",
+    rideDataTitle: "2.2 Podaci o prevozima",
     rideDataItem1: "Lokacije polaska i odredišta",
-    rideDataItem2: "Datum i vrijeme prijevoza",
+    rideDataItem2: "Datum i vrijeme prevoza",
     rideDataItem3: "Informacije o vozilu (tip, dimenzije)",
-    rideDataItem4: "Opis prijevoza",
+    rideDataItem4: "Opis prevoza",
     rideDataItem5: "Cjenovne informacije",
     dataUsageTitle: "3. Kako koristimo vaše podatke",
     dataUsageItem1: "Za omogućavanje registracije i prijave u sustav",
-    dataUsageItem2: "Za objavljuovanje i pronalaženje prijevoza",
-    dataUsageItem3: "Za komunikaciju između korisnika o prijevozima",
+    dataUsageItem2: "Za objavljuovanje i pronalaženje prevoza",
+    dataUsageItem3: "Za komunikaciju između korisnika o prevozima",
     dataUsageItem4: "Za sigurnost i zaštitu platforme",
     dataUsageItem5: "Za poboljšavanje naših usluga",
     dataUsageItem6: "Za slanje verifikacijskih e-mail poruka",
@@ -3410,7 +3410,7 @@ const translations = {
     acceptanceTitle: "1. Prihvaćanje uvjeta",
     acceptanceText: "Korištenjem platforme FURA slažete se s ovim općim uvjetima korištenja. Ako se ne slažete s uvjetima, ne smijete koristiti platformu.",
     serviceDescriptionTitle: "2. Opis usluge",
-    serviceDescriptionText: "FURA je platforma koja omogućuje korisnicima objavljuovanje i pronalaženje prijevoza. Platforma djeluje kao posrednik između korisnika i ne izvršava prijevozne usluge.",
+    serviceDescriptionText: "FURA je platforma koja omogućuje korisnicima objavljuovanje i pronalaženje prevoza. Platforma djeluje kao posrednik između korisnika i ne izvršava prevozne usluge.",
     userObligationsTitle: "3. Obveze korisnika",
     registrationObligationsTitle: "3.1 Registracija",
     registrationObligation1: "Morate dati točne i istinite podatke",
@@ -3423,7 +3423,7 @@ const translations = {
     behaviorObligation3: "Zabranjeno je korištenje uvredljivog jezika",
     behaviorObligation4: "Morate poštovati dogovorene termine",
     ridePostingTitle: "4. Objavljuovanje prijevoza",
-    ridePosting1: "Podaci o prijevozu moraju biti točni",
+    ridePosting1: "Podaci o prevozu moraju biti točni",
     ridePosting2: "Cijene moraju biti jasno navedene",
     ridePosting3: "Kontaktni podaci moraju biti ispravni",
     ridePosting4: "Zabranjeno je diskriminirajuće ponašanje",
@@ -3471,8 +3471,8 @@ const translations = {
     aboutPageTitle: "O nama - FURA",
     aboutTitle: "O FURA",
     aboutText1: "FURA je moderna platforma koja povezuje ljude koji trebaju prijevoz s onima koji ga mogu pružiti.",
-    aboutText2: "Naš cilj je olakšati pronalaženje sigurnog i povoljnog prijevoza kroz Sloveniju i susjedne zemlje.",
-    aboutText3: "Platforma omogućuje korisnicima da brzo i jednostavno objave zahtjeve za prijevoz ili ponude svoju uslugu.",
+    aboutText2: "Naš cilj je olakšati pronalaženje sigurnog i povoljnog prevoza kroz Sloveniju i susjedne zemlje.",
+    aboutText3: "Platforma omogućuje korisnicima da brzo i jednostavno objave zahtjeve za prevoz ili ponude svoju uslugu.",
     
     // Dimensions and volume
     dimensions: "Dimenzije",
@@ -3489,9 +3489,9 @@ const translations = {
     withoutRefrigerator: "Bez hladnjaka",
     
     // Ride status and badges
-    activeRide: "Aktivan prijevoz",
-    expiredRide: "Istekao prijevoz", 
-    upcomingRide: "Predstojući prijevoz",
+    activeRide: "Aktivan prevoz",
+    expiredRide: "Istekao prevoz", 
+    upcomingRide: "Predstojući prevoz",
     
     // Time and date formatting
     at: "u",
@@ -3516,9 +3516,9 @@ const translations = {
     passwordsNotMatch: "Lozinke se ne poklapaju",
     
     // Success messages
-    rideCreated: "Prijevoz uspješno stvoren",
-    rideUpdated: "Prijevoz uspješno ažuriran",
-    rideDeleted: "Prijevoz uspješno obrisan",
+    rideCreated: "Prevoz uspješno stvoren",
+    rideUpdated: "Prevoz uspješno ažuriran",
+    rideDeleted: "Prevoz uspješno obrisan",
     profileUpdated: "Profil uspješno ažuriran",
     
     // Error messages  
@@ -3543,7 +3543,7 @@ const translations = {
     applyFilters: "Primijeni filtere",
     
     // Distance and location
-    nearbyRides: "Prijevozi u blizini",
+    nearbyRides: "Prevozi u blizini",
     exactLocation: "Točna lokacija",
     approximateLocation: "Približna lokacija",
     
@@ -3554,13 +3554,13 @@ const translations = {
     
     // Loading states
     loadingResults: "Učitavanje rezultata...",
-    searchingRides: "Pretraga prijevoza...",
+    searchingRides: "Pretraga prevoza...",
     loadingMore: "Učitavanje više...",
     
     // Empty states
-    noRidesFound: "Nisu pronađeni prijevozi",
-    noRidesMessage: "Trenutno nema dostupnih prijevoza za vaše kriterije.",
-    createFirstRide: "Dodaj prvi prijevoz",
+    noRidesFound: "Nisu pronađeni prevozi",
+    noRidesMessage: "Trenutno nema dostupnih prevoza za vaše kriterije.",
+    createFirstRide: "Dodaj prvi prevoz",
     
     // Additional comprehensive translations covering all areas
     // [Rest of translations similar to Bosnian but with Croatian linguistic variants]
