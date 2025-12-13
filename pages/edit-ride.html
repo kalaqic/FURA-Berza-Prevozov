@@ -104,17 +104,19 @@
             
             <div class="form-row">
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
+                    <div class="input-group">
                         <label class="input-label" data-translate="fromCountry">Iz države</label>
-                        <input type="text" class="input-field country-input" id="fromCountry" placeholder="Država" required>
-                        <div class="autocomplete-dropdown" id="fromCountryDropdown"></div>
+                        <select class="input-field country-select" id="fromCountry" required>
+                            <option value="" data-translate="selectCountry">Izberi državo</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
+                    <div class="input-group">
                         <label class="input-label" data-translate="toCountry">V državo</label>
-                        <input type="text" class="input-field country-input" id="toCountry" placeholder="Država" required>
-                        <div class="autocomplete-dropdown" id="toCountryDropdown"></div>
+                        <select class="input-field country-select" id="toCountry" required>
+                            <option value="" data-translate="selectCountry">Izberi državo</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -132,17 +134,19 @@
             
             <div class="form-row">
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
+                    <div class="input-group">
                         <label class="input-label" data-translate="fromCity">Iz mesta</label>
-                        <input type="text" class="input-field city-input" id="fromCity" placeholder="Mesto" required>
-                        <div class="autocomplete-dropdown" id="fromCityDropdown"></div>
+                        <select class="input-field city-select" id="fromCity" required>
+                            <option value="" data-translate="selectCity">Izberi mesto</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-col">
-                    <div class="input-group autocomplete-container">
+                    <div class="input-group">
                         <label class="input-label" data-translate="toCity">V mesto</label>
-                        <input type="text" class="input-field city-input" id="toCity" placeholder="Mesto" required>
-                        <div class="autocomplete-dropdown" id="toCityDropdown"></div>
+                        <select class="input-field city-select" id="toCity" required>
+                            <option value="" data-translate="selectCity">Izberi mesto</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -273,7 +277,7 @@
     <script src="../js/location-data.js"></script> <!-- Add this line -->
     <script src="../js/utils.js"></script>
     <script src="../js/firestore-rides.js"></script>
-    <script src="../js/autocomplete.js"></script>
+    <script src="../js/dropdown-locations.js"></script>
     <script src="../js/datepicker.js"></script>
     
     <script>
@@ -446,18 +450,34 @@
                     }
                 });
                 
-                // Fill in form fields
+                // Fill in form fields - handle select dropdowns
                 const fromCountryField = document.getElementById('fromCountry');
-                if (fromCountryField) fromCountryField.value = ride.fromCountry || '';
-                
                 const toCountryField = document.getElementById('toCountry');
-                if (toCountryField) toCountryField.value = ride.toCountry || '';
-                
                 const fromCityField = document.getElementById('fromCity');
-                if (fromCityField) fromCityField.value = ride.fromCity || '';
-                
                 const toCityField = document.getElementById('toCity');
-                if (toCityField) toCityField.value = ride.toCity || '';
+                
+                // Set country values and trigger change events to populate city dropdowns
+                if (fromCountryField && ride.fromCountry) {
+                    fromCountryField.value = ride.fromCountry;
+                    // Trigger change event to populate city dropdown
+                    fromCountryField.dispatchEvent(new Event('change'));
+                }
+                
+                if (toCountryField && ride.toCountry) {
+                    toCountryField.value = ride.toCountry;
+                    // Trigger change event to populate city dropdown
+                    toCountryField.dispatchEvent(new Event('change'));
+                }
+                
+                // Set city values after a short delay to allow dropdowns to populate
+                setTimeout(() => {
+                    if (fromCityField && ride.fromCity) {
+                        fromCityField.value = ride.fromCity;
+                    }
+                    if (toCityField && ride.toCity) {
+                        toCityField.value = ride.toCity;
+                    }
+                }, 100);
                 
                 // Set date and time
                 if (dateTimePicker) {
@@ -793,13 +813,25 @@ function toggleDateTimePickerMode(dateOnly) {
                     return;
                 }
                 
-                const tempCountry = fromCountry.value;
-                fromCountry.value = toCountry.value;
-                toCountry.value = tempCountry;
+                // Store current values
+                const tempFromCountry = fromCountry.value;
+                const tempFromCity = fromCity.value;
+                const tempToCountry = toCountry.value;
+                const tempToCity = toCity.value;
                 
-                const tempCity = fromCity.value;
-                fromCity.value = toCity.value;
-                toCity.value = tempCity;
+                // Swap countries
+                fromCountry.value = tempToCountry;
+                toCountry.value = tempFromCountry;
+                
+                // Trigger change events to update city dropdowns
+                fromCountry.dispatchEvent(new Event('change'));
+                toCountry.dispatchEvent(new Event('change'));
+                
+                // Wait for city dropdowns to be populated, then swap cities
+                setTimeout(() => {
+                    fromCity.value = tempToCity;
+                    toCity.value = tempFromCity;
+                }, 50);
             } catch (error) {
                 console.error('Error swapping locations:', error);
             }
