@@ -288,6 +288,119 @@ window.utils = {
     };
   },
 
+  // Rate limiting for password reset emails - 1 attempt per day
+  async checkPasswordResetRateLimit(email) {
+    if (!email || !firebase) {
+      return { allowed: false, message: 'Invalid email address.' };
+    }
+    
+    try {
+      const emailLower = email.toLowerCase().trim();
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+      
+      // Get all attempts for this email in the last 24 hours
+      const attemptsRef = firebase.firestore().collection('passwordResetAttempts');
+      const recentAttempts = await attemptsRef
+        .where('email', '==', emailLower)
+        .where('timestamp', '>', firebase.firestore.Timestamp.fromDate(oneDayAgo))
+        .get();
+      
+      // Check if there's already an attempt today
+      if (!recentAttempts.empty) {
+        // Find the most recent attempt
+        let lastAttemptTime = null;
+        recentAttempts.docs.forEach(doc => {
+          const timestamp = doc.data().timestamp.toDate();
+          if (!lastAttemptTime || timestamp > lastAttemptTime) {
+            lastAttemptTime = timestamp;
+          }
+        });
+        
+        const nextAllowedTime = new Date(lastAttemptTime.getTime() + 24 * 60 * 60 * 1000);
+        const now = new Date();
+        
+        if (now < nextAllowedTime) {
+          const hoursRemaining = Math.ceil((nextAllowedTime - now) / (60 * 60 * 1000));
+          const minutesRemaining = Math.ceil((nextAllowedTime - now) / (60 * 1000));
+          
+          const baseMessage = window.t ? 
+            window.t('passwordResetRateLimitExceeded') : 
+            'Geslo lahko ponastavite le enkrat dnevno.';
+          
+          let timeMessage = '';
+          if (hoursRemaining >= 24) {
+            const daysRemaining = Math.floor(hoursRemaining / 24);
+            timeMessage = `Poskusite znova čez ${daysRemaining} ${daysRemaining === 1 ? 'dan' : 'dni'}.`;
+          } else if (hoursRemaining >= 1) {
+            timeMessage = `Poskusite znova čez ${hoursRemaining} ${hoursRemaining === 1 ? 'uro' : 'ur'}.`;
+          } else {
+            timeMessage = `Poskusite znova čez ${minutesRemaining} ${minutesRemaining === 1 ? 'minuto' : 'minut'}.`;
+          }
+          
+          return {
+            allowed: false,
+            message: `${baseMessage} ${timeMessage}`,
+            hoursRemaining: hoursRemaining,
+            minutesRemaining: minutesRemaining
+          };
+        }
+      }
+      
+      // Record this attempt
+      await attemptsRef.add({
+        email: emailLower,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        ip: null // Could add IP tracking if needed
+      });
+      
+      // Clean up old attempts (older than 7 days) - do this asynchronously
+      this.cleanupOldPasswordResetAttempts();
+      
+      return { allowed: true };
+    } catch (error) {
+      console.error('Error checking password reset rate limit:', error);
+      // On error, allow the request but log it
+      return { allowed: true, error: true };
+    }
+  },
+  
+  // Clean up old password reset attempts (older than 7 days)
+  async cleanupOldPasswordResetAttempts() {
+    try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const attemptsRef = firebase.firestore().collection('passwordResetAttempts');
+      
+      const oldAttempts = await attemptsRef
+        .where('timestamp', '<', firebase.firestore.Timestamp.fromDate(sevenDaysAgo))
+        .limit(100) // Process in batches
+        .get();
+      
+      if (!oldAttempts.empty) {
+        const batch = firebase.firestore().batch();
+        oldAttempts.docs.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+      }
+    } catch (error) {
+      console.error('Error cleaning up old password reset attempts:', error);
+    }
+  },
+  
+  // Send password reset email with rate limiting
+  async sendPasswordResetEmailWithRateLimit(email) {
+    // Check rate limit first
+    const rateLimitCheck = await this.checkPasswordResetRateLimit(email);
+    
+    if (!rateLimitCheck.allowed) {
+      throw new Error(rateLimitCheck.message);
+    }
+    
+    // Send the email
+    await firebase.auth().sendPasswordResetEmail(email);
+    return true;
+  },
+
   // Show notification message at bottom of screen
   showNotification(message, type = 'info', duration = 4000) {
     // Remove existing notifications

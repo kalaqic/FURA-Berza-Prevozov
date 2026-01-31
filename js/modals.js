@@ -220,8 +220,7 @@ window.showRideDetails = async function(rideId) {
         if (typeof formatPrice === 'function') {
           priceValue.textContent = formatPrice(ride.price);
         } else {
-          priceValue.textContent = ride.price?.type === 'free' ? t('free') : 
-                                  ride.price?.type === 'negotiable' ? t('negotiable') : 
+          priceValue.textContent = ride.price?.type === 'negotiable' ? t('negotiable') : 
                                   ride.price?.amount ? `${ride.price.amount} ${ride.price.currency || '€'}` : t('noData');
         }
       }

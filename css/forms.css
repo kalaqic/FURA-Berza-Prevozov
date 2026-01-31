@@ -362,3 +362,46 @@ select::-ms-value {
   .selected-country.opened svg {
     transform: rotate(180deg);
   }
+
+/* Password toggle styles */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .input-field {
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: color 0.2s ease;
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+.password-toggle:focus {
+    outline: none;
+    color: var(--primary-color);
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}

@@ -361,7 +361,23 @@
                     
                     <div class="input-group">
                         <label class="input-label" data-translate="password">Geslo</label>
-                        <input type="password" class="input-field" id="loginPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
+                        <div class="password-input-wrapper">
+                            <input type="password" class="input-field" id="loginPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')">
+                                <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer-link">
+                        <a href="#" onclick="showForgotPasswordModal(); return false;" data-translate="forgotPassword">Pozabljeno geslo?</a>
                     </div>
                     
                     <button class="btn btn-primary search-btn" id="loginButton" data-translate="loginButton">Prijava</button>
@@ -437,15 +453,82 @@
                     
                     <div class="input-group">
                         <label class="input-label" data-translate="password">Geslo</label>
-                        <input type="password" class="input-field" id="registerPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
+                        <div class="password-input-wrapper">
+                            <input type="password" class="input-field" id="registerPassword" data-translate-placeholder="password" placeholder="Vnesite geslo">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('registerPassword')">
+                                <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="input-group">
                         <label class="input-label" data-translate="confirmPassword">Potrdite geslo</label>
-                        <input type="password" class="input-field" id="registerConfirmPassword" data-translate-placeholder="confirmPassword" placeholder="Ponovno vnesite geslo">
+                        <div class="password-input-wrapper">
+                            <input type="password" class="input-field" id="registerConfirmPassword" data-translate-placeholder="confirmPassword" placeholder="Ponovno vnesite geslo">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('registerConfirmPassword')">
+                                <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-
                     
+                    <div class="checkbox-group" style="margin-top: 20px; margin-bottom: 20px;">
+                        <input type="checkbox" id="registerModalAsCompany" onchange="toggleModalCompanyFields()">
+                        <label for="registerModalAsCompany" data-translate="registerAsCompany">Registriraj se kot podjetje</label>
+                    </div>
+                    
+                    <!-- Company fields (hidden by default) -->
+                    <div id="registerModalCompanyFieldsContainer" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 20px;" data-translate="companyInformation">Podatki o podjetju</h4>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="companyName">Naziv podjetja</label>
+                            <input type="text" id="registerModalCompanyName" class="input-field" placeholder="Vnesite naziv podjetja">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="input-group">
+                                    <label class="input-label" data-translate="taxNumber">Davčna številka (DŠ)</label>
+                                    <input type="text" id="registerModalTaxNumber" class="input-field" placeholder="Vnesite davčno številko">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="input-group">
+                                    <label class="input-label" data-translate="registrationNumber">Matična številka (MŠ)</label>
+                                    <input type="text" id="registerModalRegistrationNumber" class="input-field" placeholder="Vnesite matično številko">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="companyAddress">Naslov podjetja</label>
+                            <input type="text" id="registerModalCompanyAddress" class="input-field" placeholder="Vnesite naslov podjetja">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="companyCity">Mesto</label>
+                            <input type="text" id="registerModalCompanyCity" class="input-field" placeholder="Vnesite mesto">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="companyCountry">Država</label>
+                            <input type="text" id="registerModalCompanyCountry" class="input-field" placeholder="Vnesite državo">
+                        </div>
+                    </div>
                     
                     <button class="btn btn-primary search-btn" id="registerButton" data-translate="registerButton">Registracija</button>
                     
@@ -621,6 +704,172 @@ document.addEventListener('DOMContentLoaded', function() {
         // Sakrij loading screen nakon odgode
         setTimeout(hideLoadingScreen, 1000);
     });
+    
+    // Toggle password visibility
+    window.togglePasswordVisibility = function(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        const button = input.nextElementSibling;
+        if (!button) return;
+        
+        const eyeOpen = button.querySelector('.eye-open');
+        const eyeClosed = button.querySelector('.eye-closed');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            if (eyeOpen) eyeOpen.style.display = 'none';
+            if (eyeClosed) eyeClosed.style.display = 'block';
+        } else {
+            input.type = 'password';
+            if (eyeOpen) eyeOpen.style.display = 'block';
+            if (eyeClosed) eyeClosed.style.display = 'none';
+        }
+    };
+    
+    // Toggle company fields in registration modal
+    window.toggleModalCompanyFields = function() {
+        const isCompany = document.getElementById('registerModalAsCompany').checked;
+        const companyContainer = document.getElementById('registerModalCompanyFieldsContainer');
+        
+        if (isCompany) {
+            companyContainer.style.display = 'block';
+        } else {
+            companyContainer.style.display = 'none';
+            // Clear company fields when hidden
+            document.getElementById('registerModalCompanyName').value = '';
+            document.getElementById('registerModalTaxNumber').value = '';
+            document.getElementById('registerModalRegistrationNumber').value = '';
+            document.getElementById('registerModalCompanyAddress').value = '';
+            document.getElementById('registerModalCompanyCity').value = '';
+            document.getElementById('registerModalCompanyCountry').value = '';
+        }
+    };
+    
+    // Show forgot password modal
+    window.showForgotPasswordModal = function() {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('forgotPasswordModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'forgotPasswordModal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 data-translate="forgotPasswordTitle">Pozabljeno geslo</h2>
+                        <div class="modal-close" onclick="closeForgotPasswordModal()">✕</div>
+                    </div>
+                    <div class="modal-body">
+                        <p data-translate="forgotPasswordInstructions" style="margin-bottom: 20px;">Vnesite vaš e-poštni naslov. Prejeli boste e-pošto s povezavo za ponastavitev gesla.</p>
+                        <div class="input-group">
+                            <label class="input-label" data-translate="email">E-poštni naslov</label>
+                            <input type="email" id="forgotPasswordEmail" class="input-field" placeholder="Vnesite e-poštni naslov" required>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="handleForgotPasswordSubmit()" data-translate="sendResetEmail">Pošlji e-pošto za ponastavitev</button>
+                            <button class="btn btn-outline" onclick="closeForgotPasswordModal()" data-translate="cancel">Prekliči</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Add styles if not already added
+            if (!document.getElementById('forgotPasswordModalStyles')) {
+                const style = document.createElement('style');
+                style.id = 'forgotPasswordModalStyles';
+                style.textContent = `
+                    .form-actions {
+                        display: flex;
+                        gap: 10px;
+                        justify-content: center;
+                        margin-top: 20px;
+                    }
+                    .form-footer-link {
+                        text-align: right;
+                        margin-bottom: 15px;
+                    }
+                    .form-footer-link a {
+                        color: var(--primary-color);
+                        text-decoration: none;
+                        font-size: 14px;
+                    }
+                    .form-footer-link a:hover {
+                        text-decoration: underline;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Clear email field
+        const emailInput = document.getElementById('forgotPasswordEmail');
+        if (emailInput) {
+            emailInput.value = '';
+        }
+        modal.style.display = 'flex';
+        
+        // Update translations
+        if (typeof window.updateUI === 'function') {
+            window.updateUI();
+        }
+    };
+    
+    // Close forgot password modal
+    window.closeForgotPasswordModal = function() {
+        const modal = document.getElementById('forgotPasswordModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+    
+    // Handle forgot password submit - use Firebase's built-in reset with rate limiting
+    window.handleForgotPasswordSubmit = async function() {
+        const emailInput = document.getElementById('forgotPasswordEmail');
+        if (!emailInput) return;
+        
+        const email = emailInput.value.trim();
+        
+        if (!email) {
+            if (window.utils && window.utils.showNotification) {
+                window.utils.showNotification('Vnesite e-poštni naslov.', 'warning');
+            } else {
+                alert('Vnesite e-poštni naslov.');
+            }
+            return;
+        }
+        
+        try {
+            // Use rate-limited password reset function
+            await window.utils.sendPasswordResetEmailWithRateLimit(email);
+            
+            if (window.utils && window.utils.showNotification) {
+                window.utils.showNotification('E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.', 'success');
+            } else {
+                alert('E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.');
+            }
+            window.closeForgotPasswordModal();
+        } catch (error) {
+            console.error('Error sending password reset email:', error);
+            
+            // Check if it's a rate limit error
+            if (error.message && error.message.includes('Preveč zahtev')) {
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification(error.message, 'warning');
+                } else {
+                    alert(error.message);
+                }
+            } else {
+                // Don't reveal if user exists for security
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.', 'info');
+                } else {
+                    alert('Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.');
+                }
+            }
+        }
+    };
 });
   
     </script>

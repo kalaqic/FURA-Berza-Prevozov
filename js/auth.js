@@ -355,8 +355,9 @@ window.handleRegisterSubmit = async function() {
     const phone = phoneInput ? phoneInput.value.trim() : '';
     const password = passwordInput.value.trim();
     const confirmPassword = confirmPasswordInput.value.trim();
+    const registerAsCompany = document.getElementById('registerModalAsCompany') ? document.getElementById('registerModalAsCompany').checked : false;
     
-    console.log('Register data collected:', { email, firstName, lastName, username, phone });
+    console.log('Register data collected:', { email, firstName, lastName, username, phone, registerAsCompany });
     
     // Validation
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
@@ -371,11 +372,46 @@ window.handleRegisterSubmit = async function() {
       return;
     }
     
+    // Validate company fields if registering as company
+    let companyData = null;
+    if (registerAsCompany) {
+      const companyName = document.getElementById('registerModalCompanyName') ? document.getElementById('registerModalCompanyName').value.trim() : '';
+      const taxNumber = document.getElementById('registerModalTaxNumber') ? document.getElementById('registerModalTaxNumber').value.trim() : '';
+      const registrationNumber = document.getElementById('registerModalRegistrationNumber') ? document.getElementById('registerModalRegistrationNumber').value.trim() : '';
+      const companyAddress = document.getElementById('registerModalCompanyAddress') ? document.getElementById('registerModalCompanyAddress').value.trim() : '';
+      const companyCity = document.getElementById('registerModalCompanyCity') ? document.getElementById('registerModalCompanyCity').value.trim() : '';
+      const companyCountry = document.getElementById('registerModalCompanyCountry') ? document.getElementById('registerModalCompanyCountry').value.trim() : '';
+      
+      if (!companyName || !taxNumber) {
+        loadingOverlay.style.display = 'none';
+        utils.showNotification('Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!', 'warning');
+        return;
+      }
+      
+      companyData = {
+        companyName,
+        taxNumber,
+        registrationNumber: registrationNumber || '',
+        address: companyAddress || '',
+        city: companyCity || '',
+        country: companyCountry || ''
+      };
+    }
+    
     console.log('Starting Firebase registration...');
     
     // Create user using the registerUser function
     const user = await window.registerUser(email, password, firstName, lastName, username, phone);
     console.log('User created:', user.uid);
+    
+    // If company registration, save company data
+    if (registerAsCompany && companyData && user) {
+      await firebase.firestore().collection('users').doc(user.uid).update({
+        isCompany: true,
+        company: companyData
+      });
+      console.log('Company data saved for user:', user.uid);
+    }
     
     // Clear form fields
     firstNameInput.value = '';
@@ -385,6 +421,26 @@ window.handleRegisterSubmit = async function() {
     if (phoneInput) phoneInput.value = '';
     passwordInput.value = '';
     confirmPasswordInput.value = '';
+    
+    // Clear company fields if they exist
+    if (registerAsCompany) {
+      const companyNameField = document.getElementById('registerModalCompanyName');
+      const taxNumberField = document.getElementById('registerModalTaxNumber');
+      const registrationNumberField = document.getElementById('registerModalRegistrationNumber');
+      const companyAddressField = document.getElementById('registerModalCompanyAddress');
+      const companyCityField = document.getElementById('registerModalCompanyCity');
+      const companyCountryField = document.getElementById('registerModalCompanyCountry');
+      const companyCheckbox = document.getElementById('registerModalAsCompany');
+      
+      if (companyNameField) companyNameField.value = '';
+      if (taxNumberField) taxNumberField.value = '';
+      if (registrationNumberField) registrationNumberField.value = '';
+      if (companyAddressField) companyAddressField.value = '';
+      if (companyCityField) companyCityField.value = '';
+      if (companyCountryField) companyCountryField.value = '';
+      if (companyCheckbox) companyCheckbox.checked = false;
+      if (window.toggleModalCompanyFields) window.toggleModalCompanyFields();
+    }
     
     // Hide loading overlay
     loadingOverlay.style.display = 'none';

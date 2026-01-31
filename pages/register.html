@@ -10,6 +10,17 @@
     <link rel="stylesheet" href="../css/forms.css">
     <link rel="stylesheet" href="../css/responsive.css">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- EmailJS for email sending -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Firebase config -->
+    <script src="../js/firebase-config.js"></script>
+    
     <!-- Translation System -->
     <script src="../js/translations.js"></script>
 </head>
@@ -129,12 +140,81 @@
 
             <div class="input-group">
                 <label class="input-label" data-translate="password">Geslo</label>
-                <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+                <div class="password-input-wrapper">
+                    <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
+                        <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
             
             <div class="input-group">
                 <label class="input-label" data-translate="confirmPassword">Potrdite geslo</label>
-                <input type="password" id="confirm_password" class="input-field" placeholder="Ponovno vnesite geslo">
+                <div class="password-input-wrapper">
+                    <input type="password" id="confirm_password" class="input-field" placeholder="Ponovno vnesite geslo">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirm_password')">
+                        <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="checkbox-group" style="margin-top: 20px; margin-bottom: 20px;">
+                <input type="checkbox" id="registerAsCompany" onchange="toggleCompanyFields()">
+                <label for="registerAsCompany" data-translate="registerAsCompany">Registriraj se kot podjetje</label>
+            </div>
+            
+            <!-- Company fields (hidden by default) -->
+            <div id="companyFieldsContainer" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                <h4 style="color: var(--primary-color); margin-bottom: 20px;" data-translate="companyInformation">Podatki o podjetju</h4>
+                
+                <div class="input-group">
+                    <label class="input-label" data-translate="companyName">Naziv podjetja</label>
+                    <input type="text" id="companyName" class="input-field" placeholder="Vnesite naziv podjetja">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="input-group">
+                            <label class="input-label" data-translate="taxNumber">Davčna številka (DŠ)</label>
+                            <input type="text" id="taxNumber" class="input-field" placeholder="Vnesite davčno številko">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="input-group">
+                            <label class="input-label" data-translate="registrationNumber">Matična številka (MŠ)</label>
+                            <input type="text" id="registrationNumber" class="input-field" placeholder="Vnesite matično številko">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" data-translate="companyAddress">Naslov podjetja</label>
+                    <input type="text" id="companyAddress" class="input-field" placeholder="Vnesite naslov podjetja">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" data-translate="companyCity">Mesto</label>
+                    <input type="text" id="companyCity" class="input-field" placeholder="Vnesite mesto">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" data-translate="companyCountry">Država</label>
+                    <input type="text" id="companyCountry" class="input-field" placeholder="Vnesite državo">
+                </div>
             </div>
             
             <div class="checkbox-group">
@@ -151,6 +231,7 @@
     </main>
     
     <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize language UI
@@ -158,17 +239,59 @@
                 window.updateUI();
             }
         });
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const eyeOpen = button.querySelector('.eye-open');
+            const eyeClosed = button.querySelector('.eye-closed');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+        
+        window.togglePasswordVisibility = togglePasswordVisibility;
+        
+        // Toggle company fields visibility
+        function toggleCompanyFields() {
+            const isCompany = document.getElementById('registerAsCompany').checked;
+            const companyContainer = document.getElementById('companyFieldsContainer');
+            
+            if (isCompany) {
+                companyContainer.style.display = 'block';
+            } else {
+                companyContainer.style.display = 'none';
+                // Clear company fields when hidden
+                document.getElementById('companyName').value = '';
+                document.getElementById('taxNumber').value = '';
+                document.getElementById('registrationNumber').value = '';
+                document.getElementById('companyAddress').value = '';
+                document.getElementById('companyCity').value = '';
+                document.getElementById('companyCountry').value = '';
+            }
+        }
+        
+        window.toggleCompanyFields = toggleCompanyFields;
 
-function register() {
+async function register() {
     // Get form values
-    const firstname = document.getElementById('firstname').value;
-    const lastname = document.getElementById('lastname').value;
-    const email = document.getElementById('email').value;
-    const username = document.getElementById('username').value;
+    const firstname = document.getElementById('firstname').value.trim();
+    const lastname = document.getElementById('lastname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const username = document.getElementById('username').value.trim();
     const phone = document.getElementById('fullPhoneNumber').value; // Get the full phone number
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
     const terms = document.getElementById('terms').checked;
+    const registerAsCompany = document.getElementById('registerAsCompany').checked;
     
     // Validate inputs
     if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
@@ -193,14 +316,55 @@ function register() {
         return;
     }
     
-    // Log all data including phone
-    console.log('Registration data:', { firstname, lastname, email, username, phone, password });
+    // Validate company fields if registering as company
+    let companyData = null;
+    if (registerAsCompany) {
+        const companyName = document.getElementById('companyName').value.trim();
+        const taxNumber = document.getElementById('taxNumber').value.trim();
+        const registrationNumber = document.getElementById('registrationNumber').value.trim();
+        const companyAddress = document.getElementById('companyAddress').value.trim();
+        const companyCity = document.getElementById('companyCity').value.trim();
+        const companyCountry = document.getElementById('companyCountry').value.trim();
+        
+        if (!companyName || !taxNumber) {
+            utils.showNotification('Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!', 'warning');
+            return;
+        }
+        
+        companyData = {
+            companyName,
+            taxNumber,
+            registrationNumber: registrationNumber || '',
+            address: companyAddress || '',
+            city: companyCity || '',
+            country: companyCountry || ''
+        };
+    }
     
-    // In a real app, you would send the registration data to the server
-    
-    // For demo purposes, we'll just simulate a successful registration
-    utils.showNotification('Registracija uspešna! Zdaj se lahko prijavite.', 'success');
-    window.location.href = 'login.html';
+    try {
+        // Use Firebase registration
+        if (typeof window.registerUser === 'function') {
+            const user = await window.registerUser(email, password, firstname, lastname, username, phone);
+            
+            // If company registration, save company data
+            if (registerAsCompany && companyData && user) {
+                await firebase.firestore().collection('users').doc(user.uid).update({
+                    isCompany: true,
+                    company: companyData
+                });
+            }
+            
+            utils.showNotification('Registracija uspešna! Preverite e-pošto za potrditveno kodo.', 'success');
+            // Redirect will be handled by email verification modal
+        } else {
+            // Fallback if registerUser is not available
+            utils.showNotification('Registracija uspešna! Zdaj se lahko prijavite.', 'success');
+            window.location.href = 'login.html';
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        utils.showNotification('Napaka pri registraciji: ' + error.message, 'error');
+    }
 }
     </script>
 </body>

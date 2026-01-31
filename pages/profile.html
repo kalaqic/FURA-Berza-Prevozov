@@ -16,6 +16,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
+    <!-- EmailJS for email sending -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <!-- Firebase config -->
     <script src="../js/firebase-config.js"></script>
@@ -125,6 +127,167 @@
                 </div>
             </div>
             
+            <!-- Company Information Section -->
+            <div class="profile-section" id="companyInfoSection" style="display: none;">
+                <h3 data-translate="companyInformation">Podatki o podjetju</h3>
+                
+                <div id="companyInfoLoading" class="loading-indicator" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text" data-translate="loadingCompanyInfo">Nalaganje podatkov o podjetju...</div>
+                </div>
+                
+                <div id="companyInfoDisplay" style="display: none;">
+                    <div class="company-info-grid">
+                        <div class="info-item">
+                            <strong data-translate="companyName">Naziv podjetja:</strong>
+                            <span id="displayCompanyName"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong data-translate="taxNumber">Davčna številka:</strong>
+                            <span id="displayTaxNumber"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong data-translate="registrationNumber">Matična številka:</strong>
+                            <span id="displayRegistrationNumber"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong data-translate="companyAddress">Naslov:</strong>
+                            <span id="displayCompanyAddress"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong data-translate="companyCity">Mesto:</strong>
+                            <span id="displayCompanyCity"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong data-translate="companyCountry">Država:</strong>
+                            <span id="displayCompanyCountry"></span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" id="editCompanyBtn" style="margin-top: 20px;" data-translate="editCompanyInfo">Uredi podatke o podjetju</button>
+                </div>
+                
+                <div id="noCompanyInfo" style="display: none;">
+                    <p data-translate="noCompanyRegistered" style="margin-bottom: 15px;">Nimate registriranega podjetja.</p>
+                    <button class="btn btn-primary" id="addCompanyBtn" data-translate="registerCompany">Registriraj podjetje</button>
+                </div>
+                
+                <!-- Company Registration/Edit Form (hidden by default) -->
+                <div id="companyFormContainer" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 20px;" data-translate="companyInformation">Podatki o podjetju</h4>
+                    
+                    <div class="input-group">
+                        <label class="input-label" data-translate="companyName">Naziv podjetja</label>
+                        <input type="text" id="profileCompanyName" class="input-field" data-translate-placeholder="enterCompanyName" placeholder="Vnesite naziv podjetja">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="taxNumber">Davčna številka (DŠ)</label>
+                                <input type="text" id="profileTaxNumber" class="input-field" data-translate-placeholder="enterTaxNumber" placeholder="Vnesite davčno številko">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="registrationNumber">Matična številka (MŠ)</label>
+                                <input type="text" id="profileRegistrationNumber" class="input-field" data-translate-placeholder="enterRegistrationNumber" placeholder="Vnesite matično številko">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" data-translate="companyAddress">Naslov podjetja</label>
+                        <input type="text" id="profileCompanyAddress" class="input-field" data-translate-placeholder="enterCompanyAddress" placeholder="Vnesite naslov podjetja">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="companyCity">Mesto</label>
+                                <input type="text" id="profileCompanyCity" class="input-field" data-translate-placeholder="enterCompanyCity" placeholder="Vnesite mesto">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="input-group">
+                                <label class="input-label" data-translate="companyCountry">Država</label>
+                                <input type="text" id="profileCompanyCountry" class="input-field" data-translate-placeholder="enterCompanyCountry" placeholder="Vnesite državo">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-primary" id="saveCompanyBtn" data-translate="saveCompanyInfo">Shrani podatke o podjetju</button>
+                        <button class="btn btn-outline" id="cancelCompanyBtn" data-translate="cancel">Prekliči</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3 data-translate="accountSecurity">Varnost računa</h3>
+                
+                <div class="profile-security-section" style="margin-top: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 20px;" data-translate="accountSecurity">Varnost računa</h4>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="currentPassword">Trenutno geslo</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" class="input-field" id="currentPassword" data-translate-placeholder="enterCurrentPassword" placeholder="Vnesite trenutno geslo">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('currentPassword')">
+                                    <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="newPassword">Novo geslo</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" class="input-field" id="newPassword" data-translate-placeholder="enterNewPassword" placeholder="Vnesite novo geslo">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('newPassword')">
+                                    <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" data-translate="confirmNewPassword">Potrdite novo geslo</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" class="input-field" id="confirmNewPassword" data-translate-placeholder="enterConfirmNewPassword" placeholder="Potrdite novo geslo">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmNewPassword')">
+                                    <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="changePasswordBtn" data-translate="changePassword">Spremeni geslo</button>
+                        
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <button class="btn btn-outline" onclick="handleSendPasswordResetEmail()" data-translate="forgotPassword">Pozabljeno geslo?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="profile-section">
                 <h3 data-translate="myRides">Moje fure</h3>
                 <div class="profile-rides" id="userRides">
@@ -194,6 +357,7 @@
     </div>
     
     <!-- Include JavaScript files -->
+    <script src="../js/utils.js"></script>
     <script src="../js/translations.js"></script>
     <script src="../js/modals.js"></script>
     
@@ -246,6 +410,33 @@
                 updateProfileBtn.addEventListener('click', updateUserProfile);
             }
             
+            // Change password button handler
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            if (changePasswordBtn) {
+                changePasswordBtn.addEventListener('click', handleChangePassword);
+            }
+            
+            // Company buttons
+            const addCompanyBtn = document.getElementById('addCompanyBtn');
+            if (addCompanyBtn) {
+                addCompanyBtn.addEventListener('click', showCompanyForm);
+            }
+            
+            const editCompanyBtn = document.getElementById('editCompanyBtn');
+            if (editCompanyBtn) {
+                editCompanyBtn.addEventListener('click', showCompanyForm);
+            }
+            
+            const saveCompanyBtn = document.getElementById('saveCompanyBtn');
+            if (saveCompanyBtn) {
+                saveCompanyBtn.addEventListener('click', saveCompanyInfo);
+            }
+            
+            const cancelCompanyBtn = document.getElementById('cancelCompanyBtn');
+            if (cancelCompanyBtn) {
+                cancelCompanyBtn.addEventListener('click', hideCompanyForm);
+            }
+            
             // Delete ride button handler
             const deleteRideBtn = document.getElementById('deleteRideBtn');
             if (deleteRideBtn) {
@@ -284,10 +475,16 @@
                     document.getElementById('email').value = userData.email || firebase.auth().currentUser.email || '';
                     document.getElementById('username').value = userData.username || '';
                     document.getElementById('phone').value = userData.phone || '';
+                    
+                    // Load company information
+                    loadCompanyInfo(userData);
                 } else {
                     console.log('No user data found, using defaults');
                     // Use default data from Firebase Auth
                     document.getElementById('email').value = firebase.auth().currentUser.email || '';
+                    
+                    // Show no company info
+                    showNoCompanyInfo();
                 }
                 
                 // Hide loading indicator and show form
@@ -817,6 +1014,339 @@
             padding: 5px 10px;
             font-size: 0.8rem;
         }
+        
+        .profile-security-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .forgot-password-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .forgot-password-link:hover {
+            text-decoration: underline;
+        }
+        
+        .company-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            padding: 15px;
+            background: rgba(92, 107, 192, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .info-item strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .info-item span {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
     </style>
+    
+    <script>
+        // Handle change password
+        async function handleChangePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Izpolnite vsa polja.', 'warning');
+                } else {
+                    alert('Izpolnite vsa polja.');
+                }
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Geslo mora imeti vsaj 6 znakov.', 'warning');
+                } else {
+                    alert('Geslo mora imeti vsaj 6 znakov.');
+                }
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Gesli se ne ujemata.', 'warning');
+                } else {
+                    alert('Gesli se ne ujemata.');
+                }
+                return;
+            }
+            
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user || !user.email) {
+                    throw new Error('Uporabnik ni prijavljen');
+                }
+                
+                // Re-authenticate user with current password
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                await user.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                // Clear form fields
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Geslo je bilo uspešno spremenjeno.', 'success');
+                } else {
+                    alert('Geslo je bilo uspešno spremenjeno.');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                let errorMessage = 'Napaka pri spreminjanju gesla.';
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Napačno trenutno geslo.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Geslo je prešibko.';
+                } else {
+                    errorMessage = error.message;
+                }
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        }
+        
+        // Load company information
+        function loadCompanyInfo(userData) {
+            const companySection = document.getElementById('companyInfoSection');
+            const companyInfoDisplay = document.getElementById('companyInfoDisplay');
+            const noCompanyInfo = document.getElementById('noCompanyInfo');
+            const companyFormContainer = document.getElementById('companyFormContainer');
+            
+            if (!companySection) return;
+            
+            companySection.style.display = 'block';
+            
+            if (userData.isCompany && userData.company) {
+                // User has company registered
+                const company = userData.company;
+                
+                // Display company info
+                document.getElementById('displayCompanyName').textContent = company.companyName || '-';
+                document.getElementById('displayTaxNumber').textContent = company.taxNumber || '-';
+                document.getElementById('displayRegistrationNumber').textContent = company.registrationNumber || '-';
+                document.getElementById('displayCompanyAddress').textContent = company.address || '-';
+                document.getElementById('displayCompanyCity').textContent = company.city || '-';
+                document.getElementById('displayCompanyCountry').textContent = company.country || '-';
+                
+                companyInfoDisplay.style.display = 'block';
+                noCompanyInfo.style.display = 'none';
+                companyFormContainer.style.display = 'none';
+            } else {
+                // User doesn't have company
+                showNoCompanyInfo();
+            }
+        }
+        
+        // Show no company info state
+        function showNoCompanyInfo() {
+            const companyInfoDisplay = document.getElementById('companyInfoDisplay');
+            const noCompanyInfo = document.getElementById('noCompanyInfo');
+            const companyFormContainer = document.getElementById('companyFormContainer');
+            
+            if (companyInfoDisplay) companyInfoDisplay.style.display = 'none';
+            if (noCompanyInfo) noCompanyInfo.style.display = 'block';
+            if (companyFormContainer) companyFormContainer.style.display = 'none';
+        }
+        
+        // Show company form
+        function showCompanyForm() {
+            const companyInfoDisplay = document.getElementById('companyInfoDisplay');
+            const noCompanyInfo = document.getElementById('noCompanyInfo');
+            const companyFormContainer = document.getElementById('companyFormContainer');
+            
+            if (companyInfoDisplay) companyInfoDisplay.style.display = 'none';
+            if (noCompanyInfo) noCompanyInfo.style.display = 'none';
+            if (companyFormContainer) companyFormContainer.style.display = 'block';
+            
+            // Load existing company data if available
+            loadExistingCompanyData();
+        }
+        
+        // Hide company form
+        function hideCompanyForm() {
+            const companyFormContainer = document.getElementById('companyFormContainer');
+            if (companyFormContainer) {
+                companyFormContainer.style.display = 'none';
+            }
+            
+            // Reload company info to show display or no company message
+            if (currentUserId) {
+                firebase.firestore().collection('users').doc(currentUserId).get()
+                    .then(doc => {
+                        if (doc.exists) {
+                            loadCompanyInfo(doc.data());
+                        } else {
+                            showNoCompanyInfo();
+                        }
+                    });
+            }
+        }
+        
+        // Load existing company data into form
+        async function loadExistingCompanyData() {
+            if (!currentUserId) return;
+            
+            try {
+                const userDoc = await firebase.firestore().collection('users').doc(currentUserId).get();
+                if (userDoc.exists && userDoc.data().company) {
+                    const company = userDoc.data().company;
+                    document.getElementById('profileCompanyName').value = company.companyName || '';
+                    document.getElementById('profileTaxNumber').value = company.taxNumber || '';
+                    document.getElementById('profileRegistrationNumber').value = company.registrationNumber || '';
+                    document.getElementById('profileCompanyAddress').value = company.address || '';
+                    document.getElementById('profileCompanyCity').value = company.city || '';
+                    document.getElementById('profileCompanyCountry').value = company.country || '';
+                }
+            } catch (error) {
+                console.error('Error loading company data:', error);
+            }
+        }
+        
+        // Save company information
+        async function saveCompanyInfo() {
+            if (!currentUserId) {
+                alert('Uporabnik ni prijavljen.');
+                return;
+            }
+            
+            const companyName = document.getElementById('profileCompanyName').value.trim();
+            const taxNumber = document.getElementById('profileTaxNumber').value.trim();
+            const registrationNumber = document.getElementById('profileRegistrationNumber').value.trim();
+            const companyAddress = document.getElementById('profileCompanyAddress').value.trim();
+            const companyCity = document.getElementById('profileCompanyCity').value.trim();
+            const companyCountry = document.getElementById('profileCompanyCountry').value.trim();
+            
+            if (!companyName || !taxNumber) {
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Vnesite vsaj naziv podjetja in davčno številko.', 'warning');
+                } else {
+                    alert('Vnesite vsaj naziv podjetja in davčno številko.');
+                }
+                return;
+            }
+            
+            try {
+                const companyData = {
+                    companyName,
+                    taxNumber,
+                    registrationNumber: registrationNumber || '',
+                    address: companyAddress || '',
+                    city: companyCity || '',
+                    country: companyCountry || ''
+                };
+                
+                await firebase.firestore().collection('users').doc(currentUserId).update({
+                    isCompany: true,
+                    company: companyData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Podatki o podjetju so bili uspešno shranjeni.', 'success');
+                } else {
+                    alert('Podatki o podjetju so bili uspešno shranjeni.');
+                }
+                
+                // Reload company info
+                hideCompanyForm();
+            } catch (error) {
+                console.error('Error saving company info:', error);
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('Napaka pri shranjevanju podatkov o podjetju: ' + error.message, 'error');
+                } else {
+                    alert('Napaka pri shranjevanju podatkov o podjetju: ' + error.message);
+                }
+            }
+        }
+        
+        // Handle send password reset email (forgot password button)
+        async function handleSendPasswordResetEmail() {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user || !user.email) {
+                    throw new Error('Uporabnik ni prijavljen');
+                }
+                
+                // Use rate-limited password reset function
+                await window.utils.sendPasswordResetEmailWithRateLimit(user.email);
+                
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification('E-pošta za ponastavitev gesla je bila poslana na ' + user.email + '. Prosimo preverite vaš e-poštni predal.', 'success');
+                } else {
+                    alert('E-pošta za ponastavitev gesla je bila poslana na ' + user.email + '. Prosimo preverite vaš e-poštni predal.');
+                }
+            } catch (error) {
+                console.error('Error sending password reset email:', error);
+                
+                let errorMessage = 'Napaka pri pošiljanju e-pošte: ' + error.message;
+                
+                // Check if it's a rate limit error
+                if (error.message && error.message.includes('Preveč zahtev')) {
+                    errorMessage = error.message;
+                }
+                
+                if (window.utils && window.utils.showNotification) {
+                    window.utils.showNotification(errorMessage, 'warning');
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        }
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const eyeOpen = button.querySelector('.eye-open');
+            const eyeClosed = button.querySelector('.eye-closed');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+        
+        // Make functions globally available
+        window.handleChangePassword = handleChangePassword;
+        window.handleSendPasswordResetEmail = handleSendPasswordResetEmail;
+        window.togglePasswordVisibility = togglePasswordVisibility;
+    </script>
 </body>
 </html>
