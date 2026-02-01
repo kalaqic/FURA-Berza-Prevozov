@@ -9,7 +9,7 @@ const countries = [
     'Slovenija', 'Hrvatska', 'Srbija', 'Bosna i Hercegovina',
     
     // Other European countries
-    'Albanija', 'Austrija', 'Belgija', 'Bolgarija', 'Češka', 'Črna gora',
+    'Albanija', 'Avstrija', 'Belgija', 'Bolgarija', 'Češka', 'Črna gora',
     'Danska', 'Estonija', 'Finska', 'Francija', 'Grčija', 'Irska',
     'Italija', 'Latvija', 'Litva', 'Luksemburg', 'Madžarska', 'Malta',
     'Nemčija', 'Nizozemska', 'Poljska', 'Portugalska', 'Romunija',
