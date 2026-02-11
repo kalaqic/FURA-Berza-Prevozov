@@ -1092,6 +1092,23 @@ main {
     font-size: 0.9rem;
 }
 
+.footer-bottom .footer-credit {
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: #B0BEC5;
+}
+
+.footer-bottom .footer-credit a {
+    color: #B0BEC5;
+    text-decoration: none;
+}
+
+.footer-bottom .footer-credit a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
 /* Footer responsive design */
 @media (max-width: 768px) {
     .footer-content {

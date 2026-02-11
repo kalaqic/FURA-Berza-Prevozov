@@ -325,6 +325,7 @@ const translations = {
     contactUs: "Kontaktirajte nas",
     followUs: "Sledite nam",
     allRightsReserved: "Vse pravice pridržane.",
+    websiteBuiltBy: "Spletno stran je izdelal in vzdržuje",
     backToHome: "Nazaj na domačo",
     
     // Privacy Policy Page
@@ -866,6 +867,7 @@ const translations = {
     contactUs: "Contact Us",
     followUs: "Follow Us",
     allRightsReserved: "All rights reserved.",
+    websiteBuiltBy: "Website built and maintained by",
     backToHome: "Back to Home",
     
     // Privacy Policy Page
@@ -1409,6 +1411,7 @@ const translations = {
     contactUs: "Контактирајте нас",
     followUs: "Пратите нас",
     allRightsReserved: "Сва права задржана.",
+    websiteBuiltBy: "Веб страницу је израдио и одржава",
     backToHome: "Назад на почетну",
     
     // Privacy Policy Page
@@ -1956,6 +1959,7 @@ const translations = {
     contactUs: "Contattaci",
     followUs: "Seguici",
     allRightsReserved: "Tutti i diritti riservati.",
+    websiteBuiltBy: "Sito web realizzato e mantenuto da",
     backToHome: "Torna alla home",
     
     // Privacy Policy Page
@@ -2503,6 +2507,7 @@ const translations = {
     contactUs: "Kontaktiere uns",
     followUs: "Folge uns",
     allRightsReserved: "Alle Rechte vorbehalten.",
+    websiteBuiltBy: "Website erstellt und gepflegt von",
     backToHome: "Zurück zur Startseite",
     
     // Privacy Policy Page
@@ -2898,6 +2903,7 @@ const translations = {
     capitalNotDetermined: "Kapital se ne određuje",
     contactInfoTitle: "Kontakt informacije",
     allRightsReserved: "Sva prava zadržana.",
+    websiteBuiltBy: "Web stranicu je izradio i održava",
     
     // Forms
     createRide: "Dodaj prevoz",
@@ -3500,6 +3506,7 @@ const translations = {
     privacyPolicy: "Pravilnik o privatnosti",
     termsConditions: "Opći uvjeti",
     allRightsReserved: "Sva prava pridržana.",
+    websiteBuiltBy: "Web stranicu je izradio i održava",
     
     // Forms
     createRide: "Dodaj prevoz",
@@ -3993,6 +4000,7 @@ const translations = {
     privacyPolicy: "Pravilnik o privatnosti",
     termsConditions: "Opći uslovi",
     allRightsReserved: "Sva prava zadržana.",
+    websiteBuiltBy: "Web stranicu je izradio i održava",
     
     // Forms
     createRide: "Napravi prevoz",
@@ -4548,6 +4556,11 @@ document.addEventListener('click', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Translation system initialized with language:', currentLanguage);
   updateUI();
+  
+  // Set dynamic copyright year (updates automatically for future years)
+  document.querySelectorAll('.copyright-year').forEach(function(el) {
+    el.textContent = new Date().getFullYear();
+  });
   
   // Also update after a short delay to catch any dynamically loaded content
   setTimeout(() => {
