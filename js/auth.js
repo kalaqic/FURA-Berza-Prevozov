@@ -212,7 +212,7 @@ window.verifyEmail = async function(email, verificationCode) {
   }
 };
 
-// Resend verification code
+// Resend verification code with cooldown
 window.resendVerificationCode = async function() {
   try {
     const user = auth.currentUser;
@@ -228,19 +228,40 @@ window.resendVerificationCode = async function() {
     
     const userData = userDoc.data();
     
+    // Check cooldown period (5 minutes)
+    const cooldownPeriod = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const now = Date.now();
+    
+    if (userData.lastResendTimestamp) {
+      const lastResendTime = userData.lastResendTimestamp.toMillis();
+      const timeSinceLastResend = now - lastResendTime;
+      
+      if (timeSinceLastResend < cooldownPeriod) {
+        const remainingSeconds = Math.ceil((cooldownPeriod - timeSinceLastResend) / 1000);
+        const remainingMinutes = Math.floor(remainingSeconds / 60);
+        const remainingSecs = remainingSeconds % 60;
+        throw new Error(`Počakajte ${remainingMinutes}:${remainingSecs.toString().padStart(2, '0')} pred ponovnim pošiljanjem kode.`);
+      }
+    }
+    
     // Generate new verification code
     const verificationCode = generateVerificationCode();
     
-    // Update verification code in Firestore
+    // Update verification code and cooldown timestamp in Firestore
     await usersCollection.doc(user.uid).update({
       verificationCode: verificationCode,
-      verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000))
+      verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)),
+      lastResendTimestamp: firebase.firestore.Timestamp.fromDate(new Date(now))
     });
     
     // Send new verification email
     await sendVerificationEmail(userData.email, userData.firstName, verificationCode);
     
     console.log('New verification code sent');
+    
+    // Update UI to show cooldown
+    updateResendButtonCooldown();
+    
     return true;
     
   } catch (error) {
@@ -694,7 +715,7 @@ function showEmailVerificationModal(email) {
               <button type="submit" class="btn btn-primary" id="verifyBtn" data-translate="verifyEmail">
                 Potrdi e-pošto
               </button>
-              <button type="button" class="btn btn-outline" onclick="handleResendVerificationCode()" data-translate="resendCode">
+              <button type="button" class="btn btn-outline" id="resendCodeBtn" onclick="handleResendVerificationCode()" data-translate="resendCode">
                 Pošlji novo kodo
               </button>
             </div>
@@ -702,6 +723,12 @@ function showEmailVerificationModal(email) {
             <div class="email-change-section">
               <button type="button" class="btn btn-link" onclick="showChangeEmailForm()" data-translate="wrongEmail">
                 Napačen e-poštni naslov?
+              </button>
+            </div>
+            
+            <div class="cancel-registration-section">
+              <button type="button" class="btn btn-danger" onclick="handleCancelRegistration()" data-translate="cancelRegistration">
+                Prekliči registracijo
               </button>
             </div>
           </form>
@@ -832,6 +859,33 @@ function showEmailVerificationModal(email) {
           border-radius: 4px;
           margin: 10px 0;
         }
+        
+        .cancel-registration-section {
+          text-align: center;
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #eee;
+        }
+        
+        .btn-danger {
+          background-color: #e74c3c;
+          color: white;
+          border: none;
+        }
+        
+        .btn-danger:hover {
+          background-color: #c0392b;
+        }
+        
+        .btn-danger:disabled {
+          background-color: #95a5a6;
+          cursor: not-allowed;
+        }
+        
+        #resendCodeBtn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -857,6 +911,21 @@ function showEmailVerificationModal(email) {
   if (typeof window.updateUI === 'function') {
     window.updateUI();
   }
+  
+  // Check and update cooldown status for resend button
+  setTimeout(() => {
+    updateResendButtonCooldown();
+  }, 500);
+  
+  // Set up periodic cooldown check
+  const cooldownCheckInterval = setInterval(() => {
+    const resendBtn = document.getElementById('resendCodeBtn');
+    if (!resendBtn || resendBtn.disabled === false) {
+      clearInterval(cooldownCheckInterval);
+      return;
+    }
+    updateResendButtonCooldown();
+  }, 1000);
 };
 
 // Close email verification modal (only when verification is complete)
@@ -866,6 +935,55 @@ function closeEmailVerificationModal() {
     modal.style.display = 'none';
     // Clear the pending verification email
     localStorage.removeItem('pendingVerificationEmail');
+  }
+};
+
+// Cancel registration and delete user
+async function handleCancelRegistration() {
+  const user = auth.currentUser;
+  if (!user) {
+    utils.showNotification('Uporabnik ni prijavljen.', 'error');
+    return;
+  }
+  
+  // Confirm cancellation
+  const confirmMessage = window.t ? window.t('confirmCancelRegistration') : 'Ali ste prepričani, da želite preklicati registracijo? Vsi vaši podatki bodo izbrisani.';
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+  
+  try {
+    const userId = user.uid;
+    
+    // Delete user document from Firestore
+    await usersCollection.doc(userId).delete();
+    console.log('User document deleted from Firestore');
+    
+    // Delete user from Firebase Authentication
+    await user.delete();
+    console.log('User deleted from Firebase Auth');
+    
+    // Close verification modal
+    closeEmailVerificationModal();
+    
+    // Clear localStorage
+    localStorage.removeItem('pendingVerificationEmail');
+    
+    // Update UI
+    window.updateAuthUI();
+    
+    // Show success message
+    utils.showNotification(
+      window.t ? window.t('registrationCancelled') : 'Registracija je bila preklicana. Vsi podatki so bili izbrisani.',
+      'success'
+    );
+    
+  } catch (error) {
+    console.error('Error canceling registration:', error);
+    utils.showNotification(
+      'Napaka pri preklicu registracije: ' + error.message,
+      'error'
+    );
   }
 };
 
@@ -934,6 +1052,54 @@ async function handleResendVerificationCode() {
     }
   }
 };
+
+// Update resend button to show cooldown timer
+function updateResendButtonCooldown() {
+  const resendBtn = document.getElementById('resendCodeBtn');
+  if (!resendBtn) return;
+  
+  const user = auth.currentUser;
+  if (!user) return;
+  
+  // Check cooldown status
+  usersCollection.doc(user.uid).get()
+    .then(doc => {
+      if (!doc.exists) return;
+      
+      const userData = doc.data();
+      if (!userData.lastResendTimestamp) return;
+      
+      const cooldownPeriod = 5 * 60 * 1000; // 5 minutes
+      const now = Date.now();
+      const lastResendTime = userData.lastResendTimestamp.toMillis();
+      const timeSinceLastResend = now - lastResendTime;
+      
+      if (timeSinceLastResend < cooldownPeriod) {
+        // Start countdown
+        resendBtn.disabled = true;
+        const cooldownInterval = setInterval(() => {
+          const remaining = cooldownPeriod - (Date.now() - lastResendTime);
+          if (remaining <= 0) {
+            clearInterval(cooldownInterval);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = window.t ? window.t('resendCode') : 'Pošlji novo kodo';
+            return;
+          }
+          
+          const remainingSeconds = Math.ceil(remaining / 1000);
+          const minutes = Math.floor(remainingSeconds / 60);
+          const seconds = remainingSeconds % 60;
+          resendBtn.innerHTML = `${window.t ? window.t('resendCode') : 'Pošlji novo kodo'} (${minutes}:${seconds.toString().padStart(2, '0')})`;
+        }, 1000);
+      } else {
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = window.t ? window.t('resendCode') : 'Pošlji novo kodo';
+      }
+    })
+    .catch(error => {
+      console.error('Error checking cooldown:', error);
+    });
+}
 
 // Show change email form
 function showChangeEmailForm() {
@@ -1070,6 +1236,7 @@ function checkPendingVerification() {
 window.showChangeEmailForm = showChangeEmailForm;
 window.hideChangeEmailForm = hideChangeEmailForm;
 window.updateEmailAddress = updateEmailAddress;
+window.handleCancelRegistration = handleCancelRegistration;
 
 // Debug function to test email verification
 window.testEmailVerification = function() {

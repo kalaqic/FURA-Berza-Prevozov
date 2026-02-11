@@ -165,6 +165,9 @@ const translations = {
     wrongEmail: "Napačen e-poštni naslov?",
     codeValid15Min: "Koda je veljavna 15 minut.",
     checkSpamFolder: "Če niste prejeli e-pošte, preverite mapo \"Nezaželena pošta\" ali zahtevajte novo kodo.",
+    cancelRegistration: "Prekliči registracijo",
+    confirmCancelRegistration: "Ali ste prepričani, da želite preklicati registracijo? Vsi vaši podatki bodo izbrisani.",
+    registrationCancelled: "Registracija je bila preklicana. Vsi podatki so bili izbrisani.",
     
     // Change Email
     changeEmailTitle: "Sprememba e-poštnega naslova",
@@ -698,6 +701,9 @@ const translations = {
     wrongEmail: "Wrong email?",
     codeValid15Min: "Code is valid for 15 minutes.",
     checkSpamFolder: "If you haven't received the email, check your spam folder or request a new code.",
+    cancelRegistration: "Cancel Registration",
+    confirmCancelRegistration: "Are you sure you want to cancel registration? All your data will be deleted.",
+    registrationCancelled: "Registration has been cancelled. All data has been deleted.",
     
     // Change Email
     changeEmailTitle: "Change Email Address",
@@ -1234,6 +1240,9 @@ const translations = {
     wrongEmail: "Погрешан емаил?",
     codeValid15Min: "Код важи 15 минута.",
     checkSpamFolder: "Ако нисте примили емаил, проверите спам фолдер или затражите нови код.",
+    cancelRegistration: "Откажи регистрацију",
+    confirmCancelRegistration: "Да ли сте сигурни да желите да откажете регистрацију? Сви ваши подаци ће бити обрисани.",
+    registrationCancelled: "Регистрација је отказана. Сви подаци су обрисани.",
     
     // Change Email
     changeEmailTitle: "Промена емаил адресе",
@@ -1854,6 +1863,20 @@ const translations = {
     registerHere: "Registrati qui",
     loginHere: "Accedi qui",
     
+    // Email Verification
+    emailVerificationTitle: "Verifica indirizzo email",
+    verificationCodeSent: "Ti abbiamo inviato un codice di verifica a",
+    enterVerificationCode: "Inserisci il codice a 6 cifre qui sotto per completare la registrazione.",
+    verificationCode: "Codice di verifica:",
+    verifyEmail: "Verifica email",
+    resendCode: "Invia nuovo codice",
+    wrongEmail: "Email sbagliata?",
+    codeValid15Min: "Il codice è valido per 15 minuti.",
+    checkSpamFolder: "Se non hai ricevuto l'email, controlla la cartella spam o richiedi un nuovo codice.",
+    cancelRegistration: "Annulla registrazione",
+    confirmCancelRegistration: "Sei sicuro di voler annullare la registrazione? Tutti i tuoi dati saranno eliminati.",
+    registrationCancelled: "Registrazione annullata. Tutti i dati sono stati eliminati.",
+    
     // Form Validation
     fieldRequired: "Questo campo è obbligatorio",
     invalidEmail: "Inserisci un indirizzo email valido",
@@ -2373,6 +2396,20 @@ const translations = {
     emailLabel: "E-Mail-Adresse",
     passwordLabel: "Passwort",
     confirmPasswordLabel: "Passwort bestätigen",
+    
+    // Email Verification
+    emailVerificationTitle: "E-Mail-Adresse bestätigen",
+    verificationCodeSent: "Wir haben Ihnen einen Bestätigungscode an gesendet",
+    enterVerificationCode: "Geben Sie den 6-stelligen Code unten ein, um die Registrierung abzuschließen.",
+    verificationCode: "Bestätigungscode:",
+    verifyEmail: "E-Mail bestätigen",
+    resendCode: "Neuen Code senden",
+    wrongEmail: "Falsche E-Mail?",
+    codeValid15Min: "Der Code ist 15 Minuten gültig.",
+    checkSpamFolder: "Wenn Sie die E-Mail nicht erhalten haben, überprüfen Sie Ihren Spam-Ordner oder fordern Sie einen neuen Code an.",
+    cancelRegistration: "Registrierung abbrechen",
+    confirmCancelRegistration: "Sind Sie sicher, dass Sie die Registrierung abbrechen möchten? Alle Ihre Daten werden gelöscht.",
+    registrationCancelled: "Registrierung wurde abgebrochen. Alle Daten wurden gelöscht.",
     firstNameLabel: "Vorname",
     lastNameLabel: "Nachname",
     usernameLabel: "Benutzername",
@@ -2798,6 +2835,20 @@ const translations = {
     email: "E-pošta",
     password: "Šifra",
     username: "Korisničko ime",
+    
+    // Email Verification
+    emailVerificationTitle: "Potvrda e-poštne adrese",
+    verificationCodeSent: "Poslali smo vam kod za potvrdu na",
+    enterVerificationCode: "Unesite 6-znamenkasti kod ispod da dovršite registraciju.",
+    verificationCode: "Kod za potvrdu:",
+    verifyEmail: "Potvrdi e-poštu",
+    resendCode: "Pošalji novi kod",
+    wrongEmail: "Pogrešna e-pošta?",
+    codeValid15Min: "Kod vrijedi 15 minuta.",
+    checkSpamFolder: "Ako niste primili e-poštu, provjerite mapu spam ili zatražite novi kod.",
+    cancelRegistration: "Otkaži registraciju",
+    confirmCancelRegistration: "Jeste li sigurni da želite otkazati registraciju? Svi vaši podaci će biti obrisani.",
+    registrationCancelled: "Registracija je otkazana. Svi podaci su obrisani.",
     phoneNumber: "Broj telefona",
     firstName: "Ime",
     lastName: "Prezime",
