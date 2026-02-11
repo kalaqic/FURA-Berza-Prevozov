@@ -104,7 +104,7 @@ async function sendVerificationEmail(email, firstName, verificationCode) {
     
     // Send email using EmailJS
     const response = await emailjs.send(
-      'service_q9cnopq', // Your service ID
+      'service_vd1k35m', // Your service ID
       'template_2ijfw44', // Your template ID
       templateParams
     );
