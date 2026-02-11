@@ -168,6 +168,8 @@ const translations = {
     cancelRegistration: "Prekliči registracijo",
     confirmCancelRegistration: "Ali ste prepričani, da želite preklicati registracijo? Vsi vaši podatki bodo izbrisani.",
     registrationCancelled: "Registracija je bila preklicana. Vsi podatki so bili izbrisani.",
+    enterPasswordToConfirm: "Vnesite geslo za potrditev preklica registracije:",
+    wrongPassword: "Napačno geslo.",
     
     // Change Email
     changeEmailTitle: "Sprememba e-poštnega naslova",
@@ -704,6 +706,8 @@ const translations = {
     cancelRegistration: "Cancel Registration",
     confirmCancelRegistration: "Are you sure you want to cancel registration? All your data will be deleted.",
     registrationCancelled: "Registration has been cancelled. All data has been deleted.",
+    enterPasswordToConfirm: "Enter your password to confirm registration cancellation:",
+    wrongPassword: "Wrong password.",
     
     // Change Email
     changeEmailTitle: "Change Email Address",
@@ -1243,6 +1247,8 @@ const translations = {
     cancelRegistration: "Откажи регистрацију",
     confirmCancelRegistration: "Да ли сте сигурни да желите да откажете регистрацију? Сви ваши подаци ће бити обрисани.",
     registrationCancelled: "Регистрација је отказана. Сви подаци су обрисани.",
+    enterPasswordToConfirm: "Унесите лозинку да потврдите отказивање регистрације:",
+    wrongPassword: "Погрешна лозинка.",
     
     // Change Email
     changeEmailTitle: "Промена емаил адресе",
@@ -1876,6 +1882,8 @@ const translations = {
     cancelRegistration: "Annulla registrazione",
     confirmCancelRegistration: "Sei sicuro di voler annullare la registrazione? Tutti i tuoi dati saranno eliminati.",
     registrationCancelled: "Registrazione annullata. Tutti i dati sono stati eliminati.",
+    enterPasswordToConfirm: "Inserisci la password per confermare l'annullamento della registrazione:",
+    wrongPassword: "Password errata.",
     
     // Form Validation
     fieldRequired: "Questo campo è obbligatorio",
@@ -2410,6 +2418,8 @@ const translations = {
     cancelRegistration: "Registrierung abbrechen",
     confirmCancelRegistration: "Sind Sie sicher, dass Sie die Registrierung abbrechen möchten? Alle Ihre Daten werden gelöscht.",
     registrationCancelled: "Registrierung wurde abgebrochen. Alle Daten wurden gelöscht.",
+    enterPasswordToConfirm: "Geben Sie Ihr Passwort ein, um die Registrierung zu bestätigen:",
+    wrongPassword: "Falsches Passwort.",
     firstNameLabel: "Vorname",
     lastNameLabel: "Nachname",
     usernameLabel: "Benutzername",
@@ -2849,6 +2859,8 @@ const translations = {
     cancelRegistration: "Otkaži registraciju",
     confirmCancelRegistration: "Jeste li sigurni da želite otkazati registraciju? Svi vaši podaci će biti obrisani.",
     registrationCancelled: "Registracija je otkazana. Svi podaci su obrisani.",
+    enterPasswordToConfirm: "Unesite lozinku za potvrdu otkazivanja registracije:",
+    wrongPassword: "Pogrešna lozinka.",
     phoneNumber: "Broj telefona",
     firstName: "Ime",
     lastName: "Prezime",

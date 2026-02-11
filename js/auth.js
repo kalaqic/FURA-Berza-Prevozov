@@ -952,8 +952,18 @@ async function handleCancelRegistration() {
     return;
   }
   
-  try {
+  const performDelete = async (needsPassword) => {
     const userId = user.uid;
+    
+    // Re-authenticate if required (Firebase needs recent auth for sensitive operations)
+    if (needsPassword) {
+      const passwordPrompt = window.t ? window.t('enterPasswordToConfirm') : 'Vnesite geslo za potrditev preklica registracije:';
+      const password = prompt(passwordPrompt);
+      if (!password) return;
+      
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+      await user.reauthenticateWithCredential(credential);
+    }
     
     // Delete user document from Firestore
     await usersCollection.doc(userId).delete();
@@ -977,13 +987,28 @@ async function handleCancelRegistration() {
       window.t ? window.t('registrationCancelled') : 'Registracija je bila preklicana. Vsi podatki so bili izbrisani.',
       'success'
     );
-    
+  };
+  
+  try {
+    await performDelete(false);
   } catch (error) {
-    console.error('Error canceling registration:', error);
-    utils.showNotification(
-      'Napaka pri preklicu registracije: ' + error.message,
-      'error'
-    );
+    if (error.code === 'auth/requires-recent-login') {
+      try {
+        await performDelete(true);
+      } catch (reauthError) {
+        console.error('Error canceling registration:', reauthError);
+        const msg = reauthError.code === 'auth/wrong-password' || reauthError.code === 'auth/invalid-credential'
+          ? (window.t ? window.t('wrongPassword') : 'Napačno geslo.')
+          : reauthError.message;
+        utils.showNotification('Napaka pri preklicu registracije: ' + msg, 'error');
+      }
+    } else {
+      console.error('Error canceling registration:', error);
+      utils.showNotification(
+        'Napaka pri preklicu registracije: ' + error.message,
+        'error'
+      );
+    }
   }
 };
 
