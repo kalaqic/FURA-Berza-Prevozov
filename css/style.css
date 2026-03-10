@@ -283,6 +283,16 @@ nav {
     font-weight: 800;
     color: var(--primary-color);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    line-height: 0;
+    flex-shrink: 0;
+}
+
+.logo img {
+    display: block;
+    height: auto;
+    max-width: 100%;
 }
 
 .nav-right {
