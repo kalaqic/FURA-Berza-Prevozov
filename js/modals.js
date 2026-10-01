@@ -513,7 +513,7 @@ function updateUIAfterLogin(user) {
   }
   
   // Fetch additional user data if needed
-  firebase.firestore().collection('users').doc(user.uid).get()
+  window.ensureUserProfileDocument(user)
     .then(doc => {
       if (doc.exists && doc.data().firstName && doc.data().lastName) {
         const displayName = `${doc.data().firstName} ${doc.data().lastName}`;

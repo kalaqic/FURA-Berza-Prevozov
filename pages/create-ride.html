@@ -683,8 +683,7 @@
                         
                         // Try to get user profile information
                         try {
-                            const userId = firebase.auth().currentUser.uid;
-                            const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+                            const userDoc = await window.ensureUserProfileDocument(firebase.auth().currentUser);
                             
                             if (userDoc.exists) {
                                 const userData = userDoc.data();

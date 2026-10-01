@@ -177,7 +177,7 @@ window.verifyEmail = async function(email, verificationCode) {
     }
     
     // Check verification code in Firestore
-    const userDoc = await usersCollection.doc(user.uid).get();
+    const userDoc = await window.ensureUserProfileDocument(user);
     if (!userDoc.exists) {
       throw new Error('Uporabniški podatki niso najdeni');
     }
@@ -196,12 +196,12 @@ window.verifyEmail = async function(email, verificationCode) {
     }
     
     // Mark email as verified in Firestore
-    await usersCollection.doc(user.uid).update({
+    await usersCollection.doc(user.uid).set({
       emailVerified: true,
       verificationCode: firebase.firestore.FieldValue.delete(),
       verificationCodeExpiry: firebase.firestore.FieldValue.delete(),
       emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    }, { merge: true });
     
     console.log('Email verified successfully');
     return true;
@@ -221,7 +221,7 @@ window.resendVerificationCode = async function() {
     }
     
     // Get user data
-    const userDoc = await usersCollection.doc(user.uid).get();
+    const userDoc = await window.ensureUserProfileDocument(user);
     if (!userDoc.exists) {
       throw new Error('Uporabniški podatki niso najdeni');
     }
@@ -248,11 +248,11 @@ window.resendVerificationCode = async function() {
     const verificationCode = generateVerificationCode();
     
     // Update verification code and cooldown timestamp in Firestore
-    await usersCollection.doc(user.uid).update({
+    await usersCollection.doc(user.uid).set({
       verificationCode: verificationCode,
       verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)),
       lastResendTimestamp: firebase.firestore.Timestamp.fromDate(new Date(now))
-    });
+    }, { merge: true });
     
     // Send new verification email
     await sendVerificationEmail(userData.email, userData.firstName, verificationCode);
@@ -427,10 +427,11 @@ window.handleRegisterSubmit = async function() {
     
     // If company registration, save company data
     if (registerAsCompany && companyData && user) {
-      await firebase.firestore().collection('users').doc(user.uid).update({
+      await window.ensureUserProfileDocument(user);
+      await firebase.firestore().collection('users').doc(user.uid).set({
         isCompany: true,
         company: companyData
-      });
+      }, { merge: true });
       console.log('Company data saved for user:', user.uid);
     }
     
@@ -641,7 +642,7 @@ window.updateAuthUI = function() {
     }
     
     // Then try to fetch additional user info
-    usersCollection.doc(user.uid).get()
+    window.ensureUserProfileDocument(user)
       .then(doc => {
         if (doc.exists && doc.data().firstName && doc.data().lastName) {
           const displayName = `${doc.data().firstName} ${doc.data().lastName}`;
@@ -1087,7 +1088,7 @@ function updateResendButtonCooldown() {
   if (!user) return;
   
   // Check cooldown status
-  usersCollection.doc(user.uid).get()
+  window.ensureUserProfileDocument(user)
     .then(doc => {
       if (!doc.exists) return;
       
@@ -1198,22 +1199,23 @@ async function updateEmailAddress() {
     await user.updateEmail(newEmail);
     
     // Update email in Firestore
-    await firebase.firestore().collection('users').doc(user.uid).update({
+    await window.ensureUserProfileDocument(user);
+    await firebase.firestore().collection('users').doc(user.uid).set({
       email: newEmail
-    });
+    }, { merge: true });
     
     // Generate new verification code
     const verificationCode = generateVerificationCode();
     
     // Update verification code in Firestore
-    await firebase.firestore().collection('users').doc(user.uid).update({
+    await firebase.firestore().collection('users').doc(user.uid).set({
       verificationCode: verificationCode,
       verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)),
       emailVerified: false
-    });
+    }, { merge: true });
     
     // Send verification email to new address
-    const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+    const userDoc = await window.ensureUserProfileDocument(user);
     const userData = userDoc.data();
     await sendVerificationEmail(newEmail, userData.firstName, verificationCode);
     
@@ -1244,7 +1246,7 @@ function checkPendingVerification() {
   
   if (pendingEmail && currentUser) {
     // Check if user still needs verification
-    firebase.firestore().collection('users').doc(currentUser.uid).get()
+    window.ensureUserProfileDocument(currentUser)
       .then(doc => {
         if (doc.exists && !doc.data().emailVerified) {
           console.log('User needs email verification, showing modal');

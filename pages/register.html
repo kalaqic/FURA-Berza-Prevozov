@@ -349,10 +349,11 @@ async function register() {
             
             // If company registration, save company data
             if (registerAsCompany && companyData && user) {
-                await firebase.firestore().collection('users').doc(user.uid).update({
+                await window.ensureUserProfileDocument(user);
+                await firebase.firestore().collection('users').doc(user.uid).set({
                     isCompany: true,
                     company: companyData
-                });
+                }, { merge: true });
             }
             
             utils.showNotification('Registracija uspešna! Preverite e-pošto za potrditveno kodo.', 'success');

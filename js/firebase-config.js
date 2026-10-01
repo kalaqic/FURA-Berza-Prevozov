@@ -32,5 +32,37 @@ const firebaseConfig = {
   // Export collections
   window.usersCollection = window.db.collection('users');
   window.ridesCollection = window.db.collection('rides');
+
+  // Ensure the Firestore profile document exists for authenticated users.
+  window.ensureUserProfileDocument = async function(user = null) {
+    const authUser = user || window.auth.currentUser || firebase.auth().currentUser;
+    if (!authUser) {
+      throw new Error('Uporabnik ni prijavljen');
+    }
+
+    const userRef = window.usersCollection.doc(authUser.uid);
+    const userDoc = await userRef.get();
+
+    if (userDoc.exists) {
+      return userDoc;
+    }
+
+    const displayNameParts = (authUser.displayName || '').trim().split(/\s+/).filter(Boolean);
+    const fallbackUsername = authUser.email ? authUser.email.split('@')[0] : authUser.uid;
+
+    await userRef.set({
+      uid: authUser.uid,
+      email: authUser.email || '',
+      firstName: displayNameParts[0] || '',
+      lastName: displayNameParts.slice(1).join(' '),
+      username: fallbackUsername,
+      phone: authUser.phoneNumber || '',
+      emailVerified: !!authUser.emailVerified,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    return userRef.get();
+  };
   
   
