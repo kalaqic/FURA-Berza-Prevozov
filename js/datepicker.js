@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             time_24hr: true,
             locale: "sl",
             minuteIncrement: 15,
+            disableMobile: true,
             allowInput: false,
             static: true,
             // When date is selected
@@ -207,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     time_24hr: true,
                     locale: "sl",
                     minuteIncrement: 15,
+                    disableMobile: true,
                     allowInput: false,
                     static: true,
                     defaultDate: processedSelectedDate || undefined,
