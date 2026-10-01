@@ -75,6 +75,21 @@ function showLoginRequiredMessage() {
 
 window.showRideDetails = async function(rideId) {
   console.log('Showing details for ride:', rideId);
+
+  const getUsablePhoneNumber = (...values) => {
+    for (const value of values) {
+      if (typeof value !== 'string') continue;
+
+      const trimmedValue = value.trim();
+      const digitsOnly = trimmedValue.replace(/\D/g, '');
+
+      if (trimmedValue && digitsOnly.length >= 6) {
+        return trimmedValue;
+      }
+    }
+
+    return '';
+  };
   
   // Check directly with Firebase if user is logged in
   const currentUser = firebase.auth().currentUser;
@@ -226,6 +241,30 @@ window.showRideDetails = async function(rideId) {
       }
     }
     
+    let profileContact = null;
+    const needsProfileFallback = !ride.contact?.name || !ride.contact?.email || !getUsablePhoneNumber(ride.contact?.phone);
+
+    if (needsProfileFallback && ride.createdBy) {
+      try {
+        const profileDoc = ride.createdBy === currentUser.uid && typeof window.ensureUserProfileDocument === 'function'
+          ? await window.ensureUserProfileDocument(currentUser)
+          : await firebase.firestore().collection('users').doc(ride.createdBy).get();
+
+        if (profileDoc.exists) {
+          const profileData = profileDoc.data();
+          const profileName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ').trim();
+
+          profileContact = {
+            name: profileName,
+            email: profileData.email || '',
+            phone: getUsablePhoneNumber(profileData.phone, profileData.phoneNumber)
+          };
+        }
+      } catch (profileError) {
+        console.error('Error loading fallback profile contact:', profileError);
+      }
+    }
+
     // Ninth row: Contact info (if exists)
     if (detailRows.length >= 9) {
       const contactLabel = detailRows[8].querySelector('.detail-label');
@@ -235,21 +274,27 @@ window.showRideDetails = async function(rideId) {
         contactLabel.textContent = t('contact') + ':';
         
         if (ride.contact) {
-          const email = ride.contact.email || ride.userEmail || t('notAvailable');
-          const phone = ride.contact.phone || t('notAvailable');
+          const contactName = ride.contact.name || profileContact?.name || t('notAvailable');
+          const email = ride.contact.email || profileContact?.email || ride.userEmail || t('notAvailable');
+          const phone = getUsablePhoneNumber(
+            ride.contact.phone,
+            profileContact?.phone
+          ) || t('notAvailable');
           
           contactValue.innerHTML = `
-            <p>${ride.contact.name || t('notAvailable')}</p>
+            <p>${contactName}</p>
             <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
             <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
           `;
         } else {
-          const email = ride.userEmail || t('notAvailable');
+          const contactName = profileContact?.name || t('notAvailable');
+          const email = profileContact?.email || ride.userEmail || t('notAvailable');
+          const phone = profileContact?.phone || t('notAvailable');
           
           contactValue.innerHTML = `
-            <p>${t('notAvailable')}</p>
+            <p>${contactName}</p>
             <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
-            <p>${t('notAvailable')}</p>
+            <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
           `;
         }
       }

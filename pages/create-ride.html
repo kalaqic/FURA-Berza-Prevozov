@@ -674,6 +674,21 @@
                         // Get the translated display name for vehicle size
                         const vehicleSizeDisplayName = window.t ? window.t(dimensions.displayNameKey) : dimensions.displayNameKey;
                         
+                        function getUsablePhoneNumber(...values) {
+                            for (const value of values) {
+                                if (typeof value !== 'string') continue;
+
+                                const trimmedValue = value.trim();
+                                const digitsOnly = trimmedValue.replace(/\D/g, '');
+
+                                if (trimmedValue && digitsOnly.length >= 6) {
+                                    return trimmedValue;
+                                }
+                            }
+
+                            return '';
+                        }
+
                         // Prepare contact information
                         let contactInfo = {
                             name: '',
@@ -696,15 +711,18 @@
                                     contactInfo.email = userData.email;
                                 }
                                 
-                                if (userData.phone) {
-                                    contactInfo.phone = userData.phone;
-                                }
+                                contactInfo.phone = getUsablePhoneNumber(
+                                    userData.phone,
+                                    userData.phoneNumber,
+                                    userData.contact && userData.contact.phone,
+                                    firebase.auth().currentUser.phoneNumber
+                                );
                             }
                         } catch (profileError) {
                             console.error('Error fetching user profile:', profileError);
                             // Will continue with default contact info
                         }
-                        
+
                         // Create ride data object
                         const rideData = {
                             type: selectedRideType,
