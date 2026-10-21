@@ -58,21 +58,10 @@ function applyAuthLanguage() {
   auth.languageCode = map[lang] || 'sl';
 }
 
-// Send the confirmation link to the currently signed-in user.
-// Exactly ONE request: Firebase allows only about one verification email per
-// user per minute, so a failed first attempt + retry gets "too many requests".
-// No return link (continue URL) is passed, so it works regardless of which
-// domains are authorized in Firebase; the open window on the site notices
-// the confirmation by itself.
+// Send the confirmation link (shared helper in firebase-config.js:
+// exactly one request, no return link)
 async function sendVerificationLink(user) {
-  applyAuthLanguage();
-  try {
-    await user.sendEmailVerification();
-  } catch (error) {
-    console.error('sendEmailVerification failed:', error.code, error.message);
-    throw error;
-  }
-  try { localStorage.setItem(VERIFICATION_LAST_SENT_KEY, String(Date.now())); } catch (e) {}
+  await window.sendEmailVerificationLink(user);
 }
 
 // Turn Firebase errors into a readable, translated message
@@ -85,13 +74,6 @@ function verificationErrorMessage(error) {
   }
   return authT('errorSendingVerification', 'Potrditvene e-pošte ni bilo mogoče poslati') + ': ' +
     ((error && error.message) || error);
-}
-
-// Milliseconds left before another link may be requested
-function verificationResendRemaining() {
-  let last = 0;
-  try { last = parseInt(localStorage.getItem(VERIFICATION_LAST_SENT_KEY) || '0', 10) || 0; } catch (e) {}
-  return Math.max(0, VERIFICATION_RESEND_COOLDOWN_MS - (Date.now() - last));
 }
 
 // Register user function with email verification
@@ -161,7 +143,7 @@ window.resendVerificationCode = async function() {
     throw new Error(authT('userNotLoggedIn', 'Uporabnik ni prijavljen.'));
   }
   
-  const remaining = verificationResendRemaining();
+  const remaining = window.verificationResendRemaining();
   if (remaining > 0) {
     const secs = Math.ceil(remaining / 1000);
     const waitTime = `${Math.floor(secs / 60)}:${(secs % 60).toString().padStart(2, '0')}`;
@@ -414,8 +396,7 @@ window.handleRegisterSubmit = async function() {
     // Debug info
     console.log('Registration failed. Error details:', {
       error: error.message,
-      stack: error.stack,
-      email: email
+      stack: error.stack
     });
   }
 };
@@ -987,7 +968,7 @@ function updateResendButtonCooldown() {
   const render = () => {
     const btn = document.getElementById('resendCodeBtn');
     if (!btn) return false;
-    const remaining = verificationResendRemaining();
+    const remaining = window.verificationResendRemaining();
     const label = authT('resendLink', 'Pošlji novo povezavo');
     if (remaining <= 0) {
       btn.disabled = false;

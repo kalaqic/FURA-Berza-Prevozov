@@ -86,6 +86,19 @@
             <div class="profile-section">
                 <h3 data-translate="personalData">Osebni podatki</h3>
                 
+                <!-- Shown only when the email address is not confirmed yet -->
+                <div id="emailVerifyBanner" class="email-verify-banner" style="display: none;">
+                    <div class="evb-text">
+                        <strong data-translate="emailNotVerifiedTitle">E-poštni naslov ni potrjen</strong>
+                        <span data-translate="emailNotVerifiedText">Potrdite ga s klikom na povezavo, ki vam jo pošljemo po e-pošti. Brez potrditve ne morete objavljati prevozov.</span>
+                        <span class="evb-address" id="evbAddress"></span>
+                    </div>
+                    <div class="evb-actions">
+                        <button type="button" class="btn btn-primary" id="evbSendBtn" data-translate="sendVerificationLink">Pošlji potrditveno povezavo</button>
+                        <button type="button" class="btn btn-outline" id="evbCheckBtn" data-translate="iHaveVerified">Potrdil sem</button>
+                    </div>
+                </div>
+                
                 <div id="userProfileLoading" class="loading-indicator">
                     <div class="loading-spinner"></div>
                     <div class="loading-text" data-translate="loadingUser">Spoznavanje uporabnika...</div>
@@ -108,7 +121,7 @@
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label" data-translate="email">Email</label>
+                        <label class="input-label"><span data-translate="email">Email</span> <span id="emailStatusBadge" class="email-status-badge" style="display: none;"></span></label>
                         <input type="email" class="input-field" id="email" data-translate-placeholder="enterEmail" placeholder="Vnesite email" disabled>
                     </div>
                     
@@ -359,6 +372,180 @@
     <script src="../js/utils.js"></script>
     <script src="../js/translations.js"></script>
     <script src="../js/modals.js"></script>
+    
+    <!-- Email confirmation status on the profile page -->
+    <style>
+        .email-verify-banner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 16px 0 8px;
+            padding: 16px 18px;
+            background: #fff7e6;
+            border: 1px solid #f5c26b;
+            border-left: 5px solid #e6a23c;
+            border-radius: 10px;
+        }
+        .email-verify-banner .evb-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1 1 260px;
+            color: #6b4a0f;
+            font-size: 0.92rem;
+            line-height: 1.4;
+        }
+        .email-verify-banner .evb-text strong { color: #8a5a00; font-size: 1rem; }
+        .email-verify-banner .evb-address { font-weight: 600; word-break: break-all; }
+        .email-verify-banner .evb-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+        .email-verify-banner .evb-actions .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .email-verify-banner.evb-pulse { animation: evbPulse 0.9s ease 2; }
+        @keyframes evbPulse { 50% { box-shadow: 0 0 0 6px rgba(230, 162, 60, 0.35); } }
+        .email-status-badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: none;
+            vertical-align: middle;
+        }
+        .email-status-badge.verified { background: #e6f6ec; color: #1e7a3c; }
+        .email-status-badge.verified::before { content: '✓ '; }
+        .email-status-badge.not-verified::before { content: '✗ '; }
+        .email-status-badge.not-verified { background: #fdecea; color: #b3261e; }
+        @media (max-width: 600px) {
+            .email-verify-banner .evb-actions { width: 100%; }
+            .email-verify-banner .evb-actions .btn { flex: 1 1 auto; }
+        }
+    </style>
+    <script>
+    (function() {
+        const tr = (k, fb) => (window.t ? window.t(k) : fb) || fb;
+        let pollTimer = null;
+        let countdownTimer = null;
+
+        function setBadge(verified) {
+            const badge = document.getElementById('emailStatusBadge');
+            if (!badge) return;
+            badge.style.display = 'inline-block';
+            badge.className = 'email-status-badge ' + (verified ? 'verified' : 'not-verified');
+            badge.textContent = verified ? tr('emailVerifiedBadge', 'Potrjen') : tr('emailNotVerifiedBadge', 'Ni potrjen');
+            badge.setAttribute('data-translate', verified ? 'emailVerifiedBadge' : 'emailNotVerifiedBadge');
+        }
+
+        function renderSendButton() {
+            const btn = document.getElementById('evbSendBtn');
+            if (!btn) return false;
+            const remaining = window.verificationResendRemaining ? window.verificationResendRemaining() : 0;
+            const label = tr('sendVerificationLink', 'Pošlji potrditveno povezavo');
+            if (remaining <= 0) {
+                btn.disabled = false;
+                btn.textContent = label;
+                return false;
+            }
+            const secs = Math.ceil(remaining / 1000);
+            btn.disabled = true;
+            btn.textContent = label + ' (' + Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0') + ')';
+            return true;
+        }
+
+        function startCountdown() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            if (renderSendButton()) {
+                countdownTimer = setInterval(function() {
+                    if (!renderSendButton()) { clearInterval(countdownTimer); countdownTimer = null; }
+                }, 1000);
+            }
+        }
+
+        function showState(verified, user) {
+            const banner = document.getElementById('emailVerifyBanner');
+            setBadge(verified);
+            if (!banner) return;
+            if (verified) {
+                banner.style.display = 'none';
+                if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+                window.__furaVerifiedUid = user.uid;
+            } else {
+                banner.style.display = 'flex';
+                const addr = document.getElementById('evbAddress');
+                if (addr) addr.textContent = user.email || '';
+                startCountdown();
+                // Notice by itself when the link was clicked (e.g. on the phone)
+                if (!pollTimer) {
+                    pollTimer = setInterval(async function() {
+                        const u = firebase.auth().currentUser;
+                        if (!u) return;
+                        try {
+                            await u.reload();
+                            if (firebase.auth().currentUser.emailVerified) {
+                                await window.isEmailVerified(firebase.auth().currentUser);
+                                showState(true, firebase.auth().currentUser);
+                                utils.showNotification(tr('emailVerified', 'E-poštni naslov je uspešno potrjen! Dobrodošli na FURA!'), 'success', 5000);
+                            }
+                        } catch (e) { console.warn('Verification poll failed:', e); }
+                    }, 5000);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sendBtn = document.getElementById('evbSendBtn');
+            const checkBtn = document.getElementById('evbCheckBtn');
+
+            if (sendBtn) sendBtn.addEventListener('click', async function() {
+                const user = firebase.auth().currentUser;
+                if (!user || (window.verificationResendRemaining && window.verificationResendRemaining() > 0)) return;
+                sendBtn.disabled = true;
+                try {
+                    await window.sendEmailVerificationLink(user);
+                    utils.showNotification(tr('verificationLinkResent', 'Nova potrditvena povezava je bila poslana na vaš e-poštni naslov.'), 'success', 6000);
+                } catch (error) {
+                    utils.showNotification(window.verificationSendErrorMessage(error), 'error', 8000);
+                } finally {
+                    startCountdown();
+                }
+            });
+
+            if (checkBtn) checkBtn.addEventListener('click', async function() {
+                const user = firebase.auth().currentUser;
+                if (!user) return;
+                checkBtn.disabled = true;
+                checkBtn.textContent = tr('verifying', 'Preverjam...');
+                try {
+                    await user.reload();
+                    const fresh = firebase.auth().currentUser || user;
+                    if (fresh.emailVerified) {
+                        await window.isEmailVerified(fresh);
+                        showState(true, fresh);
+                        utils.showNotification(tr('emailVerified', 'E-poštni naslov je uspešno potrjen! Dobrodošli na FURA!'), 'success', 5000);
+                    } else {
+                        utils.showNotification(tr('notVerifiedYet', 'E-poštni naslov še ni potrjen. Kliknite povezavo v e-pošti in poskusite znova.'), 'warning', 6000);
+                    }
+                } catch (error) {
+                    utils.showNotification(tr('errorPrefix', 'Napaka') + ': ' + error.message, 'error');
+                } finally {
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = tr('iHaveVerified', 'Potrdil sem');
+                }
+            });
+
+            firebase.auth().onAuthStateChanged(async function(user) {
+                if (!user || typeof window.isEmailVerified !== 'function') return;
+                try {
+                    showState(await window.isEmailVerified(user), user);
+                } catch (e) {
+                    console.warn('Could not check email confirmation:', e);
+                }
+            });
+        });
+    })();
+    </script>
     
     <script>
         // Global variables

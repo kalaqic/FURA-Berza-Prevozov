@@ -116,3 +116,84 @@ const firebaseConfig = {
       return true;
     }
   };
+
+  // ---------------------------------------------------------------------------
+  // Shared email-confirmation helpers (used by auth.js and the profile page)
+  // ---------------------------------------------------------------------------
+  window.FURA_VERIFY_COOLDOWN_MS = 60 * 1000;
+
+  // Milliseconds left before another confirmation link may be requested
+  window.verificationResendRemaining = function() {
+    let last = 0;
+    try { last = parseInt(localStorage.getItem('furaVerificationLastSent') || '0', 10) || 0; } catch (e) {}
+    return Math.max(0, window.FURA_VERIFY_COOLDOWN_MS - (Date.now() - last));
+  };
+
+  // Send Firebase's confirmation link. Exactly ONE request: Firebase allows only
+  // about one verification email per user per minute, and no return link is
+  // passed, so it does not depend on Firebase's authorized domains.
+  window.sendEmailVerificationLink = async function(user = null) {
+    const authUser = user || firebase.auth().currentUser;
+    if (!authUser) {
+      throw new Error(window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen.');
+    }
+    const map = { sl: 'sl', en: 'en', it: 'it', de: 'de', hr: 'hr', sr: 'sr', bs: 'hr', me: 'hr' };
+    const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'sl';
+    firebase.auth().languageCode = map[lang] || 'sl';
+    try {
+      await authUser.sendEmailVerification();
+    } catch (error) {
+      console.error('sendEmailVerification failed:', error.code, error.message);
+      throw error;
+    }
+    try { localStorage.setItem('furaVerificationLastSent', String(Date.now())); } catch (e) {}
+  };
+
+  // Readable message for a failed send
+  window.verificationSendErrorMessage = function(error) {
+    const tr = (k, fb) => (window.t ? window.t(k) : fb);
+    if (error && error.code === 'auth/too-many-requests') {
+      return tr('tooManyRequests', 'Preveč poskusov. Počakajte nekaj minut in poskusite znova.');
+    }
+    if (error && !error.code) return error.message;
+    return tr('errorSendingVerification', 'Potrditvene e-pošte ni bilo mogoče poslati') + ': ' + ((error && error.message) || error);
+  };
+
+  // "Vpiši svojo furo" links: only users with a confirmed email may open the
+  // create-ride page. Works for every link to create-ride.html on every page,
+  // including buttons that are added later.
+  document.addEventListener('click', async function(event) {
+    const link = event.target.closest ? event.target.closest('a[href*="create-ride.html"]') : null;
+    if (!link) return;
+    const user = firebase.auth().currentUser;
+    if (!user) return; // not logged in: create-ride page sends them to log in
+    if (window.__furaVerifiedUid === user.uid) return; // already checked this session
+
+    event.preventDefault();
+    const href = link.href;
+    let verified = true;
+    try { verified = await window.isEmailVerified(user); } catch (e) { verified = true; }
+    if (verified) {
+      window.__furaVerifiedUid = user.uid;
+      window.location.href = href;
+      return;
+    }
+
+    const msg = window.t ? window.t('verifyEmailToPost') : 'Za objavo prevoza morate najprej potrditi svoj e-poštni naslov.';
+    if (window.utils && window.utils.showNotification) window.utils.showNotification(msg, 'warning', 6000);
+
+    if (typeof window.showEmailVerificationModal === 'function') {
+      // Home / login / register page: open the confirmation window
+      try { sessionStorage.removeItem('furaVerifyDismissed'); } catch (e) {}
+      window.showEmailVerificationModal(user.email);
+    } else if (document.getElementById('emailVerifyBanner')) {
+      // Profile page: point to the confirmation box
+      const banner = document.getElementById('emailVerifyBanner');
+      banner.style.display = 'flex';
+      banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      banner.classList.remove('evb-pulse'); void banner.offsetWidth; banner.classList.add('evb-pulse');
+    } else {
+      const home = window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
+      setTimeout(function() { window.location.href = home + '?verify=1'; }, 1500);
+    }
+  }, true);

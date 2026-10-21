@@ -6,6 +6,11 @@
 // Translation data
 const translations = {
   sl: {
+    emailNotVerifiedTitle: "E-poštni naslov ni potrjen",
+    emailNotVerifiedText: "Potrdite ga s klikom na povezavo, ki vam jo pošljemo po e-pošti. Brez potrditve ne morete objavljati prevozov.",
+    sendVerificationLink: "Pošlji potrditveno povezavo",
+    emailVerifiedBadge: "Potrjen",
+    emailNotVerifiedBadge: "Ni potrjen",
     emailExists: "Ta e-poštni naslov je že v uporabi.",
     // Header
     login: "Prijavi se",
@@ -650,6 +655,11 @@ const translations = {
   },
   
   en: {
+    emailNotVerifiedTitle: "Email address not confirmed",
+    emailNotVerifiedText: "Confirm it by clicking the link we email you. You can't post rides until it's confirmed.",
+    sendVerificationLink: "Send confirmation link",
+    emailVerifiedBadge: "Confirmed",
+    emailNotVerifiedBadge: "Not confirmed",
     emailExists: "This email address is already in use.",
     // Header
     login: "Sign In",
@@ -1294,6 +1304,11 @@ const translations = {
   },
   
   sr: {
+    emailNotVerifiedTitle: "Емаил адреса није потврђена",
+    emailNotVerifiedText: "Потврдите је кликом на линк који ћемо вам послати емаилом. Без потврде не можете објављивати превозе.",
+    sendVerificationLink: "Пошаљи линк за потврду",
+    emailVerifiedBadge: "Потврђена",
+    emailNotVerifiedBadge: "Није потврђена",
     emailExists: "Ова емаил адреса је већ у употреби.",
     // Header
     login: "Пријави се",
@@ -1939,6 +1954,11 @@ const translations = {
 
   // Italian translations
   it: {
+    emailNotVerifiedTitle: "Indirizzo email non confermato",
+    emailNotVerifiedText: "Confermalo cliccando sul link che ti inviamo via email. Senza conferma non puoi pubblicare viaggi.",
+    sendVerificationLink: "Invia link di conferma",
+    emailVerifiedBadge: "Confermato",
+    emailNotVerifiedBadge: "Non confermato",
     // Header
     login: "Accedi",
     register: "Registrati",
@@ -2605,6 +2625,11 @@ const translations = {
 
   // German translations
   de: {
+    emailNotVerifiedTitle: "E-Mail-Adresse nicht bestätigt",
+    emailNotVerifiedText: "Bestätigen Sie sie über den Link, den wir Ihnen per E-Mail senden. Ohne Bestätigung können Sie keine Fahrten veröffentlichen.",
+    sendVerificationLink: "Bestätigungslink senden",
+    emailVerifiedBadge: "Bestätigt",
+    emailNotVerifiedBadge: "Nicht bestätigt",
     // Header
     login: "Anmelden",
     register: "Registrieren",
@@ -3271,6 +3296,11 @@ const translations = {
 
   // Bosnian translations
   bs: {
+    emailNotVerifiedTitle: "E-mail adresa nije potvrđena",
+    emailNotVerifiedText: "Potvrdite je klikom na link koji ćemo vam poslati e-mailom. Bez potvrde ne možete objavljivati prevoze.",
+    sendVerificationLink: "Pošalji link za potvrdu",
+    emailVerifiedBadge: "Potvrđena",
+    emailNotVerifiedBadge: "Nije potvrđena",
     emailExists: "Ova e-mail adresa se već koristi.",
     // Common words
     yes: "Da",
@@ -4115,6 +4145,11 @@ const translations = {
 
   // Croatian translations
   hr: {
+    emailNotVerifiedTitle: "Adresa e-pošte nije potvrđena",
+    emailNotVerifiedText: "Potvrdite je klikom na poveznicu koju ćemo vam poslati e-poštom. Bez potvrde ne možete objavljivati prevoze.",
+    sendVerificationLink: "Pošalji poveznicu za potvrdu",
+    emailVerifiedBadge: "Potvrđena",
+    emailNotVerifiedBadge: "Nije potvrđena",
     emailExists: "Ova adresa e-pošte već se koristi.",
     // Common words
     yes: "Da",
@@ -4851,6 +4886,11 @@ const translations = {
 
   // Montenegrin translations  
   me: {
+    emailNotVerifiedTitle: "E-mail adresa nije potvrđena",
+    emailNotVerifiedText: "Potvrdite je klikom na link koji ćemo vam poslati e-mailom. Bez potvrde ne možete objavljivati prevoze.",
+    sendVerificationLink: "Pošalji link za potvrdu",
+    emailVerifiedBadge: "Potvrđena",
+    emailNotVerifiedBadge: "Nije potvrđena",
     emailExists: "Ova e-mail adresa se već koristi.",
     // Common words
     yes: "Da",

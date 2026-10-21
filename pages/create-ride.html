@@ -84,7 +84,7 @@
         </div>
     </header>
     
-    <main class="container">
+    <main class="container" id="createRideMain" style="visibility: hidden;">
         <div class="form-container">
             <h2 class="form-title" data-translate="createRideTitle">Vpisi svoj prevoz</h2>
             
@@ -321,19 +321,28 @@
             
             // Check if user is logged in
             firebase.auth().onAuthStateChanged(function(user) {
+                const createRideMain = document.getElementById('createRideMain');
                 if (!user) {
                     // If not logged in, redirect to login page
                     utils.showNotification((window.t ? window.t('loginRequiredCreate') : 'Za dodavanje prevozov se morate prijaviti.'), 'info');
                     window.location.href = '../index.html';
                 } else {
                     console.log('User is authenticated:', user.email);
-                    // Only users with a confirmed email may post rides
+                    // Only users with a confirmed email may open this page.
+                    // The form stays hidden until that is confirmed.
                     if (typeof window.isEmailVerified === 'function') {
                         window.isEmailVerified(user).then(function(verified) {
-                            if (!verified) {
+                            if (verified) {
+                                window.__furaVerifiedUid = user.uid;
+                                if (createRideMain) createRideMain.style.visibility = 'visible';
+                            } else {
                                 redirectToVerifyEmail();
                             }
+                        }).catch(function() {
+                            if (createRideMain) createRideMain.style.visibility = 'visible';
                         });
+                    } else if (createRideMain) {
+                        createRideMain.style.visibility = 'visible';
                     }
                 }
             });
