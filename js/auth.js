@@ -51,11 +51,6 @@ function authT(key, fallback) {
 const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
 const VERIFICATION_LAST_SENT_KEY = 'furaVerificationLastSent';
 
-// Where the "Continue" button in Firebase's confirmation page leads
-function getVerificationActionSettings() {
-  return { url: window.location.origin + '/index.html' };
-}
-
 // Send Firebase's email in the user's language where Firebase has a template for it
 function applyAuthLanguage() {
   const map = { sl: 'sl', en: 'en', it: 'it', de: 'de', hr: 'hr', sr: 'sr', bs: 'hr', me: 'hr' };
@@ -63,21 +58,19 @@ function applyAuthLanguage() {
   auth.languageCode = map[lang] || 'sl';
 }
 
-// Send the confirmation link to the currently signed-in user
+// Send the confirmation link to the currently signed-in user.
+// Exactly ONE request: Firebase allows only about one verification email per
+// user per minute, so a failed first attempt + retry gets "too many requests".
+// No return link (continue URL) is passed, so it works regardless of which
+// domains are authorized in Firebase; the open window on the site notices
+// the confirmation by itself.
 async function sendVerificationLink(user) {
   applyAuthLanguage();
   try {
-    await user.sendEmailVerification(getVerificationActionSettings());
+    await user.sendEmailVerification();
   } catch (error) {
-    // If this domain is not on Firebase's list of authorized domains, send the
-    // email without the "Continue" button instead of failing.
-    if (error && (error.code === 'auth/unauthorized-continue-uri' ||
-                  error.code === 'auth/invalid-continue-uri' ||
-                  error.code === 'auth/missing-continue-uri')) {
-      await user.sendEmailVerification();
-    } else {
-      throw error;
-    }
+    console.error('sendEmailVerification failed:', error.code, error.message);
+    throw error;
   }
   try { localStorage.setItem(VERIFICATION_LAST_SENT_KEY, String(Date.now())); } catch (e) {}
 }
@@ -123,10 +116,12 @@ window.registerUser = async function(email, password, firstName, lastName, usern
     
     // Send Firebase confirmation link. If sending fails the account still exists,
     // so show the error and let the user press "Send new link" in the window.
+    window.lastVerificationSendFailed = false;
     try {
       await sendVerificationLink(user);
       console.log('Verification link sent to', email);
     } catch (sendError) {
+      window.lastVerificationSendFailed = true;
       console.error('Error sending verification link:', sendError);
       if (window.utils && window.utils.showNotification) {
         window.utils.showNotification(verificationErrorMessage(sendError), 'error', 8000);
@@ -398,8 +393,10 @@ window.handleRegisterSubmit = async function() {
       utils.showNotification((window.t ? window.t('registrationModalError') : 'Registracija uspešna, vendar se modal za potrditev ni prikazal. Poskusite znova.'), 'warning');
     }
     
-    // Show success notification
-    if (window.utils && window.utils.showNotification) {
+    // Show success notification (not when sending failed - the error is already shown)
+    if (window.lastVerificationSendFailed) {
+      // keep the error message visible
+    } else if (window.utils && window.utils.showNotification) {
       window.utils.showNotification(
         (window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'),
         'success',
@@ -1084,17 +1081,7 @@ async function updateEmailAddress() {
   
   const send = async () => {
     applyAuthLanguage();
-    try {
-      await user.verifyBeforeUpdateEmail(newEmail, getVerificationActionSettings());
-    } catch (error) {
-      if (error && (error.code === 'auth/unauthorized-continue-uri' ||
-                    error.code === 'auth/invalid-continue-uri' ||
-                    error.code === 'auth/missing-continue-uri')) {
-        await user.verifyBeforeUpdateEmail(newEmail);
-      } else {
-        throw error;
-      }
-    }
+    await user.verifyBeforeUpdateEmail(newEmail);
   };
   
   try {

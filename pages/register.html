@@ -354,8 +354,10 @@ async function register() {
                 }, { merge: true });
             }
             
-            utils.showNotification((window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'), 'success');
-            // Redirect will be handled by email verification modal
+            if (!window.lastVerificationSendFailed) {
+                utils.showNotification((window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'), 'success');
+            }
+            // Confirmation window is opened by registerUser()
         } else {
             // Fallback if registerUser is not available
             utils.showNotification((window.t ? window.t('registrationSuccessLogin') : 'Registracija uspešna! Zdaj se lahko prijavite.'), 'success');
