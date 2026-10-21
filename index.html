@@ -450,7 +450,7 @@
       </div>
       <div class="country-dropdown">
         <div class="country-search">
-          <input type="text" placeholder="Iskanje..." id="countrySearchInput">
+          <input type="text" data-translate-placeholder="searchPlaceholder" placeholder="Iskanje..." id="countrySearchInput">
         </div>
         <div class="country-list">
           <!-- Country options will be added dynamically -->
@@ -507,37 +507,37 @@
                         
                         <div class="input-group">
                             <label class="input-label" data-translate="companyName">Naziv podjetja</label>
-                            <input type="text" id="registerModalCompanyName" class="input-field" placeholder="Vnesite naziv podjetja">
+                            <input type="text" id="registerModalCompanyName" class="input-field" data-translate-placeholder="enterCompanyName" placeholder="Vnesite naziv podjetja">
                         </div>
                         
                         <div class="form-row">
                             <div class="form-col">
                                 <div class="input-group">
                                     <label class="input-label" data-translate="taxNumber">Davčna številka (DŠ)</label>
-                                    <input type="text" id="registerModalTaxNumber" class="input-field" placeholder="Vnesite davčno številko">
+                                    <input type="text" id="registerModalTaxNumber" class="input-field" data-translate-placeholder="enterTaxNumber" placeholder="Vnesite davčno številko">
                                 </div>
                             </div>
                             <div class="form-col">
                                 <div class="input-group">
                                     <label class="input-label" data-translate="registrationNumber">Matična številka (MŠ)</label>
-                                    <input type="text" id="registerModalRegistrationNumber" class="input-field" placeholder="Vnesite matično številko">
+                                    <input type="text" id="registerModalRegistrationNumber" class="input-field" data-translate-placeholder="enterRegistrationNumber" placeholder="Vnesite matično številko">
                                 </div>
                             </div>
                         </div>
                         
                         <div class="input-group">
                             <label class="input-label" data-translate="companyAddress">Naslov podjetja</label>
-                            <input type="text" id="registerModalCompanyAddress" class="input-field" placeholder="Vnesite naslov podjetja">
+                            <input type="text" id="registerModalCompanyAddress" class="input-field" data-translate-placeholder="enterCompanyAddress" placeholder="Vnesite naslov podjetja">
                         </div>
                         
                         <div class="input-group">
                             <label class="input-label" data-translate="companyCity">Mesto</label>
-                            <input type="text" id="registerModalCompanyCity" class="input-field" placeholder="Vnesite mesto">
+                            <input type="text" id="registerModalCompanyCity" class="input-field" data-translate-placeholder="enterCompanyCity" placeholder="Vnesite mesto">
                         </div>
                         
                         <div class="input-group">
                             <label class="input-label" data-translate="companyCountry">Država</label>
-                            <input type="text" id="registerModalCompanyCountry" class="input-field" placeholder="Vnesite državo">
+                            <input type="text" id="registerModalCompanyCountry" class="input-field" data-translate-placeholder="enterCompanyCountry" placeholder="Vnesite državo">
                         </div>
                     </div>
                     
@@ -775,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p data-translate="forgotPasswordInstructions" style="margin-bottom: 20px;">Vnesite vaš e-poštni naslov. Prejeli boste e-pošto s povezavo za ponastavitev gesla.</p>
                         <div class="input-group">
                             <label class="input-label" data-translate="email">E-poštni naslov</label>
-                            <input type="email" id="forgotPasswordEmail" class="input-field" placeholder="Vnesite e-poštni naslov" required>
+                            <input type="email" id="forgotPasswordEmail" class="input-field" data-translate-placeholder="enterEmail" placeholder="Vnesite e-poštni naslov" required>
                         </div>
                         <div class="form-actions">
                             <button class="btn btn-primary" onclick="handleForgotPasswordSubmit()" data-translate="sendResetEmail">Pošlji e-pošto za ponastavitev</button>
@@ -844,9 +844,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!email) {
             if (window.utils && window.utils.showNotification) {
-                window.utils.showNotification('Vnesite e-poštni naslov.', 'warning');
+                window.utils.showNotification((window.t ? window.t('enterEmailAddress') : 'Vnesite e-poštni naslov.'), 'warning');
             } else {
-                alert('Vnesite e-poštni naslov.');
+                alert((window.t ? window.t('enterEmailAddress') : 'Vnesite e-poštni naslov.'));
             }
             return;
         }
@@ -856,9 +856,9 @@ document.addEventListener('DOMContentLoaded', function() {
             await window.utils.sendPasswordResetEmailWithRateLimit(email);
             
             if (window.utils && window.utils.showNotification) {
-                window.utils.showNotification('E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.', 'success');
+                window.utils.showNotification((window.t ? window.t('resetEmailSent') : 'E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.'), 'success');
             } else {
-                alert('E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.');
+                alert((window.t ? window.t('resetEmailSent') : 'E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.'));
             }
             window.closeForgotPasswordModal();
         } catch (error) {
@@ -874,9 +874,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Don't reveal if user exists for security
                 if (window.utils && window.utils.showNotification) {
-                    window.utils.showNotification('Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.', 'info');
+                    window.utils.showNotification((window.t ? window.t('resetEmailIfAccountExists') : 'Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.'), 'info');
                 } else {
-                    alert('Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.');
+                    alert((window.t ? window.t('resetEmailIfAccountExists') : 'Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.'));
                 }
             }
         }
@@ -904,7 +904,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsTable.innerHTML = '';
         
         // Update results count
-        document.querySelector('.results-count').textContent = `Prikazujem ${rides.length} prevozov`;
+        document.querySelector('.results-count').textContent = window.formatResultsCount ? window.formatResultsCount(rides.length) : `Prikazujem ${rides.length} prevozov`;
         
         // Get current user ID for identifying own rides
         const currentUser = firebase.auth().currentUser;

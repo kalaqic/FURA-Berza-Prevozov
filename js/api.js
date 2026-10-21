@@ -95,7 +95,7 @@ async function loginUser(username, password) {
         
         return { success: false, message: 'Prijava ni uspela.' };
     } catch (error) {
-        return { success: false, message: error.message || 'Napaka pri prijavi.' };
+        return { success: false, message: error.message || (window.t ? window.t('loginError') : 'Napaka pri prijavi') + '.' };
     }
 }
 

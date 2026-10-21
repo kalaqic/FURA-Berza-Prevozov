@@ -37,7 +37,7 @@ const firebaseConfig = {
   window.ensureUserProfileDocument = async function(user = null) {
     const authUser = user || window.auth.currentUser || firebase.auth().currentUser;
     if (!authUser) {
-      throw new Error('Uporabnik ni prijavljen');
+      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
     }
 
     const userRef = window.usersCollection.doc(authUser.uid);

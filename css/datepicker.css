@@ -242,3 +242,12 @@ input.flatpickr-input:not(#dateTimePicker),
         z-index: -1;
     }
 }
+
+/* Desktop/tablet: calendars that are NOT static (e.g. edit ride page) are placed by flatpickr
+   in page coordinates, so they must be absolute. With position:fixed they drop below the
+   screen as soon as the page is scrolled. Mobile (<=768px) rules above are unchanged. */
+@media (min-width: 769px) {
+    .flatpickr-calendar.open:not(.static) {
+        position: absolute !important;
+    }
+}

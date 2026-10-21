@@ -173,26 +173,26 @@ window.verifyEmail = async function(email, verificationCode) {
     // Get user from email
     const user = auth.currentUser;
     if (!user) {
-      throw new Error('Uporabnik ni prijavljen');
+      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
     }
     
     // Check verification code in Firestore
     const userDoc = await window.ensureUserProfileDocument(user);
     if (!userDoc.exists) {
-      throw new Error('Uporabniški podatki niso najdeni');
+      throw new Error((window.t ? window.t('userDataNotFound') : 'Uporabniški podatki niso najdeni'));
     }
     
     const userData = userDoc.data();
     
     // Check if code matches
     if (userData.verificationCode !== verificationCode) {
-      throw new Error('Napačna potrditvena koda');
+      throw new Error((window.t ? window.t('wrongVerificationCode') : 'Napačna potrditvena koda'));
     }
     
     // Check if code is expired
     const now = firebase.firestore.Timestamp.now();
     if (userData.verificationCodeExpiry.toMillis() < now.toMillis()) {
-      throw new Error('Potrditvena koda je potekla. Zahtevajte novo.');
+      throw new Error((window.t ? window.t('codeExpired') : 'Potrditvena koda je potekla. Zahtevajte novo.'));
     }
     
     // Mark email as verified in Firestore
@@ -217,13 +217,13 @@ window.resendVerificationCode = async function() {
   try {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error('Uporabnik ni prijavljen');
+      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
     }
     
     // Get user data
     const userDoc = await window.ensureUserProfileDocument(user);
     if (!userDoc.exists) {
-      throw new Error('Uporabniški podatki niso najdeni');
+      throw new Error((window.t ? window.t('userDataNotFound') : 'Uporabniški podatki niso najdeni'));
     }
     
     const userData = userDoc.data();
@@ -240,7 +240,8 @@ window.resendVerificationCode = async function() {
         const remainingSeconds = Math.ceil((cooldownPeriod - timeSinceLastResend) / 1000);
         const remainingMinutes = Math.floor(remainingSeconds / 60);
         const remainingSecs = remainingSeconds % 60;
-        throw new Error(`Počakajte ${remainingMinutes}:${remainingSecs.toString().padStart(2, '0')} pred ponovnim pošiljanjem kode.`);
+        const waitTime = `${remainingMinutes}:${remainingSecs.toString().padStart(2, '0')}`;
+        throw new Error(window.translateText ? window.translateText('waitBeforeResend', { time: waitTime }) : `Počakajte ${waitTime} pred ponovnim pošiljanjem kode.`);
       }
     }
     
@@ -278,11 +279,11 @@ window.logoutUser = function() {
     .then(() => {
       console.log('Logout successful');
       window.updateAuthUI();
-      utils.showNotification('Uspešno ste se odjavili.', 'success');
+      utils.showNotification((window.t ? window.t('logoutSuccessful') : 'Uspešno ste se odjavili.'), 'success');
     })
     .catch(error => {
       console.error('Logout error:', error);
-      utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
+      utils.showNotification((window.t ? window.t('logoutError') : 'Napaka pri odjavi') + ': ' + error.message, 'error');
     });
 };
 
@@ -291,7 +292,7 @@ window.handleLoginSubmit = async function() {
   console.log('Login handler called');
   
   // Create and show loading overlay
-  const loadingOverlay = createLoadingOverlay('loginLoadingOverlay', 'Prijava v teku...');
+  const loadingOverlay = createLoadingOverlay('loginLoadingOverlay', (window.t ? window.t('loggingIn') : 'Prijava v teku...'));
   loadingOverlay.style.display = 'flex';
   
   try {
@@ -301,7 +302,7 @@ window.handleLoginSubmit = async function() {
     if (!emailInput || !passwordInput) {
       console.error('Login form elements not found');
       loadingOverlay.style.display = 'none';
-      utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
+      utils.showNotification((window.t ? window.t('pageUnavailable') : 'Stran ni na voljo. Prosimo, osvežite stran.'), 'error');
       return;
     }
     
@@ -310,7 +311,7 @@ window.handleLoginSubmit = async function() {
     
     if (!email || !password) {
       loadingOverlay.style.display = 'none';
-      utils.showNotification('Vnesite e-poštni naslov in geslo.', 'warning');
+      utils.showNotification((window.t ? window.t('enterEmailAndPassword') : 'Vnesite e-poštni naslov in geslo.'), 'warning');
       return;
     }
     
@@ -332,7 +333,7 @@ window.handleLoginSubmit = async function() {
     window.closeModal('loginModal');
     
     // Show success message
-    utils.showNotification('Uspešna prijava!', 'success');
+    utils.showNotification((window.t ? window.t('loginSuccessful') : 'Uspešna prijava!'), 'success');
     
     // Update UI
     window.updateAuthUI();
@@ -340,7 +341,7 @@ window.handleLoginSubmit = async function() {
   } catch (error) {
     console.error('Login error:', error);
     loadingOverlay.style.display = 'none';
-    utils.showNotification('Napaka pri prijavi: ' + error.message, 'error');
+    utils.showNotification((window.t ? window.t('loginError') : 'Napaka pri prijavi') + ': ' + error.message, 'error');
   }
 };
 
@@ -349,7 +350,7 @@ window.handleRegisterSubmit = async function() {
   console.log('Register handler called');
   
   // Create and show loading overlay
-  const loadingOverlay = createLoadingOverlay('registrationLoadingOverlay', 'Registracija v teku...');
+  const loadingOverlay = createLoadingOverlay('registrationLoadingOverlay', (window.t ? window.t('registering') : 'Registracija v teku...'));
   loadingOverlay.style.display = 'flex';
   
   try {
@@ -365,7 +366,7 @@ window.handleRegisterSubmit = async function() {
     if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
       console.error('Register form elements not found');
       loadingOverlay.style.display = 'none';
-      utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
+      utils.showNotification((window.t ? window.t('pageUnavailable') : 'Stran ni na voljo. Prosimo, osvežite stran.'), 'error');
       return;
     }
     
@@ -383,13 +384,13 @@ window.handleRegisterSubmit = async function() {
     // Validation
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       loadingOverlay.style.display = 'none';
-      utils.showNotification('Izpolnite vsa obvezna polja.', 'warning');
+      utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Izpolnite vsa obvezna polja.'), 'warning');
       return;
     }
     
     if (password !== confirmPassword) {
       loadingOverlay.style.display = 'none';
-      utils.showNotification('Gesli se ne ujemata.', 'warning');
+      utils.showNotification((window.t ? window.t('passwordsDoNotMatch') : 'Gesli se ne ujemata.'), 'warning');
       return;
     }
     
@@ -405,7 +406,7 @@ window.handleRegisterSubmit = async function() {
       
       if (!companyName || !taxNumber) {
         loadingOverlay.style.display = 'none';
-        utils.showNotification('Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!', 'warning');
+        utils.showNotification((window.t ? window.t('companyRegistrationRequired') : 'Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!'), 'warning');
         return;
       }
       
@@ -484,24 +485,24 @@ window.handleRegisterSubmit = async function() {
       console.log('Verification modal should now be visible');
     } catch (error) {
       console.error('Error showing verification modal:', error);
-      utils.showNotification('Registracija uspešna, vendar se modal za potrditev ni prikazal. Poskusite znova.', 'warning');
+      utils.showNotification((window.t ? window.t('registrationModalError') : 'Registracija uspešna, vendar se modal za potrditev ni prikazal. Poskusite znova.'), 'warning');
     }
     
     // Show success notification
     if (window.utils && window.utils.showNotification) {
       window.utils.showNotification(
-        'Registracija uspešna! Preverite e-pošto za potrditveno kodo.',
+        (window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'),
         'success',
         5000
       );
     } else {
-      utils.showNotification('Registracija uspešna! Preverite e-pošto za potrditveno kodo.', 'success');
+      utils.showNotification((window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'), 'success');
     }
     
   } catch (error) {
     console.error('Registration error:', error);
     loadingOverlay.style.display = 'none';
-    utils.showNotification('Napaka pri registraciji: ' + error.message, 'error');
+    utils.showNotification((window.t ? window.t('registrationError') : 'Napaka pri registraciji') + ': ' + error.message, 'error');
     
     // Debug info
     console.log('Registration failed. Error details:', {
@@ -943,7 +944,7 @@ function closeEmailVerificationModal() {
 async function handleCancelRegistration() {
   const user = auth.currentUser;
   if (!user) {
-    utils.showNotification('Uporabnik ni prijavljen.', 'error');
+    utils.showNotification((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen.'), 'error');
     return;
   }
   
@@ -1001,12 +1002,12 @@ async function handleCancelRegistration() {
         const msg = reauthError.code === 'auth/wrong-password' || reauthError.code === 'auth/invalid-credential'
           ? (window.t ? window.t('wrongPassword') : 'Napačno geslo.')
           : reauthError.message;
-        utils.showNotification('Napaka pri preklicu registracije: ' + msg, 'error');
+        utils.showNotification((window.t ? window.t('cancelRegistrationError') : 'Napaka pri preklicu registracije') + ': ' + msg, 'error');
       }
     } else {
       console.error('Error canceling registration:', error);
       utils.showNotification(
-        'Napaka pri preklicu registracije: ' + error.message,
+        (window.t ? window.t('cancelRegistrationError') : 'Napaka pri preklicu registracije') + ': ' + error.message,
         'error'
       );
     }
@@ -1022,13 +1023,13 @@ async function handleVerificationSubmit(event) {
   const verificationCode = codeInput.value.trim();
   
   if (!verificationCode || verificationCode.length !== 6) {
-    window.utils.showNotification('Vnesite 6-mestno potrditveno kodo.', 'error');
+    window.utils.showNotification((window.t ? window.t('enterSixDigitCode') : 'Vnesite 6-mestno potrditveno kodo.'), 'error');
     return;
   }
   
   // Show loading state
   verifyBtn.disabled = true;
-  verifyBtn.textContent = 'Preverjam...';
+  verifyBtn.textContent = (window.t ? window.t('verifying') : 'Preverjam...');
   
   try {
     // Verify the email
@@ -1053,7 +1054,7 @@ async function handleVerificationSubmit(event) {
   } finally {
     // Reset button state
     verifyBtn.disabled = false;
-    verifyBtn.textContent = 'Potrdi e-pošto';
+    verifyBtn.textContent = (window.t ? window.t('verifyEmail') : 'Potrdi e-pošto');
   }
 };
 
@@ -1063,18 +1064,18 @@ async function handleResendVerificationCode() {
     await window.resendVerificationCode();
     if (window.utils && window.utils.showNotification) {
       window.utils.showNotification(
-        'Nova potrditvena koda je bila poslana na vaš e-poštni naslov.',
+        (window.t ? window.t('newCodeSent') : 'Nova potrditvena koda je bila poslana na vaš e-poštni naslov.'),
         'success'
       );
     } else {
-      utils.showNotification('Nova potrditvena koda je bila poslana na vaš e-poštni naslov.', 'success');
+      utils.showNotification((window.t ? window.t('newCodeSent') : 'Nova potrditvena koda je bila poslana na vaš e-poštni naslov.'), 'success');
     }
   } catch (error) {
     console.error('Resend error:', error);
     if (window.utils && window.utils.showNotification) {
       window.utils.showNotification(error.message, 'error');
     } else {
-      utils.showNotification('Napaka: ' + error.message, 'error');
+      utils.showNotification((window.t ? window.t('errorPrefix') : 'Napaka') + ': ' + error.message, 'error');
     }
   }
 };
@@ -1185,14 +1186,14 @@ async function updateEmailAddress() {
   
   const newEmail = newEmailInput.value.trim();
   if (!newEmail) {
-    utils.showNotification('Vnesite veljaven e-poštni naslov.', 'warning');
+    utils.showNotification((window.t ? window.t('enterValidEmail') : 'Vnesite veljaven e-poštni naslov.'), 'warning');
     return;
   }
   
   try {
     const user = firebase.auth().currentUser;
     if (!user) {
-      throw new Error('Uporabnik ni prijavljen');
+      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
     }
     
     // Update email in Firebase Auth
@@ -1231,11 +1232,11 @@ async function updateEmailAddress() {
     // Hide change email form
     hideChangeEmailForm();
     
-    utils.showNotification('E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.', 'success');
+    utils.showNotification((window.t ? window.t('emailUpdated') : 'E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.'), 'success');
     
   } catch (error) {
     console.error('Error updating email:', error);
-    utils.showNotification('Napaka pri posodabljanju e-poštnega naslova: ' + error.message, 'error');
+    utils.showNotification((window.t ? window.t('errorUpdatingEmail') : 'Napaka pri posodabljanju e-poštnega naslova') + ': ' + error.message, 'error');
   }
 }
 

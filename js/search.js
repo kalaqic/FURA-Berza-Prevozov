@@ -117,7 +117,8 @@ function getSearchParameters() {
   if (dateTimePickerButton) {
     const textElement = dateTimePickerButton.querySelector('.date-text');
     const buttonText = textElement ? textElement.textContent.trim() : '';
-    if (buttonText !== 'Datum in ura' && buttonText !== 'Datum') {
+    // Only use the text if it is a real date (placeholder text differs per language)
+    if (/\d{1,2}\.\d{1,2}\.\d{4}/.test(buttonText)) {
       dateTime = buttonText;
     }
   }
@@ -443,7 +444,7 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
   const toCountry = (ride.originalToCountry || ride.toCountry) ? translateCountry(ride.originalToCountry || ride.toCountry) : '';
   
   // Extract only date part for the date column
-  let dateOnly = 'Ni datuma';
+  let dateOnly = window.t ? window.t('noDate') : 'Ni datuma';
   if (ride.date) {
     dateOnly = formatDisplayDate(ride.date);
   } else if (ride.formattedDate) {
@@ -882,7 +883,7 @@ async function filterByType(type) {
       updateSearchResults(sortedRides);
   } catch (error) {
       console.error(`Error filtering rides by type ${type}:`, error);
-      utils.showNotification(`Napaka pri filtriranju prevozov: ${error.message}`, 'error');
+      utils.showNotification(`${window.t ? window.t('errorFilteringRides') : 'Napaka pri filtriranju prevozov'}: ${error.message}`, 'error');
   }
 }
 
@@ -1000,7 +1001,7 @@ async function resetFilters() {
       updateSearchResults(sortedRides);
   } catch (error) {
       console.error('Error resetting filters:', error);
-      utils.showNotification('Napaka pri ponastavljanju filtrov: ' + error.message, 'error');
+      utils.showNotification((window.t ? window.t('errorResettingFilters') : 'Napaka pri ponastavljanju filtrov') + ': ' + error.message, 'error');
   }
 }
 
@@ -1098,9 +1099,9 @@ function updateSearchResults(results, shouldStore = true) {
     row.innerHTML = `
       <td colspan="6" style="text-align: center; padding: 30px;">
         <div style="color: #666; font-size: 16px;">
-          <strong>Ni najdenih prevozov za to smer.</strong><br>
+          <strong>${window.t ? window.t('noResults') : 'Ni najdenih prevozov za to smer.'}</strong><br>
           <span style="font-size: 14px; margin-top: 10px; display: block;">
-            Poskusite z drugačnimi filtri ali preverite kasneje.
+            ${window.t ? window.t('noResultsSuggestion') : 'Poskusite z drugačnimi filtri ali preverite kasneje.'}
           </span>
         </div>
       </td>
@@ -1219,7 +1220,7 @@ function formatDisplayDate(dateStr) {
 
 // Function to show login required message
 function showLoginRequiredMessage() {
-  utils.showNotification('Za ogled podrobnosti se morate prijaviti.', 'info');
+  utils.showNotification((window.t ? window.t('loginRequired') : 'Za ogled podrobnosti se morate prijaviti.'), 'info');
 }
 
 // Set up optimized real-time updates for rides
@@ -1378,7 +1379,7 @@ function createRideRow(ride) {
   const toCity = ride.toCity || 'N/A';
   const toCountry = (ride.originalToCountry || ride.toCountry) ? translateCountry(ride.originalToCountry || ride.toCountry) : '';
   // Extract only date part (no time) for the date column
-  let dateOnly = 'Ni datuma';
+  let dateOnly = window.t ? window.t('noDate') : 'Ni datuma';
   if (ride.date) {
     dateOnly = formatDisplayDate(ride.date);
   } else if (ride.formattedDate) {

@@ -163,11 +163,11 @@
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
                     </span>
-                    Datum in ura
+                    <span class="date-text" data-translate="dateTime">Datum in ura</span>
                 </button>
                 <div class="date-only-option">
                     <label class="checkbox-container">
-                        Brez ure
+                        <span data-translate="dateOnly">Brez ure</span>
                         <input type="checkbox" id="dateOnlyCheckbox" class="date-only-checkbox">
                         <span class="checkmark"></span>
                     </label>
@@ -176,20 +176,28 @@
             
             <div class="input-group">
                 <label class="input-label" data-translate="vehicleType">Prevozno sredstvo</label>
-                <select class="input-field" id="vehicleType" required>
-                    <option value="car">Avto</option>
-                    <option value="van">Kombi</option>
-                    <option value="truck">Tovornjak</option>
-                    <option value="any">Poljubno vozilo</option>
+                <select class="input-field" id="vehicleType" required onchange="checkForCustomVehicle()">
+                    <option value="car-transporter" data-translate="avtotransporter">Avtotransporter</option>
+                    <option value="car-tow" data-translate="avtovleka">Avtovleka</option>
+                    <option value="furgon" data-translate="furgon">Furgon</option>
+                    <option value="van" data-translate="kombi">Kombi</option>
+                    <option value="truck" data-translate="vlačilec">Vlačilec</option>
+                    <option value="custom" data-translate="customVehicle">Drugo...</option>
                 </select>
+            </div>
+            
+            <!-- Custom vehicle type input (hidden by default) -->
+            <div class="input-group" id="customVehicleContainer" style="display: none;">
+                <label class="input-label" data-translate="enterVehicleType">Vnesite vrsto vozila</label>
+                <input type="text" class="input-field" id="customVehicleType" data-translate-placeholder="enterVehicleType" placeholder="Vnesite vrsto vozila">
             </div>
             
             <div class="input-group">
                 <label class="input-label" data-translate="vehicleDimensions">Dimenzije vozila</label>
                 <select class="input-field" id="vehicleSize" required onchange="handleVehicleSizeChange()">
-                    <option value="small">Male dimenzije (auto)</option>
-                    <option value="medium">Srednje dimenzije (kombi)</option>
-                    <option value="large">Velike dimenzije (kamion)</option>
+                    <option value="small" data-translate="smallVehicle">Male dimenzije (auto)</option>
+                    <option value="medium" data-translate="mediumVehicle">Srednje dimenzije (kombi)</option>
+                    <option value="large" data-translate="largeVehicle">Velike dimenzije (kamion)</option>
                     <option value="manual" data-translate="manualDimensions">Ročno vnos</option>
                 </select>
             </div>
@@ -247,19 +255,19 @@
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" data-translate="amount">Znesek</label>
-                            <input type="number" class="input-field" id="priceAmount" placeholder="Vnesite znesek" min="0" step="0.01">
+                            <input type="number" class="input-field" id="priceAmount" data-translate-placeholder="enterAmount" placeholder="Vnesite znesek" min="0" step="0.01">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" data-translate="currency">Valuta</label>
                             <select class="input-field" id="priceCurrency">
-                                <option value="EUR">Euro (€)</option>
-                                <option value="BAM">Konvertibilna marka (KM)</option>
-                                <option value="RSD">Srbski dinar (RSD)</option>
-                                <option value="HRK">Hrvatska kuna (HRK)</option>
-                                <option value="MKD">Makedonski denar (MKD)</option>
-                                <option value="ALL">Albanski lek (ALL)</option>
+                                <option value="EUR" data-translate="currencyEUR">Euro (€)</option>
+                                <option value="BAM" data-translate="currencyBAM">Konvertibilna marka (KM)</option>
+                                <option value="RSD" data-translate="currencyRSD">Srbski dinar (RSD)</option>
+                                <option value="HRK" data-translate="currencyHRK">Hrvatska kuna (HRK)</option>
+                                <option value="MKD" data-translate="currencyMKD">Makedonski denar (MKD)</option>
+                                <option value="ALL" data-translate="currencyALL">Albanski lek (ALL)</option>
                             </select>
                         </div>
                     </div>
@@ -268,7 +276,7 @@
             
             <div class="input-group">
                 <label class="input-label" data-translate="description">Opis</label>
-                <textarea class="input-field" rows="4" id="rideDescription" placeholder="Vnesite dodatne informacije o prevozu" required></textarea>
+                <textarea class="input-field" rows="4" id="rideDescription" data-translate-placeholder="enterAdditionalInfo" placeholder="Vnesite dodatne informacije o prevozu" required></textarea>
             </div>
             
             <button class="btn btn-primary search-btn" id="saveChangesBtn" data-translate="saveChanges">Shrani spremembe</button>
@@ -299,7 +307,6 @@
     <script src="../js/utils.js"></script>
     <script src="../js/firestore-rides.js"></script>
     <script src="../js/dropdown-locations.js"></script>
-    <script src="../js/datepicker.js"></script>
     
     <script>
         // Global variables
@@ -313,7 +320,7 @@
             const rideId = urlParams.get('id');
             
             if (!rideId) {
-                alert('Manjkajoči ID fure.');
+                alert((window.t ? window.t('missingRideId') : 'Manjkajoči ID fure.'));
                 window.location.href = 'profile.html';
                 return;
             }
@@ -322,7 +329,7 @@
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
                     // If not logged in, redirect to login page
-                    alert('Za urejanje prevozov se morate prijaviti.');
+                    alert((window.t ? window.t('loginRequiredEdit') : 'Za urejanje prevozov se morate prijaviti.'));
                     window.location.href = '../index.html';
                 } else {
                     console.log('User is authenticated:', user.email);
@@ -419,7 +426,7 @@
         const rideDoc = await firebase.firestore().collection('rides').doc(rideId).get();
         
         if (!rideDoc.exists) {
-            alert('Fura ni najdena.');
+            alert((window.t ? window.t('rideNotFound') : 'Fura ni najdena.'));
             window.location.href = 'profile.html';
             return;
         }
@@ -428,7 +435,7 @@
         
         // Check if user is the owner of the ride
         if (ride.createdBy !== userId) {
-            alert('Nimate dovoljenja za urejanje te fure.');
+            alert((window.t ? window.t('noPermissionEdit') : 'Nimate dovoljenja za urejanje te fure.'));
             window.location.href = 'profile.html';
             return;
         }
@@ -448,7 +455,7 @@
         
     } catch (error) {
         console.error('Error loading ride data:', error);
-        alert('Napaka pri nalaganju podatkov o furi: ' + error.message);
+        alert((window.t ? window.t('errorLoadingRide') : 'Napaka pri nalaganju podatkov o furi') + ': ' + error.message);
         window.location.href = 'profile.html';
     }
 }
@@ -502,31 +509,23 @@
                 
                 // Set date and time
                 if (dateTimePicker) {
-                    // Format date for flatpickr
-                    let dateValue = '';
-                    let hasTime = false;
+                    const parsed = parseRideDateTime(ride);
+                    const hasTime = !!parsed.time;
                     
-                    if (ride.date) {
-                        dateValue = ride.date;
-                        if (ride.time) {
-                            dateValue += ' ' + ride.time;
-                            hasTime = true;
-                        }
-                    }
-                    
-                    // Set date picker value
                     try {
-                        dateTimePicker.setDate(dateValue);
-                        
-                        // Update checkbox
                         const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
                         if (dateOnlyCheckbox) {
                             dateOnlyCheckbox.checked = !hasTime;
-                            toggleDateTimePickerMode(!hasTime);
                         }
                         
-                        // Update button text manually
-                        updateDateTimeButtonText(dateValue, !hasTime);
+                        if (parsed.dateObj) {
+                            // Recreate picker in the right mode, then set the exact date object
+                            toggleDateTimePickerMode(!hasTime);
+                            dateTimePicker.setDate(parsed.dateObj, false);
+                            updateDateTimeButtonText(parsed.dateObj, !hasTime);
+                        } else {
+                            toggleDateTimePickerMode(!hasTime);
+                        }
                     } catch (e) {
                         console.error('Error setting date picker value:', e);
                     }
@@ -535,7 +534,22 @@
                 // Set vehicle type
                 const vehicleTypeSelect = document.getElementById('vehicleType');
                 if (vehicleTypeSelect && ride.vehicleType) {
+                    const exists = Array.from(vehicleTypeSelect.options).some(o => o.value === ride.vehicleType);
+                    if (!exists) {
+                        // Older rides used other types (car, any, ...) - keep them selectable so nothing is lost
+                        const legacyOption = document.createElement('option');
+                        legacyOption.value = ride.vehicleType;
+                        legacyOption.textContent = (window.translateVehicleType && window.translateVehicleType(ride.vehicleType)) ||
+                            ride.vehicleTypeDisplay || ride.vehicleType;
+                        vehicleTypeSelect.insertBefore(legacyOption, vehicleTypeSelect.querySelector('option[value="custom"]'));
+                    }
                     vehicleTypeSelect.value = ride.vehicleType;
+                    
+                    if (ride.vehicleType === 'custom') {
+                        const customInput = document.getElementById('customVehicleType');
+                        if (customInput) customInput.value = ride.vehicleTypeDisplay || '';
+                    }
+                    checkForCustomVehicle();
                 }
                 
                 // Set vehicle size
@@ -609,8 +623,70 @@
                 }
             } catch (error) {
                 console.error('Error populating form:', error);
-                alert('Napaka pri nalaganju podatkov obrazca: ' + error.message);
+                alert((window.t ? window.t('errorLoadingForm') : 'Napaka pri nalaganju podatkov obrazca') + ': ' + error.message);
             }
+        }
+        
+        // Read date + time from a ride, also from older rides where the time was
+        // saved inside formattedDate/displayDate (e.g. "21.10.2026 14:30") instead of "time".
+        function parseRideDateTime(ride) {
+            const result = { dateObj: null, time: '' };
+            if (!ride) return result;
+            
+            let y, m, d, time = '';
+            
+            if (typeof ride.date === 'string') {
+                const iso = ride.date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (iso) { y = +iso[1]; m = +iso[2]; d = +iso[3]; }
+            }
+            
+            const candidates = [ride.formattedDate, ride.displayDate, ride.date];
+            for (const c of candidates) {
+                if (typeof c !== 'string') continue;
+                const match = c.match(/(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})(?:\D+?(\d{1,2}):(\d{2}))?/);
+                if (match) {
+                    if (!y) { d = +match[1]; m = +match[2]; y = +match[3]; }
+                    if (!time && match[4]) time = match[4].padStart(2, '0') + ':' + match[5];
+                    if (time) break;
+                }
+            }
+            
+            const timeSources = [ride.time, ride.formattedTime, ride.displayTime];
+            for (const ts of timeSources) {
+                if (typeof ts === 'string') {
+                    const tm = ts.match(/^\s*(\d{1,2}):(\d{2})/);
+                    if (tm) { time = tm[1].padStart(2, '0') + ':' + tm[2]; break; }
+                }
+            }
+            
+            if (y && m && d) {
+                const hh = time ? parseInt(time.split(':')[0], 10) : 0;
+                const mm = time ? parseInt(time.split(':')[1], 10) : 0;
+                const dateObj = new Date(y, m - 1, d, hh, mm);
+                if (!isNaN(dateObj.getTime())) result.dateObj = dateObj;
+            }
+            result.time = time;
+            return result;
+        }
+        
+        // Translated word between date and time ("ob" / "at" / ...)
+        function atWord() {
+            return (window.t && window.t('at')) || 'ob';
+        }
+        
+        // Desktop only: if the opened calendar sticks out below the window, scroll so it is fully visible.
+        // Mobile (<=768px) keeps its own centered layout from datepicker.css and is not touched.
+        function ensureCalendarVisible(selectedDates, dateStr, instance) {
+            if (window.innerWidth <= 768) return;
+            requestAnimationFrame(function() {
+                const cal = instance && instance.calendarContainer;
+                if (!cal) return;
+                const rect = cal.getBoundingClientRect();
+                const overflow = rect.bottom - window.innerHeight + 16;
+                if (overflow > 0) {
+                    window.scrollBy({ top: overflow, behavior: 'smooth' });
+                }
+            });
         }
         
         // Helper function to update date-time button text
@@ -618,11 +694,11 @@
             const dateTimePickerBtn = document.getElementById('dateTimePicker');
             if (!dateTimePickerBtn) return;
             
-            let displayText = 'Datum in ura';
+            let displayText = (window.t && window.t('dateTime')) || 'Datum in ura';
             
             if (dateValue) {
                 try {
-                    const date = new Date(dateValue);
+                    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
                     if (!isNaN(date.getTime())) {  // Check if date is valid
                         const formattedDate = date.getDate().toString().padStart(2, '0') + '.' + 
                                             (date.getMonth() + 1).toString().padStart(2, '0') + '.' + 
@@ -633,7 +709,7 @@
                         } else {
                             const hours = date.getHours().toString().padStart(2, '0');
                             const minutes = date.getMinutes().toString().padStart(2, '0');
-                            displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                            displayText = `${formattedDate} ${atWord()} ${hours}:${minutes}`;
                         }
                     }
                 } catch (e) {
@@ -652,6 +728,21 @@
                 </span>
                 ${displayText}
             `;
+        }
+        
+        // Show/hide custom vehicle text field (same behaviour as create ride)
+        function checkForCustomVehicle() {
+            const vehicleTypeSelect = document.getElementById('vehicleType');
+            const container = document.getElementById('customVehicleContainer');
+            const input = document.getElementById('customVehicleType');
+            if (!vehicleTypeSelect || !container || !input) return;
+            if (vehicleTypeSelect.value === 'custom') {
+                container.style.display = 'block';
+                input.setAttribute('required', 'required');
+            } else {
+                container.style.display = 'none';
+                input.removeAttribute('required');
+            }
         }
         
         // Capitalize first letter
@@ -693,6 +784,7 @@
                     altInput: false, // Važno - ne kreiraj alternativni input
                     clickOpens: true,
                     minDate: "today",
+                    onOpen: ensureCalendarVisible,
                     onChange: function(selectedDates, dateStr, instance) {
                         // Ažuriraj tekst dugmeta
                         if (selectedDates.length > 0) {
@@ -707,7 +799,7 @@
                             } else {
                                 const hours = date.getHours().toString().padStart(2, '0');
                                 const minutes = date.getMinutes().toString().padStart(2, '0');
-                                displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                                displayText = `${formattedDate} ${atWord()} ${hours}:${minutes}`;
                             }
                             
                             dateTimePickerBtn.innerHTML = `
@@ -764,6 +856,7 @@ function toggleDateTimePickerMode(dateOnly) {
             altInput: false,
             clickOpens: true,
             minDate: "today",
+            onOpen: ensureCalendarVisible,
             onChange: function(selectedDates, dateStr, instance) {
                 // Update button text
                 if (selectedDates.length > 0) {
@@ -778,7 +871,7 @@ function toggleDateTimePickerMode(dateOnly) {
                     } else {
                         const hours = date.getHours().toString().padStart(2, '0');
                         const minutes = date.getMinutes().toString().padStart(2, '0');
-                        displayText = `${formattedDate} ob ${hours}:${minutes}`;
+                        displayText = `${formattedDate} ${atWord()} ${hours}:${minutes}`;
                     }
                     
                     dateTimePickerBtn.innerHTML = `
@@ -848,8 +941,8 @@ function toggleDateTimePickerMode(dateOnly) {
                 
                 dimensionsDisplay.innerHTML = `
                     <div class="dimensions-info">
-                        <p>Dimenzije: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
-                        <p>Volumen: ${dimensions.cubicMeters} m³</p>
+                        <p>${(window.t && window.t('dimensions')) || 'Dimenzije'}: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
+                        <p>${(window.t && window.t('volume')) || 'Volumen'}: ${dimensions.cubicMeters} m³</p>
                     </div>
                 `;
             } catch (error) {
@@ -903,12 +996,12 @@ function toggleDateTimePickerMode(dateOnly) {
         function handleLogout() {
             firebase.auth().signOut()
                 .then(() => {
-                    alert('Uspešno ste se odjavili.');
+                    alert((window.t ? window.t('logoutSuccessful') : 'Uspešno ste se odjavili.'));
                     window.location.href = '../index.html';
                 })
                 .catch(error => {
                     console.error('Logout error:', error);
-                    alert('Napaka pri odjavi: ' + error.message);
+                    alert((window.t ? window.t('logoutError') : 'Napaka pri odjavi') + ': ' + error.message);
                 });
         }
         
@@ -937,7 +1030,7 @@ function toggleDateTimePickerMode(dateOnly) {
                 
                 // Validation
                 if (!fromCountry || !toCountry || !fromCity || !toCity || !description) {
-                    utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
+                    utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Prosimo izpolnite vsa obvezna polja!'), 'warning');
                     loadingOverlay.style.display = 'none';
                     return;
                 }
@@ -990,7 +1083,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
         displayTime = '';
     }
 } else {
-    alert('Prosimo izberite datum!');
+    alert((window.t ? window.t('selectDatePrompt') : 'Prosimo izberite datum!'));
     loadingOverlay.style.display = 'none';
     return;
 }
@@ -1008,13 +1101,19 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 const vehicleSize = vehicleSizeSelect.value;
                 const hasRefrigerator = refrigeratorCheckbox.checked;
                 
-                // Map vehicle type to display name
-                const vehicleTypeDisplayMap = {
-                    'car': 'Avto',
-                    'van': 'Kombi',
-                    'truck': 'Tovornjak',
-                    'any': 'Poljubno vozilo'
-                };
+                // Display name: same as create ride (selected option text, or the custom text)
+                let vehicleTypeDisplay = vehicleTypeSelect.selectedIndex >= 0
+                    ? vehicleTypeSelect.options[vehicleTypeSelect.selectedIndex].text
+                    : vehicleType;
+                if (vehicleType === 'custom') {
+                    const customValue = (document.getElementById('customVehicleType').value || '').trim();
+                    if (!customValue) {
+                        utils.showNotification(t('enterVehicleType'), 'warning');
+                        loadingOverlay.style.display = 'none';
+                        return;
+                    }
+                    vehicleTypeDisplay = customValue;
+                }
                 
                 // Get vehicle dimensions
                 let dimensions;
@@ -1024,7 +1123,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     const manualHeight = parseFloat(document.getElementById('manualHeight').value) || 0;
                     
                     if (!manualLength || !manualWidth || !manualHeight) {
-                        alert('Prosimo vnesite vse dimenzije vozila.');
+                        alert((window.t ? window.t('enterAllDimensions') : 'Prosimo vnesite vse dimenzije vozila.'));
                         loadingOverlay.style.display = 'none';
                         return;
                     }
@@ -1068,7 +1167,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     const priceCurrency = priceCurrencySelect.value;
                     
                     if (!priceAmount || isNaN(parseFloat(priceAmount))) {
-                        alert('Prosimo vnesite veljavni znesek.');
+                        alert((window.t ? window.t('enterValidAmount') : 'Prosimo vnesite veljavni znesek.'));
                         loadingOverlay.style.display = 'none';
                         return;
                     }
@@ -1091,7 +1190,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     displayDate,
                     displayTime,
                     vehicleType,
-                    vehicleTypeDisplay: vehicleTypeDisplayMap[vehicleType] || vehicleType,
+                    vehicleTypeDisplay,
                     vehicleSize,
                     vehicleDimensions: {
                         length: dimensions.length,
@@ -1118,7 +1217,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 loadingOverlay.style.display = 'none';
                 
                 // Show success message
-                alert('Fura uspešno posodobljena!');
+                alert((window.t ? window.t('rideUpdatedSuccess') : 'Fura uspešno posodobljena!'));
                 
                 // Redirect to profile page
                 window.location.href = 'profile.html';
@@ -1130,7 +1229,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 }
                 
                 console.error('Error updating ride:', error);
-                alert('Napaka pri posodabljanju fure: ' + error.message);
+                alert((window.t ? window.t('errorUpdatingRide') : 'Napaka pri posodabljanju fure') + ': ' + error.message);
             }
         }
         
@@ -1143,7 +1242,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 loadingOverlay.id = 'loadingOverlay';
                 loadingOverlay.innerHTML = `
                     <div class="loading-spinner"></div>
-                    <div class="loading-text" data-translate="updatingRide">Posodabljanje fure...</div>
+                    <div class="loading-text" data-translate="updatingRide">${window.t ? window.t('updatingRide') : 'Posodabljanje fure...'}</div>
                 `;
                 document.body.appendChild(loadingOverlay);
                 
@@ -1300,7 +1399,6 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
     </style>
     
     <!-- Include JavaScript files -->
-    <script src="../js/translations.js"></script>
     <script src="../js/modals.js"></script>
 </body>
 </html>

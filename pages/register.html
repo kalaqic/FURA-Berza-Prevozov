@@ -92,25 +92,25 @@
                 <div class="form-col">
                     <div class="input-group">
                         <label class="input-label" data-translate="firstName">Ime</label>
-                        <input type="text" id="firstname" class="input-field" placeholder="Vnesite ime">
+                        <input type="text" id="firstname" class="input-field" data-translate-placeholder="enterFirstName" placeholder="Vnesite ime">
                     </div>
                 </div>
                 <div class="form-col">
                     <div class="input-group">
                         <label class="input-label" data-translate="lastName">Priimek</label>
-                        <input type="text" id="lastname" class="input-field" placeholder="Vnesite priimek">
+                        <input type="text" id="lastname" class="input-field" data-translate-placeholder="enterLastName" placeholder="Vnesite priimek">
                     </div>
                 </div>
             </div>
             
             <div class="input-group">
                 <label class="input-label" data-translate="email">Email</label>
-                <input type="email" id="email" class="input-field" placeholder="Vnesite email">
+                <input type="email" id="email" class="input-field" data-translate-placeholder="enterEmail" placeholder="Vnesite email">
             </div>
             
             <div class="input-group">
                 <label class="input-label" data-translate="username">Uporabniško ime</label>
-                <input type="text" id="username" class="input-field" placeholder="Vnesite uporabniško ime">
+                <input type="text" id="username" class="input-field" data-translate-placeholder="enterUsername" placeholder="Vnesite uporabniško ime">
             </div>
             
 <!-- Add this after the Username field and before the Password field -->
@@ -127,7 +127,7 @@
         </div>
         <div class="country-dropdown">
           <div class="country-search">
-            <input type="text" placeholder="Iskanje..." id="countrySearchInput">
+            <input type="text" data-translate-placeholder="searchPlaceholder" placeholder="Iskanje..." id="countrySearchInput">
           </div>
           <div class="country-list">
             <!-- Country options will be added dynamically -->
@@ -142,7 +142,7 @@
             <div class="input-group">
                 <label class="input-label" data-translate="password">Geslo</label>
                 <div class="password-input-wrapper">
-                    <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+                    <input type="password" id="password" class="input-field" data-translate-placeholder="enterPassword" placeholder="Vnesite geslo">
                     <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
                         <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -159,7 +159,7 @@
             <div class="input-group">
                 <label class="input-label" data-translate="confirmPassword">Potrdite geslo</label>
                 <div class="password-input-wrapper">
-                    <input type="password" id="confirm_password" class="input-field" placeholder="Ponovno vnesite geslo">
+                    <input type="password" id="confirm_password" class="input-field" data-translate-placeholder="reenterPassword" placeholder="Ponovno vnesite geslo">
                     <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirm_password')">
                         <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -184,37 +184,37 @@
                 
                 <div class="input-group">
                     <label class="input-label" data-translate="companyName">Naziv podjetja</label>
-                    <input type="text" id="companyName" class="input-field" placeholder="Vnesite naziv podjetja">
+                    <input type="text" id="companyName" class="input-field" data-translate-placeholder="enterCompanyName" placeholder="Vnesite naziv podjetja">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" data-translate="taxNumber">Davčna številka (DŠ)</label>
-                            <input type="text" id="taxNumber" class="input-field" placeholder="Vnesite davčno številko">
+                            <input type="text" id="taxNumber" class="input-field" data-translate-placeholder="enterTaxNumber" placeholder="Vnesite davčno številko">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" data-translate="registrationNumber">Matična številka (MŠ)</label>
-                            <input type="text" id="registrationNumber" class="input-field" placeholder="Vnesite matično številko">
+                            <input type="text" id="registrationNumber" class="input-field" data-translate-placeholder="enterRegistrationNumber" placeholder="Vnesite matično številko">
                         </div>
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label" data-translate="companyAddress">Naslov podjetja</label>
-                    <input type="text" id="companyAddress" class="input-field" placeholder="Vnesite naslov podjetja">
+                    <input type="text" id="companyAddress" class="input-field" data-translate-placeholder="enterCompanyAddress" placeholder="Vnesite naslov podjetja">
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label" data-translate="companyCity">Mesto</label>
-                    <input type="text" id="companyCity" class="input-field" placeholder="Vnesite mesto">
+                    <input type="text" id="companyCity" class="input-field" data-translate-placeholder="enterCompanyCity" placeholder="Vnesite mesto">
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label" data-translate="companyCountry">Država</label>
-                    <input type="text" id="companyCountry" class="input-field" placeholder="Vnesite državo">
+                    <input type="text" id="companyCountry" class="input-field" data-translate-placeholder="enterCompanyCountry" placeholder="Vnesite državo">
                 </div>
             </div>
             
@@ -296,24 +296,24 @@ async function register() {
     
     // Validate inputs
     if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
-        utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
+        utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Prosimo izpolnite vsa obvezna polja!'), 'warning');
         return;
     }
     
     if (password !== confirmPassword) {
-        utils.showNotification('Gesli se ne ujemata!', 'warning');
+        utils.showNotification((window.t ? window.t('passwordsDoNotMatch') : 'Gesli se ne ujemata!'), 'warning');
         return;
     }
     
     if (!terms) {
-        utils.showNotification('Morate se strinjati s pogoji uporabe in politiko zasebnosti!', 'warning');
+        utils.showNotification((window.t ? window.t('mustAcceptTerms') : 'Morate se strinjati s pogoji uporabe in politiko zasebnosti!'), 'warning');
         return;
     }
     
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        utils.showNotification('Vnesite veljaven email naslov!', 'warning');
+        utils.showNotification((window.t ? window.t('enterValidEmail') : 'Vnesite veljaven email naslov!'), 'warning');
         return;
     }
     
@@ -328,7 +328,7 @@ async function register() {
         const companyCountry = document.getElementById('companyCountry').value.trim();
         
         if (!companyName || !taxNumber) {
-            utils.showNotification('Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!', 'warning');
+            utils.showNotification((window.t ? window.t('companyRegistrationRequired') : 'Za registracijo podjetja morate vnesti vsaj naziv podjetja in davčno številko!'), 'warning');
             return;
         }
         
@@ -356,16 +356,16 @@ async function register() {
                 }, { merge: true });
             }
             
-            utils.showNotification('Registracija uspešna! Preverite e-pošto za potrditveno kodo.', 'success');
+            utils.showNotification((window.t ? window.t('registrationSuccessful') : 'Registracija uspešna! Preverite e-pošto za potrditveno kodo.'), 'success');
             // Redirect will be handled by email verification modal
         } else {
             // Fallback if registerUser is not available
-            utils.showNotification('Registracija uspešna! Zdaj se lahko prijavite.', 'success');
+            utils.showNotification((window.t ? window.t('registrationSuccessLogin') : 'Registracija uspešna! Zdaj se lahko prijavite.'), 'success');
             window.location.href = 'login.html';
         }
     } catch (error) {
         console.error('Registration error:', error);
-        utils.showNotification('Napaka pri registraciji: ' + error.message, 'error');
+        utils.showNotification((window.t ? window.t('registrationError') : 'Napaka pri registraciji') + ': ' + error.message, 'error');
     }
 }
     </script>

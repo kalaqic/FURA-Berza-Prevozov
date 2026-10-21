@@ -61,7 +61,7 @@ window.utils = {
   },
 
   // Show no results message
-  showNoResults(message = 'Ni najdenih prevozov z izbranimi filtri.') {
+  showNoResults(message = (window.t ? window.t('noRidesFound') : 'Ni najdenih prevozov z izbranimi filtri.')) {
     const elements = this.getResultsElements();
     if (elements.table) {
       elements.table.innerHTML = `
@@ -74,7 +74,7 @@ window.utils = {
     }
     
     if (elements.count) {
-      elements.count.textContent = 'Prikazujem 0 prevozov';
+      elements.count.textContent = window.formatResultsCount ? window.formatResultsCount(0) : 'Prikazujem 0 prevozov';
     }
   },
 
@@ -82,7 +82,7 @@ window.utils = {
   updateResultsCount(count) {
     const elements = this.getResultsElements();
     if (elements.count) {
-      elements.count.textContent = `Prikazujem ${count} prevozov`;
+      elements.count.textContent = window.formatResultsCount ? window.formatResultsCount(count) : `Prikazujem ${count} prevozov`;
     }
   },
 
@@ -328,13 +328,14 @@ window.utils = {
             'Geslo lahko ponastavite le enkrat dnevno.';
           
           let timeMessage = '';
-          if (hoursRemaining >= 24) {
-            const daysRemaining = Math.floor(hoursRemaining / 24);
-            timeMessage = `Poskusite znova čez ${daysRemaining} ${daysRemaining === 1 ? 'dan' : 'dni'}.`;
-          } else if (hoursRemaining >= 1) {
-            timeMessage = `Poskusite znova čez ${hoursRemaining} ${hoursRemaining === 1 ? 'uro' : 'ur'}.`;
+          if (hoursRemaining >= 1) {
+            timeMessage = window.translateText
+              ? window.translateText('tryAgainInHours', { count: hoursRemaining })
+              : `Poskusite znova čez ${hoursRemaining} h.`;
           } else {
-            timeMessage = `Poskusite znova čez ${minutesRemaining} ${minutesRemaining === 1 ? 'minuto' : 'minut'}.`;
+            timeMessage = window.translateText
+              ? window.translateText('tryAgainInMinutes', { count: minutesRemaining })
+              : `Poskusite znova čez ${minutesRemaining} min.`;
           }
           
           return {

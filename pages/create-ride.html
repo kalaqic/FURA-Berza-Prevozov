@@ -254,12 +254,12 @@
                         <div class="input-group">
                             <label class="input-label" data-translate="currency">Valuta</label>
                             <select class="input-field" id="priceCurrency">
-                                <option value="EUR">Euro (€)</option>
-                                <option value="BAM">Konvertibilna marka (KM)</option>
-                                <option value="RSD">Srbski dinar (RSD)</option>
-                                <option value="HRK">Hrvatska kuna (HRK)</option>
-                                <option value="MKD">Makedonski denar (MKD)</option>
-                                <option value="ALL">Albanski lek (ALL)</option>
+                                <option value="EUR" data-translate="currencyEUR">Euro (€)</option>
+                                <option value="BAM" data-translate="currencyBAM">Konvertibilna marka (KM)</option>
+                                <option value="RSD" data-translate="currencyRSD">Srbski dinar (RSD)</option>
+                                <option value="HRK" data-translate="currencyHRK">Hrvatska kuna (HRK)</option>
+                                <option value="MKD" data-translate="currencyMKD">Makedonski denar (MKD)</option>
+                                <option value="ALL" data-translate="currencyALL">Albanski lek (ALL)</option>
                             </select>
                         </div>
                     </div>
@@ -314,7 +314,7 @@
             firebase.auth().onAuthStateChanged(function(user) {
                 if (!user) {
                     // If not logged in, redirect to login page
-                    utils.showNotification('Za dodavanje prevozov se morate prijaviti.', 'info');
+                    utils.showNotification((window.t ? window.t('loginRequiredCreate') : 'Za dodavanje prevozov se morate prijaviti.'), 'info');
                     window.location.href = '../index.html';
                 } else {
                     console.log('User is authenticated:', user.email);
@@ -344,12 +344,12 @@
                 logoutButton.addEventListener('click', function() {
                     firebase.auth().signOut()
                         .then(() => {
-                            utils.showNotification('Uspešno ste se odjavili.', 'success');
+                            utils.showNotification((window.t ? window.t('logoutSuccessful') : 'Uspešno ste se odjavili.'), 'success');
                             window.location.href = '../index.html';
                         })
                         .catch(error => {
                             console.error('Logout error:', error);
-                            utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
+                            utils.showNotification((window.t ? window.t('logoutError') : 'Napaka pri odjavi') + ': ' + error.message, 'error');
                         });
                 });
             }
@@ -495,7 +495,7 @@
                         loadingOverlay.id = 'loadingOverlay';
                         loadingOverlay.innerHTML = `
                             <div class="loading-spinner"></div>
-                            <div class="loading-text" data-translate="publishingRide">Objavljanje fure...</div>
+                            <div class="loading-text" data-translate="publishingRide">${window.t ? window.t('publishingRide') : 'Objavljanje fure...'}</div>
                         `;
                         document.body.appendChild(loadingOverlay);
                         
@@ -562,30 +562,22 @@
                         let displayTime = '';
                         
                         if (dateTimeText) {
-                            // Parse the date/time text based on format
-                            if (dateTimeText.includes(' ob ')) {
-                                // Format: "DD.MM.YYYY ob HH:MM"
-                                const parts = dateTimeText.split(' ob ');
-                                const datePart = parts[0].trim(); // DD.MM.YYYY
-                                const timePart = parts[1].trim(); // HH:MM
+                            // Button shows "DD.MM.YYYY HH:MM" (from datepicker.js), older code used
+                            // "DD.MM.YYYY ob HH:MM" - accept both, and any translated word in between.
+                            const match = dateTimeText.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\D+?(\d{1,2}):(\d{2}))?/);
+                            if (match) {
+                                const dd = match[1].padStart(2, '0');
+                                const mm = match[2].padStart(2, '0');
+                                const yyyy = match[3];
+                                date = `${yyyy}-${mm}-${dd}`;
+                                formattedDate = `${dd}.${mm}.${yyyy}`;
+                                displayDate = `${dd}/${mm}/${yyyy}`;
                                 
-                                // Convert date format
-                                const dateParts = datePart.split('.');
-                                if (dateParts.length === 3) {
-                                    date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                                    formattedDate = datePart;
-                                    displayDate = datePart.replace(/\./g, '/');
-                                }
-                                
-                                time = timePart;
-                                displayTime = timePart;
-                            } else {
-                                // Format: "DD.MM.YYYY" (date only)
-                                const dateParts = dateTimeText.split('.');
-                                if (dateParts.length === 3) {
-                                    date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                                    formattedDate = dateTimeText;
-                                    displayDate = dateTimeText.replace(/\./g, '/');
+                                const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+                                const dateOnly = dateOnlyCheckbox && dateOnlyCheckbox.checked;
+                                if (match[4] && !dateOnly) {
+                                    time = `${match[4].padStart(2, '0')}:${match[5]}`;
+                                    displayTime = time;
                                 }
                             }
                         }
@@ -603,7 +595,7 @@
                             if (!customValue) {
                                 // If no custom value provided but required, show error
                                 loadingOverlay.style.display = 'none';
-                                utils.showNotification('Vnesite vrsto vozila.', 'warning');
+                                utils.showNotification((window.t ? window.t('enterVehicleType') : 'Vnesite vrsto vozila') + '.', 'warning');
                                 return;
                             }
                             
@@ -631,7 +623,7 @@
                             if (!priceAmount || isNaN(parseFloat(priceAmount))) {
                                 // Hide loading overlay
                                 loadingOverlay.style.display = 'none';
-                                utils.showNotification('Prosimo vnesite veljavni znesek.', 'warning');
+                                utils.showNotification((window.t ? window.t('enterValidAmount') : 'Prosimo vnesite veljavni znesek.'), 'warning');
                                 return;
                             }
                             
@@ -643,7 +635,7 @@
                         if (!fromCountry || !toCountry || !fromCity || !toCity || !date) {
                             // Hide loading overlay
                             loadingOverlay.style.display = 'none';
-                            utils.showNotification('Prosimo izpolnite vsa obvezna polja!', 'warning');
+                            utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Prosimo izpolnite vsa obvezna polja!'), 'warning');
                             return;
                         }
                         
@@ -656,7 +648,7 @@
                             
                             if (!manualLength || !manualWidth || !manualHeight) {
                                 loadingOverlay.style.display = 'none';
-                                utils.showNotification('Prosimo vnesite vse dimenzije vozila.', 'warning');
+                                utils.showNotification((window.t ? window.t('enterAllDimensions') : 'Prosimo vnesite vse dimenzije vozila.'), 'warning');
                                 return;
                             }
                             
@@ -762,16 +754,16 @@
                         loadingOverlay.style.display = 'none';
                         
                         if (result.success) {
-                            utils.showNotification('Prevoz uspešno objavljen!', 'success');
+                            utils.showNotification((window.t ? window.t('ridePublished') : 'Prevoz uspešno objavljen!'), 'success');
                             window.location.href = '../index.html';
                         } else {
-                            utils.showNotification('Napaka pri objavi prevoza: ' + result.message, 'error');
+                            utils.showNotification((window.t ? window.t('errorPublishingRide') : 'Napaka pri objavi prevoza') + ': ' + result.message, 'error');
                         }
                     } catch (error) {
                         // Hide loading overlay
                         loadingOverlay.style.display = 'none';
                         console.error('Error creating ride:', error);
-                        utils.showNotification('Napaka pri objavi prevoza: ' + error.message, 'error');
+                        utils.showNotification((window.t ? window.t('errorPublishingRide') : 'Napaka pri objavi prevoza') + ': ' + error.message, 'error');
                     }
                 });
             }

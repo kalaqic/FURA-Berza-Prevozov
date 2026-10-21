@@ -91,13 +91,13 @@
             
             <div class="input-group">
                 <label class="input-label" data-translate="emailOrUsername">Email ali uporabniško ime</label>
-                <input type="text" id="username" class="input-field" placeholder="Vnesite email ali uporabniško ime">
+                <input type="text" id="username" class="input-field" data-translate-placeholder="enterEmailOrUsername" placeholder="Vnesite email ali uporabniško ime">
             </div>
             
             <div class="input-group">
                 <label class="input-label" data-translate="password">Geslo</label>
                 <div class="password-input-wrapper">
-                    <input type="password" id="password" class="input-field" placeholder="Vnesite geslo">
+                    <input type="password" id="password" class="input-field" data-translate-placeholder="enterPassword" placeholder="Vnesite geslo">
                     <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
                         <svg class="eye-icon eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -132,25 +132,25 @@
             
             // Validate inputs
             if (!email || !password) {
-                utils.showNotification('Prosimo vnesite e-poštni naslov in geslo!', 'warning');
+                utils.showNotification((window.t ? window.t('enterEmailAndPassword') : 'Prosimo vnesite e-poštni naslov in geslo!'), 'warning');
                 return;
             }
             
             // Use Firebase auth
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    utils.showNotification('Uspešna prijava!', 'success');
+                    utils.showNotification((window.t ? window.t('loginSuccessful') : 'Uspešna prijava!'), 'success');
                     window.location.href = '../index.html';
                 })
                 .catch((error) => {
                     console.error('Login error:', error);
-                    let errorMessage = 'Napaka pri prijavi.';
+                    let errorMessage = (window.t ? window.t('loginError') : 'Napaka pri prijavi') + '.';
                     if (error.code === 'auth/user-not-found') {
-                        errorMessage = 'Uporabnik s tem e-poštnim naslovom ne obstaja.';
+                        errorMessage = (window.t ? window.t('userNotFound') : 'Uporabnik s tem e-poštnim naslovom ne obstaja.');
                     } else if (error.code === 'auth/wrong-password') {
-                        errorMessage = 'Napačno geslo.';
+                        errorMessage = (window.t ? window.t('wrongPassword') : 'Napačno geslo.');
                     } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'Neveljaven e-poštni naslov.';
+                        errorMessage = (window.t ? window.t('invalidEmailAddress') : 'Neveljaven e-poštni naslov.');
                     } else {
                         errorMessage = error.message;
                     }
@@ -176,7 +176,7 @@
                             <p data-translate="forgotPasswordInstructions" style="margin-bottom: 20px;">Vnesite vaš e-poštni naslov. Prejeli boste e-pošto s povezavo za ponastavitev gesla.</p>
                             <div class="input-group">
                                 <label class="input-label" data-translate="email">E-poštni naslov</label>
-                                <input type="email" id="forgotPasswordEmail" class="input-field" placeholder="Vnesite e-poštni naslov" required>
+                                <input type="email" id="forgotPasswordEmail" class="input-field" data-translate-placeholder="enterEmail" placeholder="Vnesite e-poštni naslov" required>
                             </div>
                             <div class="form-actions">
                                 <button class="btn btn-primary" onclick="handleForgotPasswordSubmit()" data-translate="sendResetEmail">Pošlji e-pošto za ponastavitev</button>
@@ -233,7 +233,7 @@
             const email = document.getElementById('forgotPasswordEmail').value.trim();
             
             if (!email) {
-                utils.showNotification('Vnesite e-poštni naslov.', 'warning');
+                utils.showNotification((window.t ? window.t('enterEmailAddress') : 'Vnesite e-poštni naslov.'), 'warning');
                 return;
             }
             
@@ -241,7 +241,7 @@
                 // Use rate-limited password reset function
                 await utils.sendPasswordResetEmailWithRateLimit(email);
                 
-                utils.showNotification('E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.', 'success');
+                utils.showNotification((window.t ? window.t('resetEmailSent') : 'E-pošta za ponastavitev gesla je bila poslana. Prosimo preverite vaš e-poštni predal.'), 'success');
                 closeForgotPasswordModal();
             } catch (error) {
                 console.error('Error sending password reset email:', error);
@@ -251,7 +251,7 @@
                     utils.showNotification(error.message, 'warning');
                 } else {
                     // Don't reveal if user exists for security
-                    utils.showNotification('Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.', 'info');
+                    utils.showNotification((window.t ? window.t('resetEmailIfAccountExists') : 'Če račun obstaja, boste prejeli e-pošto za ponastavitev gesla.'), 'info');
                 }
             }
         }

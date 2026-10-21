@@ -66,7 +66,7 @@ window.showRegisterModal = function() {
 // Show login required message
 // Function to show login required message
 function showLoginRequiredMessage() {
-  utils.showNotification('Za ogled podrobnosti se morate prijaviti.', 'info');
+  utils.showNotification((window.t ? window.t('loginRequired') : 'Za ogled podrobnosti se morate prijaviti.'), 'info');
 }
 
 // Show ride details modal - updated to use Firebase auth directly
@@ -108,7 +108,7 @@ window.showRideDetails = async function(rideId) {
     
     if (!rideDoc.exists) {
       console.error('Ride not found:', rideId);
-      utils.showNotification('Napaka pri nalaganju podatkov o prevozu.', 'error');
+      utils.showNotification((window.t ? window.t('errorLoadingRideData') : 'Napaka pri nalaganju podatkov o prevozu.'), 'error');
       return;
     }
     
@@ -140,7 +140,7 @@ window.showRideDetails = async function(rideId) {
     
     if (!detailRows || detailRows.length < 7) {
       console.error('Detail rows not found or insufficient:', detailRows?.length);
-      utils.showNotification('Napaka pri prikazu podrobnosti prevozu.', 'error');
+      utils.showNotification((window.t ? window.t('errorShowingDetails') : 'Napaka pri prikazu podrobnosti prevozu') + '.', 'error');
       return;
     }
     
@@ -348,7 +348,7 @@ window.showRideDetails = async function(rideId) {
     }
   } catch (error) {
     console.error('Error showing ride details:', error);
-    utils.showNotification('Napaka pri prikazu podrobnosti: ' + error.message, 'error');
+    utils.showNotification((window.t ? window.t('errorShowingDetails') : 'Napaka pri prikazu podrobnosti') + ': ' + error.message, 'error');
   }
 };
 
@@ -391,7 +391,7 @@ window.handleLoginSubmit = async function() {
     loadingOverlay.id = 'loadingOverlay';
     loadingOverlay.innerHTML = `
       <div class="loading-spinner"></div>
-      <div class="loading-text">Prijava v teku...</div>
+      <div class="loading-text">${window.t ? window.t('loggingIn') : 'Prijava v teku...'}</div>
     `;
     document.body.appendChild(loadingOverlay);
     
@@ -448,7 +448,7 @@ window.handleLoginSubmit = async function() {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
     console.error('Login form elements not found');
-    utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
+    utils.showNotification((window.t ? window.t('pageUnavailable') : 'Stran ni na voljo. Prosimo, osvežite stran.'), 'error');
     return;
   }
   
@@ -458,7 +458,7 @@ window.handleLoginSubmit = async function() {
   if (!email || !password) {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
-    utils.showNotification('Vnesite e-poštni naslov in geslo.', 'warning');
+    utils.showNotification((window.t ? window.t('enterEmailAndPassword') : 'Vnesite e-poštni naslov in geslo.'), 'warning');
     return;
   }
   
@@ -481,7 +481,7 @@ window.handleLoginSubmit = async function() {
     loadingOverlay.style.display = 'none';
     
     // Show success message
-    utils.showNotification('Uspešna prijava!', 'success');
+    utils.showNotification((window.t ? window.t('loginSuccessful') : 'Uspešna prijava!'), 'success');
     
     // Update UI
     updateUIAfterLogin(user);
@@ -490,7 +490,7 @@ window.handleLoginSubmit = async function() {
     // Hide loading overlay
     loadingOverlay.style.display = 'none';
     console.error('Login error:', error);
-    utils.showNotification('Napaka pri prijavi: ' + error.message, 'error');
+    utils.showNotification((window.t ? window.t('loginError') : 'Napaka pri prijavi') + ': ' + error.message, 'error');
   }
 };
 
@@ -589,16 +589,16 @@ window.handleLogout = function() {
       const authButtons = document.querySelector('.auth-buttons');
       if (authButtons) {
         authButtons.innerHTML = `
-          <a href="#" class="btn btn-outline" onclick="showLoginModal()">Prijavi se</a>
-          <a href="#" class="btn btn-primary" onclick="showRegisterModal()">Registracija</a>
+          <a href="#" class="btn btn-outline" onclick="showLoginModal()" data-translate="login">${window.t ? window.t('login') : 'Prijavi se'}</a>
+          <a href="#" class="btn btn-primary" onclick="showRegisterModal()" data-translate="register">${window.t ? window.t('register') : 'Registracija'}</a>
         `;
       }
       
-      utils.showNotification('Uspešno ste se odjavili.', 'success');
+      utils.showNotification((window.t ? window.t('logoutSuccessful') : 'Uspešno ste se odjavili.'), 'success');
     })
     .catch(error => {
       console.error('Logout error:', error);
-      utils.showNotification('Napaka pri odjavi: ' + error.message, 'error');
+      utils.showNotification((window.t ? window.t('logoutError') : 'Napaka pri odjavi') + ': ' + error.message, 'error');
     });
 };
 
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.handleRegisterSubmit();
       } else {
         console.error('Registration handler not found in auth.js');
-        utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
+        utils.showNotification((window.t ? window.t('pageUnavailable') : 'Stran ni na voljo. Prosimo, osvežite stran.'), 'error');
       }
     });
   }
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
           window.handleRegisterSubmit();
         } else {
           console.error('Registration handler not found in auth.js');
-          utils.showNotification('Stran ni na voljo. Prosimo, osvežite stran.', 'error');
+          utils.showNotification((window.t ? window.t('pageUnavailable') : 'Stran ni na voljo. Prosimo, osvežite stran.'), 'error');
         }
       }
     });
