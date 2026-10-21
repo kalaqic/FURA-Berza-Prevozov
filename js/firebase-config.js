@@ -66,3 +66,53 @@ const firebaseConfig = {
   };
   
   
+  // Is the user's email confirmed?
+  //  - true when Firebase says so (user clicked the confirmation link); this is
+  //    then also saved in Firestore,
+  //  - true for older accounts already marked emailVerified in Firestore
+  //    (confirmed earlier with the 6-digit code) or created before verification existed,
+  //  - false only when the Firestore profile says emailVerified: false.
+  window.isEmailVerified = async function(user = null) {
+    let authUser = user || window.auth.currentUser || firebase.auth().currentUser;
+    if (!authUser) return false;
+
+    if (!authUser.emailVerified) {
+      try {
+        await authUser.reload();
+        authUser = firebase.auth().currentUser || authUser;
+      } catch (e) {
+        console.warn('Could not refresh user:', e);
+      }
+    }
+
+    const userRef = window.usersCollection.doc(authUser.uid);
+
+    if (authUser.emailVerified) {
+      try {
+        const doc = await userRef.get();
+        const data = doc.exists ? doc.data() : {};
+        if (data.emailVerified !== true || (authUser.email && data.email !== authUser.email)) {
+          await userRef.set({
+            emailVerified: true,
+            email: authUser.email,
+            emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            verificationCode: firebase.firestore.FieldValue.delete(),
+            verificationCodeExpiry: firebase.firestore.FieldValue.delete(),
+            lastResendTimestamp: firebase.firestore.FieldValue.delete()
+          }, { merge: true });
+        }
+      } catch (e) {
+        console.warn('Could not save verification status:', e);
+      }
+      return true;
+    }
+
+    try {
+      const doc = await userRef.get();
+      if (!doc.exists) return true;
+      return doc.data().emailVerified !== false;
+    } catch (e) {
+      console.warn('Could not read verification status:', e);
+      return true;
+    }
+  };

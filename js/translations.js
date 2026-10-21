@@ -6,6 +6,7 @@
 // Translation data
 const translations = {
   sl: {
+    emailExists: "Ta e-poštni naslov je že v uporabi.",
     // Header
     login: "Prijavi se",
     register: "Registracija",
@@ -173,7 +174,7 @@ const translations = {
     
     // Change Email
     changeEmailTitle: "Sprememba e-poštnega naslova",
-    enterNewEmail: "Vnesite nov e-poštni naslov za prejemanje potrditvene kode:",
+    enterNewEmail: "Vnesite nov e-poštni naslov, na katerega vam pošljemo potrditveno povezavo:",
     confirmChange: "Potrdi spremembo",
     cancel: "Prekliči",
     
@@ -214,7 +215,7 @@ const translations = {
     loginRequired: "Za ogled podrobnosti se morate prijaviti.",
     loginSuccessful: "Uspešna prijava!",
     logoutSuccessful: "Uspešno ste se odjavili.",
-    registrationSuccessful: "Registracija uspešna! Preverite e-pošto za potrditveno kodo.",
+    registrationSuccessful: "Registracija uspešna! Preverite e-pošto in kliknite potrditveno povezavo.",
     emailVerified: "E-poštni naslov je uspešno potrjen! Dobrodošli na FURA!",
     emailUpdated: "E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.",
     newCodeSent: "Nova potrditvena koda je bila poslana na vaš e-poštni naslov.",
@@ -356,7 +357,7 @@ const translations = {
     dataSharingTitle: "4. Deljenje podatkov",
     dataSharingText: "Ne prodajamo vaših podatkov tretjim osebam. Vaši podatki se delijo samo:",
     dataSharingItem1: "Z drugimi uporabniki, ko objavite prevoz (ime, telefon, e-pošta za komunikacijo)",
-    dataSharingItem2: "S ponudniki storitev, ki nam pomagajo delovati (npr. Firebase, EmailJS)",
+    dataSharingItem2: "S ponudniki storitev, ki nam pomagajo delovati (npr. Firebase)",
     dataSharingItem3: "Ko to zahteva zakonodaja",
     dataSecurityTitle: "5. Varnost podatkov",
     dataSecurityText: "Uporabljamo Firebase za varno shranjevanje podatkov z naslednjimi varnostnimi ukrepi:",
@@ -631,10 +632,25 @@ const translations = {
     errorFilteringRides: "Napaka pri filtriranju prevozov",
     errorResettingFilters: "Napaka pri ponastavljanju filtrov",
     tryAgainInHours: "Poskusite znova čez {count} h.",
-    tryAgainInMinutes: "Poskusite znova čez {count} min."
+    tryAgainInMinutes: "Poskusite znova čez {count} min.",
+    // --- email confirmation link ---
+    verificationLinkSent: "Poslali smo vam potrditveno povezavo na",
+    clickLinkInstructions: "Odprite e-pošto in kliknite povezavo za potrditev. Nato se vrnite sem in pritisnite »Potrdil sem«.",
+    iHaveVerified: "Potrdil sem",
+    resendLink: "Pošlji novo povezavo",
+    notVerifiedYet: "E-poštni naslov še ni potrjen. Kliknite povezavo v e-pošti in poskusite znova.",
+    verificationLinkResent: "Nova potrditvena povezava je bila poslana na vaš e-poštni naslov.",
+    checkSpamFolderLink: "Če e-pošte ne najdete, preverite mapo »Nezaželena pošta« ali zahtevajte novo povezavo.",
+    tooManyRequests: "Preveč poskusov. Počakajte nekaj minut in poskusite znova.",
+    errorSendingVerification: "Potrditvene e-pošte ni bilo mogoče poslati",
+    verifyEmailToPost: "Za objavo prevoza morate najprej potrditi svoj e-poštni naslov.",
+    changeEmailLinkSent: "Potrditveno povezavo smo poslali na {email}. E-poštni naslov bo spremenjen, ko kliknete povezavo.",
+    loginAgainAfterEmailChange: "Vaš e-poštni naslov je bil spremenjen. Prijavite se znova z novim naslovom.",
+    verifyLater: "Pozneje"
   },
   
   en: {
+    emailExists: "This email address is already in use.",
     // Header
     login: "Sign In",
     register: "Register",
@@ -790,7 +806,7 @@ const translations = {
     
     // Change Email
     changeEmailTitle: "Change Email Address",
-    enterNewEmail: "Enter new email address to receive verification code:",
+    enterNewEmail: "Enter the new email address where we should send the confirmation link:",
     confirmChange: "Confirm Change",
     cancel: "Cancel",
     
@@ -831,7 +847,7 @@ const translations = {
     loginRequired: "You must be logged in to view details.",
     loginSuccessful: "Login successful!",
     logoutSuccessful: "Successfully logged out.",
-    registrationSuccessful: "Registration successful! Check your email for verification code.",
+    registrationSuccessful: "Registration successful! Check your email and click the confirmation link.",
     emailVerified: "Email successfully verified! Welcome to FURA!",
     emailUpdated: "Email address successfully updated. New verification code has been sent.",
     newCodeSent: "New verification code has been sent to your email address.",
@@ -976,7 +992,7 @@ const translations = {
     dataSharingTitle: "4. Data sharing",
     dataSharingText: "We do not sell your data to third parties. Your data is shared only:",
     dataSharingItem1: "With other users when you post a ride (name, phone, email for communication)",
-    dataSharingItem2: "With service providers that help us operate (e.g. Firebase, EmailJS)",
+    dataSharingItem2: "With service providers that help us operate (e.g. Firebase)",
     dataSharingItem3: "When required by law",
     dataSecurityTitle: "5. Data security",
     dataSecurityText: "We use Firebase for secure data storage with the following security measures:",
@@ -1260,10 +1276,25 @@ const translations = {
     errorFilteringRides: "Error filtering rides",
     errorResettingFilters: "Error resetting filters",
     tryAgainInHours: "Try again in {count} h.",
-    tryAgainInMinutes: "Try again in {count} min."
+    tryAgainInMinutes: "Try again in {count} min.",
+    // --- email confirmation link ---
+    verificationLinkSent: "We sent a confirmation link to",
+    clickLinkInstructions: "Open the email and click the confirmation link. Then come back here and press “I've confirmed”.",
+    iHaveVerified: "I've confirmed",
+    resendLink: "Send new link",
+    notVerifiedYet: "Your email address is not confirmed yet. Click the link in the email and try again.",
+    verificationLinkResent: "A new confirmation link has been sent to your email address.",
+    checkSpamFolderLink: "If you can't find the email, check your spam folder or request a new link.",
+    tooManyRequests: "Too many attempts. Please wait a few minutes and try again.",
+    errorSendingVerification: "The confirmation email could not be sent",
+    verifyEmailToPost: "You need to confirm your email address before you can post a ride.",
+    changeEmailLinkSent: "We sent a confirmation link to {email}. Your email address will change once you click the link.",
+    loginAgainAfterEmailChange: "Your email address has been changed. Please log in again with your new address.",
+    verifyLater: "Later"
   },
   
   sr: {
+    emailExists: "Ова емаил адреса је већ у употреби.",
     // Header
     login: "Пријави се",
     register: "Регистрација",
@@ -1419,7 +1450,7 @@ const translations = {
     
     // Change Email
     changeEmailTitle: "Промена емаил адресе",
-    enterNewEmail: "Унесите нову емаил адресу за пријем верификационог кода:",
+    enterNewEmail: "Унесите нову емаил адресу на коју ћемо послати линк за потврду:",
     confirmChange: "Потврди промену",
     cancel: "Откажи",
     
@@ -1460,7 +1491,7 @@ const translations = {
     loginRequired: "Морате бити пријављени да видите детаље.",
     loginSuccessful: "Успешна пријава!",
     logoutSuccessful: "Успешно сте се одјавили.",
-    registrationSuccessful: "Регистрација успешна! Проверите емаил за верификациони код.",
+    registrationSuccessful: "Регистрација успешна! Проверите емаил и кликните на линк за потврду.",
     emailVerified: "Емаил успешно верификован! Добродошли на FURA!",
     emailUpdated: "Емаил адреса успешно ажурирана. Нови верификациони код је послат.",
     newCodeSent: "Нови верификациони код је послат на вашу емаил адресу.",
@@ -1607,7 +1638,7 @@ const translations = {
     dataSharingTitle: "4. Дељење података",
     dataSharingText: "Не продајемо ваше податке трећим лицима. Ваши подаци се деле само:",
     dataSharingItem1: "Са другим корисницима када објавите вожњу (име, телефон, емаил за комуникацију)",
-    dataSharingItem2: "Са пружаоцима услуга који нам помажу да радимо (нпр. Firebase, EmailJS)",
+    dataSharingItem2: "Са пружаоцима услуга који нам помажу да радимо (нпр. Firebase)",
     dataSharingItem3: "Када то захтева закон",
     dataSecurityTitle: "5. Безбедност података",
     dataSecurityText: "Користимо Firebase за безбедно чување података са следећим безбедносним мерама:",
@@ -1889,7 +1920,21 @@ const translations = {
     errorFilteringRides: "Грешка при филтрирању превоза",
     errorResettingFilters: "Грешка при ресетовању филтера",
     tryAgainInHours: "Покушајте поново за {count} h.",
-    tryAgainInMinutes: "Покушајте поново за {count} мин."
+    tryAgainInMinutes: "Покушајте поново за {count} мин.",
+    // --- email confirmation link ---
+    verificationLinkSent: "Послали смо вам линк за потврду на",
+    clickLinkInstructions: "Отворите емаил и кликните на линк за потврду. Затим се вратите овде и притисните „Потврдио сам“.",
+    iHaveVerified: "Потврдио сам",
+    resendLink: "Пошаљи нови линк",
+    notVerifiedYet: "Емаил адреса још није потврђена. Кликните на линк у емаилу и покушајте поново.",
+    verificationLinkResent: "Нови линк за потврду је послат на вашу емаил адресу.",
+    checkSpamFolderLink: "Ако не можете да пронађете емаил, проверите фолдер за нежељену пошту или затражите нови линк.",
+    tooManyRequests: "Превише покушаја. Сачекајте неколико минута и покушајте поново.",
+    errorSendingVerification: "Емаил за потврду није могуће послати",
+    verifyEmailToPost: "Морате прво потврдити своју емаил адресу да бисте објавили превоз.",
+    changeEmailLinkSent: "Послали смо линк за потврду на {email}. Емаил адреса ће бити промењена када кликнете на линк.",
+    loginAgainAfterEmailChange: "Ваша емаил адреса је промењена. Пријавите се поново са новом адресом.",
+    verifyLater: "Касније"
   },
 
   // Italian translations
@@ -2149,7 +2194,7 @@ const translations = {
     // Notifications
     welcomeMessage: "Benvenuto in FURA!",
     loginSuccessful: "Accesso effettuato con successo!",
-    registrationSuccessful: "Registrazione completata con successo!",
+    registrationSuccessful: "Registrazione completata! Controlla la tua email e clicca sul link di conferma.",
     rideCreated: "Viaggio pubblicato con successo!",
     rideUpdated: "Viaggio aggiornato con successo!",
     rideDeleted: "Viaggio eliminato con successo!",
@@ -2240,7 +2285,7 @@ const translations = {
     dataSharingTitle: "4. Condivisione dei dati",
     dataSharingText: "Non vendiamo i tuoi dati a terze parti. I tuoi dati vengono condivisi solo:",
     dataSharingItem1: "Con altri utenti quando pubblichi un viaggio (nome, telefono, email per comunicazione)",
-    dataSharingItem2: "Con fornitori di servizi che ci aiutano a operare (es. Firebase, EmailJS)",
+    dataSharingItem2: "Con fornitori di servizi che ci aiutano a operare (es. Firebase)",
     dataSharingItem3: "Quando richiesto dalla legge",
     dataSecurityTitle: "5. Sicurezza dei dati",
     dataSecurityText: "Utilizziamo Firebase per l'archiviazione sicura dei dati con le seguenti misure di sicurezza:",
@@ -2514,7 +2559,7 @@ const translations = {
     registrationSuccessLogin: "Registrazione completata! Ora puoi accedere.",
     registrationError: "Errore di registrazione",
     changeEmailTitle: "Modifica indirizzo email",
-    enterNewEmail: "Inserisci il nuovo indirizzo email per ricevere il codice di verifica:",
+    enterNewEmail: "Inserisci il nuovo indirizzo email a cui inviare il link di conferma:",
     confirmChange: "Conferma modifica",
     userDataNotFound: "Dati utente non trovati",
     wrongVerificationCode: "Codice di verifica errato",
@@ -2541,7 +2586,21 @@ const translations = {
     errorResettingFilters: "Errore durante il ripristino dei filtri",
     noRidesFound: "Nessun viaggio trovato con i filtri selezionati.",
     tryAgainInHours: "Riprova tra {count} h.",
-    tryAgainInMinutes: "Riprova tra {count} min."
+    tryAgainInMinutes: "Riprova tra {count} min.",
+    // --- email confirmation link ---
+    verificationLinkSent: "Abbiamo inviato un link di conferma a",
+    clickLinkInstructions: "Apri l'email e clicca sul link di conferma. Poi torna qui e premi «Ho confermato».",
+    iHaveVerified: "Ho confermato",
+    resendLink: "Invia nuovo link",
+    notVerifiedYet: "Il tuo indirizzo email non è ancora confermato. Clicca sul link nell'email e riprova.",
+    verificationLinkResent: "Un nuovo link di conferma è stato inviato al tuo indirizzo email.",
+    checkSpamFolderLink: "Se non trovi l'email, controlla la cartella spam o richiedi un nuovo link.",
+    tooManyRequests: "Troppi tentativi. Attendi qualche minuto e riprova.",
+    errorSendingVerification: "Impossibile inviare l'email di conferma",
+    verifyEmailToPost: "Devi confermare il tuo indirizzo email prima di pubblicare un viaggio.",
+    changeEmailLinkSent: "Abbiamo inviato un link di conferma a {email}. Il tuo indirizzo email verrà modificato quando clicchi sul link.",
+    loginAgainAfterEmailChange: "Il tuo indirizzo email è stato modificato. Accedi di nuovo con il nuovo indirizzo.",
+    verifyLater: "Più tardi"
   },
 
   // German translations
@@ -2801,7 +2860,7 @@ const translations = {
     // Notifications
     welcomeMessage: "Willkommen bei FURA!",
     loginSuccessful: "Erfolgreich angemeldet!",
-    registrationSuccessful: "Registrierung erfolgreich abgeschlossen!",
+    registrationSuccessful: "Registrierung erfolgreich! Prüfen Sie Ihre E-Mails und klicken Sie auf den Bestätigungslink.",
     rideCreated: "Fahrt erfolgreich veröffentlicht!",
     rideUpdated: "Fahrt erfolgreich aktualisiert!",
     rideDeleted: "Fahrt erfolgreich gelöscht!",
@@ -2892,7 +2951,7 @@ const translations = {
     dataSharingTitle: "4. Datenweitergabe",
     dataSharingText: "Wir verkaufen deine Daten nicht an Dritte. Deine Daten werden nur geteilt:",
     dataSharingItem1: "Mit anderen Nutzern, wenn du eine Fahrt veröffentlichst (Name, Telefon, E-Mail für Kommunikation)",
-    dataSharingItem2: "Mit Dienstleistern, die uns beim Betrieb helfen (z.B. Firebase, EmailJS)",
+    dataSharingItem2: "Mit Dienstleistern, die uns beim Betrieb helfen (z.B. Firebase)",
     dataSharingItem3: "Wenn gesetzlich erforderlich",
     dataSecurityTitle: "5. Datensicherheit",
     dataSecurityText: "Wir verwenden Firebase für die sichere Datenspeicherung mit folgenden Sicherheitsmaßnahmen:",
@@ -3166,7 +3225,7 @@ const translations = {
     registrationSuccessLogin: "Registrierung erfolgreich! Sie können sich jetzt anmelden.",
     registrationError: "Fehler bei der Registrierung",
     changeEmailTitle: "E-Mail-Adresse ändern",
-    enterNewEmail: "Geben Sie eine neue E-Mail-Adresse ein, um den Bestätigungscode zu erhalten:",
+    enterNewEmail: "Geben Sie die neue E-Mail-Adresse ein, an die wir den Bestätigungslink senden sollen:",
     confirmChange: "Änderung bestätigen",
     userDataNotFound: "Benutzerdaten nicht gefunden",
     wrongVerificationCode: "Falscher Bestätigungscode",
@@ -3193,11 +3252,26 @@ const translations = {
     errorResettingFilters: "Fehler beim Zurücksetzen der Filter",
     noRidesFound: "Keine Fahrten mit den ausgewählten Filtern gefunden.",
     tryAgainInHours: "Versuchen Sie es in {count} Std. erneut.",
-    tryAgainInMinutes: "Versuchen Sie es in {count} Min. erneut."
+    tryAgainInMinutes: "Versuchen Sie es in {count} Min. erneut.",
+    // --- email confirmation link ---
+    verificationLinkSent: "Wir haben einen Bestätigungslink gesendet an",
+    clickLinkInstructions: "Öffnen Sie die E-Mail und klicken Sie auf den Bestätigungslink. Kommen Sie dann hierher zurück und klicken Sie auf „Ich habe bestätigt“.",
+    iHaveVerified: "Ich habe bestätigt",
+    resendLink: "Neuen Link senden",
+    notVerifiedYet: "Ihre E-Mail-Adresse ist noch nicht bestätigt. Klicken Sie auf den Link in der E-Mail und versuchen Sie es erneut.",
+    verificationLinkResent: "Ein neuer Bestätigungslink wurde an Ihre E-Mail-Adresse gesendet.",
+    checkSpamFolderLink: "Wenn Sie die E-Mail nicht finden, prüfen Sie den Spam-Ordner oder fordern Sie einen neuen Link an.",
+    tooManyRequests: "Zu viele Versuche. Bitte warten Sie einige Minuten und versuchen Sie es erneut.",
+    errorSendingVerification: "Die Bestätigungs-E-Mail konnte nicht gesendet werden",
+    verifyEmailToPost: "Sie müssen Ihre E-Mail-Adresse bestätigen, bevor Sie eine Fahrt veröffentlichen können.",
+    changeEmailLinkSent: "Wir haben einen Bestätigungslink an {email} gesendet. Ihre E-Mail-Adresse wird geändert, sobald Sie auf den Link klicken.",
+    loginAgainAfterEmailChange: "Ihre E-Mail-Adresse wurde geändert. Bitte melden Sie sich mit der neuen Adresse erneut an.",
+    verifyLater: "Später"
   },
 
   // Bosnian translations
   bs: {
+    emailExists: "Ova e-mail adresa se već koristi.",
     // Common words
     yes: "Da",
     no: "Ne",
@@ -3487,7 +3561,7 @@ const translations = {
     dataSharingTitle: "4. Dijeljenje podataka",
     dataSharingText: "Ne prodajemo vaše podatke trećim stranama. Vaši podaci se dijele samo:",
     dataSharingItem1: "Sa drugim korisnicima kada objavite prevoz (ime, telefon, e-pošta za komunikaciju)",
-    dataSharingItem2: "Sa pružaocima usluga koji nam pomažu da funkcioniramo (npr. Firebase, EmailJS)",
+    dataSharingItem2: "Sa pružaocima usluga koji nam pomažu da funkcioniramo (npr. Firebase)",
     dataSharingItem3: "Kada to zahtijeva zakon",
     dataSecurityTitle: "5. Sigurnost podataka",
     dataSecurityText: "Koristimo Firebase za sigurno pohranu podataka sa sljedećim sigurnosnim mjerama:",
@@ -3979,11 +4053,11 @@ const translations = {
     mustAcceptTerms: "Morate prihvatiti uslove korištenja i politiku privatnosti!",
     enterValidEmail: "Unesite ispravnu e-mail adresu.",
     companyRegistrationRequired: "Za registraciju preduzeća morate unijeti barem naziv preduzeća i poreski broj!",
-    registrationSuccessful: "Registracija uspješna! Provjerite e-mail za kod za potvrdu.",
+    registrationSuccessful: "Registracija uspješna! Provjerite e-mail i kliknite na link za potvrdu.",
     registrationSuccessLogin: "Registracija uspješna! Sada se možete prijaviti.",
     registrationError: "Greška pri registraciji",
     changeEmailTitle: "Promjena e-mail adrese",
-    enterNewEmail: "Unesite novu e-mail adresu za prijem koda za potvrdu:",
+    enterNewEmail: "Unesite novu e-mail adresu na koju ćemo poslati link za potvrdu:",
     confirmChange: "Potvrdi promjenu",
     userDataNotFound: "Korisnički podaci nisu pronađeni",
     wrongVerificationCode: "Pogrešan kod za potvrdu",
@@ -4022,11 +4096,26 @@ const translations = {
     tryAgainInMinutes: "Pokušajte ponovo za {count} min.",
     offeringTransport: "Nudim prevoz",
     lookingForTransport: "Tražim prevoz",
-    flexible: "Fleksibilno"
+    flexible: "Fleksibilno",
+    // --- email confirmation link ---
+    verificationLinkSent: "Poslali smo vam link za potvrdu na",
+    clickLinkInstructions: "Otvorite e-mail i kliknite na link za potvrdu. Zatim se vratite ovdje i pritisnite „Potvrdio sam“.",
+    iHaveVerified: "Potvrdio sam",
+    resendLink: "Pošalji novi link",
+    notVerifiedYet: "E-mail adresa još nije potvrđena. Kliknite na link u e-mailu i pokušajte ponovo.",
+    verificationLinkResent: "Novi link za potvrdu je poslan na vašu e-mail adresu.",
+    checkSpamFolderLink: "Ako ne možete pronaći e-mail, provjerite folder neželjene pošte (spam) ili zatražite novi link.",
+    tooManyRequests: "Previše pokušaja. Sačekajte nekoliko minuta i pokušajte ponovo.",
+    errorSendingVerification: "E-mail za potvrdu nije moguće poslati",
+    verifyEmailToPost: "Morate prvo potvrditi svoju e-mail adresu da biste objavili prevoz.",
+    changeEmailLinkSent: "Poslali smo link za potvrdu na {email}. E-mail adresa će biti promijenjena kada kliknete na link.",
+    loginAgainAfterEmailChange: "Vaša e-mail adresa je promijenjena. Prijavite se ponovo sa novom adresom.",
+    verifyLater: "Kasnije"
   },
 
   // Croatian translations
   hr: {
+    emailExists: "Ova adresa e-pošte već se koristi.",
     // Common words
     yes: "Da",
     no: "Ne",
@@ -4291,7 +4380,7 @@ const translations = {
     dataSharingTitle: "4. Dijeljenje podataka",
     dataSharingText: "Ne prodajemo vaše podatke trećim stranama. Vaši podaci se dijele samo:",
     dataSharingItem1: "S drugim korisnicima kada objavite prijevoz (ime, telefon, e-pošta za komunikaciju)",
-    dataSharingItem2: "S pružateljima usluga koji nam pomažu funkcionirati (npr. Firebase, EmailJS)",
+    dataSharingItem2: "S pružateljima usluga koji nam pomažu funkcionirati (npr. Firebase)",
     dataSharingItem3: "Kada to zahtijeva zakon",
     dataSecurityTitle: "5. Sigurnost podataka",
     dataSecurityText: "Koristimo Firebase za sigurno pohranjuovanje podataka s sljedećim sigurnosnim mjerama:",
@@ -4685,7 +4774,7 @@ const translations = {
     mustAcceptTerms: "Morate prihvatiti uvjete korištenja i pravila privatnosti!",
     enterValidEmail: "Unesite ispravnu adresu e-pošte.",
     companyRegistrationRequired: "Za registraciju poduzeća morate unijeti barem naziv poduzeća i porezni broj!",
-    registrationSuccessful: "Registracija uspješna! Provjerite e-poštu za kod za potvrdu.",
+    registrationSuccessful: "Registracija uspješna! Provjerite e-poštu i kliknite poveznicu za potvrdu.",
     registrationSuccessLogin: "Registracija uspješna! Sada se možete prijaviti.",
     registrationError: "Pogreška pri registraciji",
     emailVerificationTitle: "Potvrda adrese e-pošte",
@@ -4699,7 +4788,7 @@ const translations = {
     codeValid15Min: "Kod vrijedi 15 minuta.",
     checkSpamFolder: "Ako niste primili e-poštu, provjerite mapu neželjene pošte ili zatražite novi kod.",
     changeEmailTitle: "Promjena adrese e-pošte",
-    enterNewEmail: "Unesite novu adresu e-pošte za primanje koda za potvrdu:",
+    enterNewEmail: "Unesite novu adresu e-pošte na koju ćemo poslati poveznicu za potvrdu:",
     confirmChange: "Potvrdi promjenu",
     userDataNotFound: "Korisnički podaci nisu pronađeni",
     wrongVerificationCode: "Pogrešan kod za potvrdu",
@@ -4743,11 +4832,26 @@ const translations = {
     tryAgainInMinutes: "Pokušajte ponovno za {count} min.",
     offeringTransport: "Nudim prevoz",
     lookingForTransport: "Tražim prevoz",
-    flexible: "Fleksibilno"
+    flexible: "Fleksibilno",
+    // --- email confirmation link ---
+    verificationLinkSent: "Poslali smo vam poveznicu za potvrdu na",
+    clickLinkInstructions: "Otvorite e-poštu i kliknite poveznicu za potvrdu. Zatim se vratite ovamo i pritisnite „Potvrdio sam“.",
+    iHaveVerified: "Potvrdio sam",
+    resendLink: "Pošalji novu poveznicu",
+    notVerifiedYet: "Adresa e-pošte još nije potvrđena. Kliknite poveznicu u e-pošti i pokušajte ponovno.",
+    verificationLinkResent: "Nova poveznica za potvrdu poslana je na vašu adresu e-pošte.",
+    checkSpamFolderLink: "Ako ne možete pronaći e-poštu, provjerite mapu neželjene pošte ili zatražite novu poveznicu.",
+    tooManyRequests: "Previše pokušaja. Pričekajte nekoliko minuta i pokušajte ponovno.",
+    errorSendingVerification: "E-poruku za potvrdu nije moguće poslati",
+    verifyEmailToPost: "Prije objave prevoza morate potvrditi svoju adresu e-pošte.",
+    changeEmailLinkSent: "Poslali smo poveznicu za potvrdu na {email}. Adresa e-pošte promijenit će se kada kliknete poveznicu.",
+    loginAgainAfterEmailChange: "Vaša adresa e-pošte je promijenjena. Prijavite se ponovno s novom adresom.",
+    verifyLater: "Kasnije"
   },
 
   // Montenegrin translations  
   me: {
+    emailExists: "Ova e-mail adresa se već koristi.",
     // Common words
     yes: "Da",
     no: "Ne",
@@ -5200,7 +5304,7 @@ const translations = {
     dataSharingTitle: "4. Dijeljenje podataka",
     dataSharingText: "Ne prodajemo vaše podatke trećim stranama. Vaši podaci se dijele samo:",
     dataSharingItem1: "Sa drugim korisnicima kada objavite prevoz (ime, telefon, e-pošta za komunikaciju)",
-    dataSharingItem2: "Sa pružaocima usluga koji nam pomažu da funkcioniramo (npr. Firebase, EmailJS)",
+    dataSharingItem2: "Sa pružaocima usluga koji nam pomažu da funkcioniramo (npr. Firebase)",
     dataSharingItem3: "Kada to zahtijeva zakon",
     dataSecurityTitle: "5. Sigurnost podataka",
     dataSecurityText: "Koristimo Firebase za sigurno pohranu podataka sa sljedećim sigurnosnim mjerama:",
@@ -5266,7 +5370,7 @@ const translations = {
     mustAcceptTerms: "Morate prihvatiti uslove korištenja i politiku privatnosti!",
     enterValidEmail: "Unesite ispravnu e-mail adresu.",
     companyRegistrationRequired: "Za registraciju preduzeća morate unijeti barem naziv preduzeća i poreski broj!",
-    registrationSuccessful: "Registracija uspješna! Provjerite e-mail za kod za potvrdu.",
+    registrationSuccessful: "Registracija uspješna! Provjerite e-mail i kliknite na link za potvrdu.",
     registrationSuccessLogin: "Registracija uspješna! Sada se možete prijaviti.",
     registrationError: "Greška pri registraciji",
     termsConditionsTitle: "Opći uvjeti korištenja",
@@ -5340,7 +5444,7 @@ const translations = {
     codeValid15Min: "Kod vrijedi 15 minuta.",
     checkSpamFolder: "Ako niste primili e-poštu, provjerite mapu spam ili zatražite novi kod.",
     changeEmailTitle: "Promjena e-mail adrese",
-    enterNewEmail: "Unesite novu e-mail adresu za prijem koda za potvrdu:",
+    enterNewEmail: "Unesite novu e-mail adresu na koju ćemo poslati link za potvrdu:",
     confirmChange: "Potvrdi promjenu",
     userDataNotFound: "Korisnički podaci nisu pronađeni",
     wrongVerificationCode: "Pogrešan kod za potvrdu",
@@ -5385,7 +5489,21 @@ const translations = {
     tryAgainInMinutes: "Pokušajte ponovo za {count} min.",
     offeringTransport: "Nudim prevoz",
     lookingForTransport: "Tražim prevoz",
-    flexible: "Fleksibilno"
+    flexible: "Fleksibilno",
+    // --- email confirmation link ---
+    verificationLinkSent: "Poslali smo vam link za potvrdu na",
+    clickLinkInstructions: "Otvorite e-mail i kliknite na link za potvrdu. Zatim se vratite ovdje i pritisnite „Potvrdio sam“.",
+    iHaveVerified: "Potvrdio sam",
+    resendLink: "Pošalji novi link",
+    notVerifiedYet: "E-mail adresa još nije potvrđena. Kliknite na link u e-mailu i pokušajte ponovo.",
+    verificationLinkResent: "Novi link za potvrdu je poslan na vašu e-mail adresu.",
+    checkSpamFolderLink: "Ako ne možete pronaći e-mail, provjerite folder neželjene pošte (spam) ili zatražite novi link.",
+    tooManyRequests: "Previše pokušaja. Sačekajte nekoliko minuta i pokušajte ponovo.",
+    errorSendingVerification: "E-mail za potvrdu nije moguće poslati",
+    verifyEmailToPost: "Morate prvo potvrditi svoju e-mail adresu da biste objavili prevoz.",
+    changeEmailLinkSent: "Poslali smo link za potvrdu na {email}. E-mail adresa će biti promijenjena kada kliknete na link.",
+    loginAgainAfterEmailChange: "Vaša e-mail adresa je promijenjena. Prijavite se ponovo sa novom adresom.",
+    verifyLater: "Kasnije"
   }
 };
 

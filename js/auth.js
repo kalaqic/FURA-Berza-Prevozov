@@ -36,6 +36,71 @@ window.loginUser = async function(email, password) {
   }
 };
 
+// ---------------------------------------------------------------------------
+// Email verification - Firebase sends the confirmation link itself
+// (free, no EmailJS / SMTP server needed). The user clicks the link in the
+// email, after which firebase.auth().currentUser.emailVerified becomes true.
+// ---------------------------------------------------------------------------
+
+// Translation helper with Slovenian fallback
+function authT(key, fallback) {
+  return (window.t ? window.t(key) : fallback) || fallback;
+}
+
+// Seconds a user has to wait before asking for another link
+const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
+const VERIFICATION_LAST_SENT_KEY = 'furaVerificationLastSent';
+
+// Where the "Continue" button in Firebase's confirmation page leads
+function getVerificationActionSettings() {
+  return { url: window.location.origin + '/index.html' };
+}
+
+// Send Firebase's email in the user's language where Firebase has a template for it
+function applyAuthLanguage() {
+  const map = { sl: 'sl', en: 'en', it: 'it', de: 'de', hr: 'hr', sr: 'sr', bs: 'hr', me: 'hr' };
+  const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'sl';
+  auth.languageCode = map[lang] || 'sl';
+}
+
+// Send the confirmation link to the currently signed-in user
+async function sendVerificationLink(user) {
+  applyAuthLanguage();
+  try {
+    await user.sendEmailVerification(getVerificationActionSettings());
+  } catch (error) {
+    // If this domain is not on Firebase's list of authorized domains, send the
+    // email without the "Continue" button instead of failing.
+    if (error && (error.code === 'auth/unauthorized-continue-uri' ||
+                  error.code === 'auth/invalid-continue-uri' ||
+                  error.code === 'auth/missing-continue-uri')) {
+      await user.sendEmailVerification();
+    } else {
+      throw error;
+    }
+  }
+  try { localStorage.setItem(VERIFICATION_LAST_SENT_KEY, String(Date.now())); } catch (e) {}
+}
+
+// Turn Firebase errors into a readable, translated message
+function verificationErrorMessage(error) {
+  if (error && error.code === 'auth/too-many-requests') {
+    return authT('tooManyRequests', 'Preveč poskusov. Počakajte nekaj minut in poskusite znova.');
+  }
+  if (error && !error.code) {
+    return error.message; // our own messages (e.g. cooldown) are already translated
+  }
+  return authT('errorSendingVerification', 'Potrditvene e-pošte ni bilo mogoče poslati') + ': ' +
+    ((error && error.message) || error);
+}
+
+// Milliseconds left before another link may be requested
+function verificationResendRemaining() {
+  let last = 0;
+  try { last = parseInt(localStorage.getItem(VERIFICATION_LAST_SENT_KEY) || '0', 10) || 0; } catch (e) {}
+  return Math.max(0, VERIFICATION_RESEND_COOLDOWN_MS - (Date.now() - last));
+}
+
 // Register user function with email verification
 window.registerUser = async function(email, password, firstName, lastName, username, phone = '') {
   console.log('Register function called with email:', email);
@@ -45,10 +110,7 @@ window.registerUser = async function(email, password, firstName, lastName, usern
     const user = result.user;
     console.log('User created in Firebase Auth:', user.uid);
     
-    // Generate and store verification code
-    const verificationCode = generateVerificationCode();
-    
-    // Add additional data to Firestore (including verification status)
+    // Save profile in Firestore (not verified yet)
     await usersCollection.doc(user.uid).set({
       email,
       firstName,
@@ -56,15 +118,26 @@ window.registerUser = async function(email, password, firstName, lastName, usern
       username,
       phone,
       emailVerified: false,
-      verificationCode: verificationCode,
-      verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)), // 15 minutes
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // Send verification email with code
-    await sendVerificationEmail(email, firstName, verificationCode);
+    // Send Firebase confirmation link. If sending fails the account still exists,
+    // so show the error and let the user press "Send new link" in the window.
+    try {
+      await sendVerificationLink(user);
+      console.log('Verification link sent to', email);
+    } catch (sendError) {
+      console.error('Error sending verification link:', sendError);
+      if (window.utils && window.utils.showNotification) {
+        window.utils.showNotification(verificationErrorMessage(sendError), 'error', 8000);
+      }
+    }
     
-    console.log('User data saved to Firestore and verification email sent');
+    // Show the confirmation window (home page popup and register page)
+    if (typeof window.showEmailVerificationModal === 'function') {
+      window.showEmailVerificationModal(email);
+    }
+    
     return user;
   } catch (error) {
     console.error('Greška pri registraciji:', error);
@@ -72,203 +145,40 @@ window.registerUser = async function(email, password, firstName, lastName, usern
   }
 };
 
-// Generate 6-digit verification code
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Send verification email using EmailJS
-async function sendVerificationEmail(email, firstName, verificationCode) {
-  try {
-    console.log('Sending verification email to:', email);
-    console.log('EmailJS available:', typeof emailjs);
-    console.log('EmailJS object:', emailjs);
-    
-    // Check if EmailJS is available
-    if (typeof emailjs === 'undefined') {
-      console.warn('EmailJS not loaded, falling back to development mode');
-      return sendVerificationEmailFallback(email, firstName, verificationCode);
-    }
-    
-    // EmailJS configuration
-    emailjs.init('2w-9CkGzmwI1ziq-O'); // Your public API key
-    
-    // Email template parameters
-    const templateParams = {
-      email: email,
-      to_name: firstName,
-      verification_code: verificationCode,
-      from_name: 'FURA Team',
-      reply_to: 'noreply@fura.si'
-    };
-    
-    // Send email using EmailJS
-    const response = await emailjs.send(
-      'service_vd1k35m', // Your service ID
-      'template_2ijfw44', // Your template ID
-      templateParams
-    );
-    
-    console.log('Email sent successfully:', response);
-    
-    // Show success notification
-    if (window.utils && window.utils.showNotification) {
-      window.utils.showNotification(
-        `Potrditvena koda je bila poslana na ${email}`,
-        'success',
-        5000
-      );
-    }
-    
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      status: error.status,
-      text: error.text
-    });
-    
-    // Fallback to development mode if EmailJS fails
-    console.log('EmailJS failed, using fallback method');
-    return sendVerificationEmailFallback(email, firstName, verificationCode);
+// Check with Firebase whether the user has clicked the link
+window.checkEmailVerified = async function() {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error(authT('userNotLoggedIn', 'Uporabnik ni prijavljen.'));
   }
-}
-
-// Fallback method for development/testing
-async function sendVerificationEmailFallback(email, firstName, verificationCode) {
-  console.log('Using fallback email method for development');
-  
-  // Store the email data for the user to see
-  const emailData = {
-    to: email,
-    subject: 'Potrditev registracije - FURA',
-    verificationCode: verificationCode,
-    firstName: firstName,
-    timestamp: new Date().toISOString()
-  };
-  
-  // Store in localStorage for development
-  localStorage.setItem('lastVerificationEmail', JSON.stringify(emailData));
-  console.log('Verification email data stored in localStorage for development');
-  
-  // Show the verification code to user for development
-  if (window.utils && window.utils.showNotification) {
-    window.utils.showNotification(
-      `Razvojni način: Potrditvena koda je ${verificationCode}. V produkciji bi bila poslana na ${email}`,
-      'info',
-      10000
-    );
-  } else {
-    // Fallback to alert if utils not available
-    utils.showNotification(`Razvojni način: Vaša potrditvena koda je ${verificationCode}`, 'info', 10000);
+  await user.reload();
+  const fresh = auth.currentUser || user;
+  if (fresh.emailVerified && typeof window.isEmailVerified === 'function') {
+    await window.isEmailVerified(fresh); // also stores it in Firestore
   }
-}
-
-// Verify email with confirmation code
-window.verifyEmail = async function(email, verificationCode) {
-  try {
-    console.log('Verifying email with code:', verificationCode);
-    
-    // Get user from email
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
-    }
-    
-    // Check verification code in Firestore
-    const userDoc = await window.ensureUserProfileDocument(user);
-    if (!userDoc.exists) {
-      throw new Error((window.t ? window.t('userDataNotFound') : 'Uporabniški podatki niso najdeni'));
-    }
-    
-    const userData = userDoc.data();
-    
-    // Check if code matches
-    if (userData.verificationCode !== verificationCode) {
-      throw new Error((window.t ? window.t('wrongVerificationCode') : 'Napačna potrditvena koda'));
-    }
-    
-    // Check if code is expired
-    const now = firebase.firestore.Timestamp.now();
-    if (userData.verificationCodeExpiry.toMillis() < now.toMillis()) {
-      throw new Error((window.t ? window.t('codeExpired') : 'Potrditvena koda je potekla. Zahtevajte novo.'));
-    }
-    
-    // Mark email as verified in Firestore
-    await usersCollection.doc(user.uid).set({
-      emailVerified: true,
-      verificationCode: firebase.firestore.FieldValue.delete(),
-      verificationCodeExpiry: firebase.firestore.FieldValue.delete(),
-      emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    
-    console.log('Email verified successfully');
-    return true;
-    
-  } catch (error) {
-    console.error('Email verification error:', error);
-    throw error;
-  }
+  return !!fresh.emailVerified;
 };
 
-// Resend verification code with cooldown
+// Resend the confirmation link (60 s cooldown)
 window.resendVerificationCode = async function() {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
-    }
-    
-    // Get user data
-    const userDoc = await window.ensureUserProfileDocument(user);
-    if (!userDoc.exists) {
-      throw new Error((window.t ? window.t('userDataNotFound') : 'Uporabniški podatki niso najdeni'));
-    }
-    
-    const userData = userDoc.data();
-    
-    // Check cooldown period (5 minutes)
-    const cooldownPeriod = 5 * 60 * 1000; // 5 minutes in milliseconds
-    const now = Date.now();
-    
-    if (userData.lastResendTimestamp) {
-      const lastResendTime = userData.lastResendTimestamp.toMillis();
-      const timeSinceLastResend = now - lastResendTime;
-      
-      if (timeSinceLastResend < cooldownPeriod) {
-        const remainingSeconds = Math.ceil((cooldownPeriod - timeSinceLastResend) / 1000);
-        const remainingMinutes = Math.floor(remainingSeconds / 60);
-        const remainingSecs = remainingSeconds % 60;
-        const waitTime = `${remainingMinutes}:${remainingSecs.toString().padStart(2, '0')}`;
-        throw new Error(window.translateText ? window.translateText('waitBeforeResend', { time: waitTime }) : `Počakajte ${waitTime} pred ponovnim pošiljanjem kode.`);
-      }
-    }
-    
-    // Generate new verification code
-    const verificationCode = generateVerificationCode();
-    
-    // Update verification code and cooldown timestamp in Firestore
-    await usersCollection.doc(user.uid).set({
-      verificationCode: verificationCode,
-      verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)),
-      lastResendTimestamp: firebase.firestore.Timestamp.fromDate(new Date(now))
-    }, { merge: true });
-    
-    // Send new verification email
-    await sendVerificationEmail(userData.email, userData.firstName, verificationCode);
-    
-    console.log('New verification code sent');
-    
-    // Update UI to show cooldown
-    updateResendButtonCooldown();
-    
-    return true;
-    
-  } catch (error) {
-    console.error('Error resending verification code:', error);
-    throw error;
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error(authT('userNotLoggedIn', 'Uporabnik ni prijavljen.'));
   }
+  
+  const remaining = verificationResendRemaining();
+  if (remaining > 0) {
+    const secs = Math.ceil(remaining / 1000);
+    const waitTime = `${Math.floor(secs / 60)}:${(secs % 60).toString().padStart(2, '0')}`;
+    throw new Error(window.translateText
+      ? window.translateText('waitBeforeResend', { time: waitTime })
+      : `Počakajte ${waitTime} pred ponovnim pošiljanjem kode.`);
+  }
+  
+  await sendVerificationLink(user);
+  console.log('New verification link sent');
+  updateResendButtonCooldown();
+  return true;
 };
 
 // Logout user function
@@ -676,9 +586,9 @@ window.updateAuthUI = function() {
   }
 };
 
-// Show email verification modal
+// Show email verification window
 function showEmailVerificationModal(email) {
-  // Store email for persistence
+  // Store email for persistence (also stops closeModal() from closing it)
   localStorage.setItem('pendingVerificationEmail', email);
   
   // Create modal HTML if it doesn't exist
@@ -694,67 +604,41 @@ function showEmailVerificationModal(email) {
         </div>
         <div class="modal-body">
           <div class="verification-info">
-            <p><span data-translate="verificationCodeSent">Poslali smo vam potrditveno kodo na</span> <strong id="verification-email">${email}</strong></p>
-            <p data-translate="enterVerificationCode">Vnesite 6-mestno kodo spodaj za dokončanje registracije.</p>
+            <p><span data-translate="verificationLinkSent">Poslali smo vam potrditveno povezavo na</span> <strong id="verification-email"></strong></p>
+            <p data-translate="clickLinkInstructions">Odprite e-pošto in kliknite povezavo za potrditev. Nato se vrnite sem in pritisnite »Potrdil sem«.</p>
           </div>
           
-          <form id="verificationForm" onsubmit="handleVerificationSubmit(event)">
-            <div class="form-group">
-              <label for="verificationCode" data-translate="verificationCode">Potrditvena koda:</label>
-              <input 
-                type="text" 
-                id="verificationCode" 
-                name="verificationCode" 
-                placeholder="123456" 
-                maxlength="6" 
-                pattern="[0-9]{6}"
-                required
-                class="verification-code-input"
-              >
-            </div>
-            
+          <div id="verificationForm">
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary" id="verifyBtn" data-translate="verifyEmail">
-                Potrdi e-pošto
-              </button>
-              <button type="button" class="btn btn-outline" id="resendCodeBtn" onclick="handleResendVerificationCode()" data-translate="resendCode">
-                Pošlji novo kodo
-              </button>
+              <button type="button" class="btn btn-primary" id="verifyBtn" onclick="handleCheckVerified()" data-translate="iHaveVerified">Potrdil sem</button>
+              <button type="button" class="btn btn-outline" id="resendCodeBtn" onclick="handleResendVerificationCode()" data-translate="resendLink">Pošlji novo povezavo</button>
             </div>
             
             <div class="email-change-section">
-              <button type="button" class="btn btn-link" onclick="showChangeEmailForm()" data-translate="wrongEmail">
-                Napačen e-poštni naslov?
-              </button>
+              <button type="button" class="btn btn-link" onclick="showChangeEmailForm()" data-translate="wrongEmail">Napačen e-poštni naslov?</button>
+              <button type="button" class="btn btn-link" onclick="dismissEmailVerificationModal()" data-translate="verifyLater">Pozneje</button>
             </div>
             
             <div class="cancel-registration-section">
-              <button type="button" class="btn btn-danger" onclick="handleCancelRegistration()" data-translate="cancelRegistration">
-                Prekliči registracijo
-              </button>
+              <button type="button" class="btn btn-danger" onclick="handleCancelRegistration()" data-translate="cancelRegistration">Prekliči registracijo</button>
             </div>
-          </form>
+          </div>
           
           <div class="verification-help">
-            <p><small>
-              <span data-translate="codeValid15Min">Koda je veljavna 15 minut.</span><br>
-              <span data-translate="checkSpamFolder">Če niste prejeli e-pošte, preverite mapo "Nezaželena pošta" ali zahtevajte novo kodo.</span>
-            </small></p>
+            <p><small><span data-translate="checkSpamFolderLink">Če e-pošte ne najdete, preverite mapo »Nezaželena pošta« ali zahtevajte novo povezavo.</span></small></p>
           </div>
         </div>
       </div>
     `;
     document.body.appendChild(modal);
     
-    // Prevent modal from closing when clicking outside
+    // Do not close when clicking outside
     modal.addEventListener('click', function(event) {
       if (event.target === modal) {
-        // Prevent closing - do nothing
         event.stopPropagation();
       }
     });
     
-    // Add styles for the verification modal
     if (!document.getElementById('verificationModalStyles')) {
       const style = document.createElement('style');
       style.id = 'verificationModalStyles';
@@ -884,6 +768,10 @@ function showEmailVerificationModal(email) {
           cursor: not-allowed;
         }
         
+        .email-change-section .btn-link {
+          margin: 0 8px;
+        }
+        
         #resendCodeBtn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
@@ -894,16 +782,9 @@ function showEmailVerificationModal(email) {
   }
   
   // Update email in modal
-  const emailElement = modal.querySelector('strong');
+  const emailElement = modal.querySelector('#verification-email');
   if (emailElement) {
     emailElement.textContent = email;
-  }
-  
-  // Clear verification code input
-  const codeInput = modal.querySelector('#verificationCode');
-  if (codeInput) {
-    codeInput.value = '';
-    codeInput.focus();
   }
   
   // Show modal
@@ -914,31 +795,102 @@ function showEmailVerificationModal(email) {
     window.updateUI();
   }
   
-  // Check and update cooldown status for resend button
-  setTimeout(() => {
-    updateResendButtonCooldown();
-  }, 500);
-  
-  // Set up periodic cooldown check
-  const cooldownCheckInterval = setInterval(() => {
-    const resendBtn = document.getElementById('resendCodeBtn');
-    if (!resendBtn || resendBtn.disabled === false) {
-      clearInterval(cooldownCheckInterval);
+  updateResendButtonCooldown();
+  startVerificationPolling();
+}
+
+// Every few seconds ask Firebase if the link was clicked (e.g. in another tab),
+// so the window closes by itself.
+let verificationPollTimer = null;
+function startVerificationPolling() {
+  stopVerificationPolling();
+  verificationPollTimer = setInterval(async () => {
+    const modal = document.getElementById('emailVerificationModal');
+    if (!modal || modal.style.display === 'none' || !auth.currentUser) {
+      stopVerificationPolling();
       return;
     }
-    updateResendButtonCooldown();
-  }, 1000);
-};
+    try {
+      if (await window.checkEmailVerified()) {
+        onVerificationComplete();
+      }
+    } catch (error) {
+      handleVerificationReloadError(error);
+    }
+  }, 5000);
+}
+
+function stopVerificationPolling() {
+  if (verificationPollTimer) {
+    clearInterval(verificationPollTimer);
+    verificationPollTimer = null;
+  }
+}
+
+// After an email change Firebase signs the user out of old sessions
+function handleVerificationReloadError(error) {
+  console.error('Error checking verification:', error);
+  if (error && (error.code === 'auth/user-token-expired' || error.code === 'auth/user-not-found' ||
+                error.code === 'auth/invalid-user-token')) {
+    stopVerificationPolling();
+    closeEmailVerificationModal();
+    auth.signOut().catch(() => {});
+    utils.showNotification(authT('loginAgainAfterEmailChange', 'Vaš e-poštni naslov je bil spremenjen. Prijavite se znova z novim naslovom.'), 'info', 8000);
+    return true;
+  }
+  return false;
+}
+
+function onVerificationComplete() {
+  stopVerificationPolling();
+  closeEmailVerificationModal();
+  try { sessionStorage.removeItem('furaVerifyDismissed'); } catch (e) {}
+  if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
+  utils.showNotification(authT('emailVerified', 'E-poštni naslov je uspešno potrjen! Dobrodošli na FURA!'), 'success', 5000);
+}
 
 // Close email verification modal (only when verification is complete)
 function closeEmailVerificationModal() {
+  stopVerificationPolling();
   const modal = document.getElementById('emailVerificationModal');
   if (modal) {
     modal.style.display = 'none';
-    // Clear the pending verification email
-    localStorage.removeItem('pendingVerificationEmail');
   }
-};
+  // Clear the pending verification email
+  localStorage.removeItem('pendingVerificationEmail');
+}
+
+// "Later" - browse without confirming (posting rides stays blocked).
+// Not shown again automatically during this browser session.
+function dismissEmailVerificationModal() {
+  try { sessionStorage.setItem('furaVerifyDismissed', '1'); } catch (e) {}
+  closeEmailVerificationModal();
+}
+
+// "I've confirmed" button
+async function handleCheckVerified() {
+  const verifyBtn = document.getElementById('verifyBtn');
+  if (verifyBtn) {
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = authT('verifying', 'Preverjam...');
+  }
+  try {
+    if (await window.checkEmailVerified()) {
+      onVerificationComplete();
+    } else {
+      utils.showNotification(authT('notVerifiedYet', 'E-poštni naslov še ni potrjen. Kliknite povezavo v e-pošti in poskusite znova.'), 'warning', 6000);
+    }
+  } catch (error) {
+    if (!handleVerificationReloadError(error)) {
+      utils.showNotification(authT('errorPrefix', 'Napaka') + ': ' + error.message, 'error');
+    }
+  } finally {
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = authT('iHaveVerified', 'Potrdil sem');
+    }
+  }
+}
 
 // Cancel registration and delete user
 async function handleCancelRegistration() {
@@ -1014,118 +966,51 @@ async function handleCancelRegistration() {
   }
 };
 
-// Handle verification form submission
-async function handleVerificationSubmit(event) {
-  event.preventDefault();
-  
-  const codeInput = document.getElementById('verificationCode');
-  const verifyBtn = document.getElementById('verifyBtn');
-  const verificationCode = codeInput.value.trim();
-  
-  if (!verificationCode || verificationCode.length !== 6) {
-    window.utils.showNotification((window.t ? window.t('enterSixDigitCode') : 'Vnesite 6-mestno potrditveno kodo.'), 'error');
-    return;
-  }
-  
-  // Show loading state
-  verifyBtn.disabled = true;
-  verifyBtn.textContent = (window.t ? window.t('verifying') : 'Preverjam...');
-  
-  try {
-    // Verify the email
-    await window.verifyEmail(null, verificationCode);
-    
-    // Hide modal
-    window.closeEmailVerificationModal();
-    
-    // Update UI to show user is logged in
-    window.updateAuthUI();
-    
-    // Show success message
-    window.utils.showNotification(
-      t('emailVerified'),
-      'success',
-      5000
-    );
-    
-  } catch (error) {
-    console.error('Verification error:', error);
-    window.utils.showNotification(error.message, 'error');
-  } finally {
-    // Reset button state
-    verifyBtn.disabled = false;
-    verifyBtn.textContent = (window.t ? window.t('verifyEmail') : 'Potrdi e-pošto');
-  }
-};
-
-// Handle resend verification code
+// Handle "Send new link"
 async function handleResendVerificationCode() {
   try {
     await window.resendVerificationCode();
-    if (window.utils && window.utils.showNotification) {
-      window.utils.showNotification(
-        (window.t ? window.t('newCodeSent') : 'Nova potrditvena koda je bila poslana na vaš e-poštni naslov.'),
-        'success'
-      );
-    } else {
-      utils.showNotification((window.t ? window.t('newCodeSent') : 'Nova potrditvena koda je bila poslana na vaš e-poštni naslov.'), 'success');
-    }
+    utils.showNotification(authT('verificationLinkResent', 'Nova potrditvena povezava je bila poslana na vaš e-poštni naslov.'), 'success');
   } catch (error) {
     console.error('Resend error:', error);
-    if (window.utils && window.utils.showNotification) {
-      window.utils.showNotification(error.message, 'error');
-    } else {
-      utils.showNotification((window.t ? window.t('errorPrefix') : 'Napaka') + ': ' + error.message, 'error');
-    }
+    utils.showNotification(verificationErrorMessage(error), 'error', 8000);
   }
-};
+}
 
-// Update resend button to show cooldown timer
+// Show countdown on the resend button
+let resendCooldownTimer = null;
 function updateResendButtonCooldown() {
   const resendBtn = document.getElementById('resendCodeBtn');
   if (!resendBtn) return;
+  if (resendCooldownTimer) {
+    clearInterval(resendCooldownTimer);
+    resendCooldownTimer = null;
+  }
   
-  const user = auth.currentUser;
-  if (!user) return;
+  const render = () => {
+    const btn = document.getElementById('resendCodeBtn');
+    if (!btn) return false;
+    const remaining = verificationResendRemaining();
+    const label = authT('resendLink', 'Pošlji novo povezavo');
+    if (remaining <= 0) {
+      btn.disabled = false;
+      btn.textContent = label;
+      return false;
+    }
+    const secs = Math.ceil(remaining / 1000);
+    btn.disabled = true;
+    btn.textContent = `${label} (${Math.floor(secs / 60)}:${(secs % 60).toString().padStart(2, '0')})`;
+    return true;
+  };
   
-  // Check cooldown status
-  window.ensureUserProfileDocument(user)
-    .then(doc => {
-      if (!doc.exists) return;
-      
-      const userData = doc.data();
-      if (!userData.lastResendTimestamp) return;
-      
-      const cooldownPeriod = 5 * 60 * 1000; // 5 minutes
-      const now = Date.now();
-      const lastResendTime = userData.lastResendTimestamp.toMillis();
-      const timeSinceLastResend = now - lastResendTime;
-      
-      if (timeSinceLastResend < cooldownPeriod) {
-        // Start countdown
-        resendBtn.disabled = true;
-        const cooldownInterval = setInterval(() => {
-          const remaining = cooldownPeriod - (Date.now() - lastResendTime);
-          if (remaining <= 0) {
-            clearInterval(cooldownInterval);
-            resendBtn.disabled = false;
-            resendBtn.innerHTML = window.t ? window.t('resendCode') : 'Pošlji novo kodo';
-            return;
-          }
-          
-          const remainingSeconds = Math.ceil(remaining / 1000);
-          const minutes = Math.floor(remainingSeconds / 60);
-          const seconds = remainingSeconds % 60;
-          resendBtn.innerHTML = `${window.t ? window.t('resendCode') : 'Pošlji novo kodo'} (${minutes}:${seconds.toString().padStart(2, '0')})`;
-        }, 1000);
-      } else {
-        resendBtn.disabled = false;
-        resendBtn.innerHTML = window.t ? window.t('resendCode') : 'Pošlji novo kodo';
+  if (render()) {
+    resendCooldownTimer = setInterval(() => {
+      if (!render()) {
+        clearInterval(resendCooldownTimer);
+        resendCooldownTimer = null;
       }
-    })
-    .catch(error => {
-      console.error('Error checking cooldown:', error);
-    });
+    }, 1000);
+  }
 }
 
 // Show change email form
@@ -1179,84 +1064,107 @@ function hideChangeEmailForm() {
   }
 }
 
-// Update email address
+// Update email address: Firebase sends a link to the NEW address and changes
+// the email only after that link is clicked (that also confirms it).
 async function updateEmailAddress() {
   const newEmailInput = document.getElementById('newEmail');
   if (!newEmailInput) return;
   
   const newEmail = newEmailInput.value.trim();
-  if (!newEmail) {
-    utils.showNotification((window.t ? window.t('enterValidEmail') : 'Vnesite veljaven e-poštni naslov.'), 'warning');
+  if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    utils.showNotification(authT('enterValidEmail', 'Vnesite veljaven e-poštni naslov.'), 'warning');
     return;
   }
   
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    utils.showNotification(authT('userNotLoggedIn', 'Uporabnik ni prijavljen.'), 'error');
+    return;
+  }
+  
+  const send = async () => {
+    applyAuthLanguage();
+    try {
+      await user.verifyBeforeUpdateEmail(newEmail, getVerificationActionSettings());
+    } catch (error) {
+      if (error && (error.code === 'auth/unauthorized-continue-uri' ||
+                    error.code === 'auth/invalid-continue-uri' ||
+                    error.code === 'auth/missing-continue-uri')) {
+        await user.verifyBeforeUpdateEmail(newEmail);
+      } else {
+        throw error;
+      }
+    }
+  };
+  
   try {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      throw new Error((window.t ? window.t('userNotLoggedIn') : 'Uporabnik ni prijavljen'));
+    try {
+      await send();
+    } catch (error) {
+      if (error && error.code === 'auth/requires-recent-login') {
+        const password = prompt(authT('enterPasswordToConfirm', 'Vnesite geslo za potrditev:'));
+        if (!password) return;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+        await user.reauthenticateWithCredential(credential);
+        await send();
+      } else {
+        throw error;
+      }
     }
     
-    // Update email in Firebase Auth
-    await user.updateEmail(newEmail);
+    try { localStorage.setItem(VERIFICATION_LAST_SENT_KEY, String(Date.now())); } catch (e) {}
     
-    // Update email in Firestore
-    await window.ensureUserProfileDocument(user);
-    await firebase.firestore().collection('users').doc(user.uid).set({
-      email: newEmail
-    }, { merge: true });
-    
-    // Generate new verification code
-    const verificationCode = generateVerificationCode();
-    
-    // Update verification code in Firestore
-    await firebase.firestore().collection('users').doc(user.uid).set({
-      verificationCode: verificationCode,
-      verificationCodeExpiry: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 15 * 60 * 1000)),
-      emailVerified: false
-    }, { merge: true });
-    
-    // Send verification email to new address
-    const userDoc = await window.ensureUserProfileDocument(user);
-    const userData = userDoc.data();
-    await sendVerificationEmail(newEmail, userData.firstName, verificationCode);
-    
-    // Update modal with new email
+    // Show the new address in the window
     const emailDisplay = document.getElementById('verification-email');
     if (emailDisplay) {
       emailDisplay.textContent = newEmail;
     }
-    
-    // Update localStorage
     localStorage.setItem('pendingVerificationEmail', newEmail);
     
-    // Hide change email form
     hideChangeEmailForm();
+    updateResendButtonCooldown();
     
-    utils.showNotification((window.t ? window.t('emailUpdated') : 'E-poštni naslov je bil uspešno posodobljen. Nova potrditvena koda je bila poslana.'), 'success');
+    const msg = window.translateText
+      ? window.translateText('changeEmailLinkSent', { email: newEmail })
+      : `Potrditveno povezavo smo poslali na ${newEmail}. E-poštni naslov bo spremenjen, ko kliknete povezavo.`;
+    utils.showNotification(msg, 'success', 8000);
     
   } catch (error) {
     console.error('Error updating email:', error);
-    utils.showNotification((window.t ? window.t('errorUpdatingEmail') : 'Napaka pri posodabljanju e-poštnega naslova') + ': ' + error.message, 'error');
+    let msg = error.message;
+    if (error.code === 'auth/email-already-in-use') msg = authT('emailExists', error.message);
+    if (error.code === 'auth/invalid-email') msg = authT('invalidEmailAddress', error.message);
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = authT('wrongPassword', error.message);
+    if (error.code === 'auth/too-many-requests') msg = authT('tooManyRequests', error.message);
+    utils.showNotification(authT('errorUpdatingEmail', 'Napaka pri posodabljanju e-poštnega naslova') + ': ' + msg, 'error', 8000);
   }
 }
 
-// Check for pending verification on page load
-function checkPendingVerification() {
-  const pendingEmail = localStorage.getItem('pendingVerificationEmail');
+// When a logged-in user has not confirmed the email yet, show the window
+// (on every page that loads auth.js: home, login, register).
+async function checkPendingVerification() {
   const currentUser = firebase.auth().currentUser;
+  if (!currentUser || typeof window.isEmailVerified !== 'function') return;
   
-  if (pendingEmail && currentUser) {
-    // Check if user still needs verification
-    window.ensureUserProfileDocument(currentUser)
-      .then(doc => {
-        if (doc.exists && !doc.data().emailVerified) {
-          console.log('User needs email verification, showing modal');
-          showEmailVerificationModal(pendingEmail);
-        }
-      })
-      .catch(error => {
-        console.error('Error checking verification status:', error);
-      });
+  const modal = document.getElementById('emailVerificationModal');
+  if (modal && modal.style.display === 'flex') return; // already open (e.g. right after registration)
+  
+  const forced = /[?&]verify=1\b/.test(window.location.search);
+  let dismissed = false;
+  try { dismissed = sessionStorage.getItem('furaVerifyDismissed') === '1'; } catch (e) {}
+  
+  try {
+    // Always check (this also saves a confirmed / changed address in Firestore),
+    // but after "Later" only show the window again when posting was attempted.
+    const verified = await window.isEmailVerified(currentUser);
+    if (!verified && (!dismissed || forced)) {
+      console.log('User needs email verification, showing modal');
+      showEmailVerificationModal(currentUser.email);
+    } else {
+      localStorage.removeItem('pendingVerificationEmail');
+    }
+  } catch (error) {
+    console.error('Error checking verification status:', error);
   }
 }
 
@@ -1285,18 +1193,10 @@ window.debugAuthFunctions = function() {
   console.log('Auth functions debug:');
   console.log('- registerUser:', typeof window.registerUser);
   console.log('- showEmailVerificationModal:', typeof window.showEmailVerificationModal);
-  console.log('- verifyEmail:', typeof window.verifyEmail);
+  console.log('- checkEmailVerified:', typeof window.checkEmailVerified);
   console.log('- resendVerificationCode:', typeof window.resendVerificationCode);
   console.log('- utils:', typeof window.utils);
   console.log('- utils.showNotification:', window.utils ? typeof window.utils.showNotification : 'utils not available');
-  
-  // Check localStorage for last verification email
-  const lastEmail = localStorage.getItem('lastVerificationEmail');
-  if (lastEmail) {
-    console.log('Last verification email data:', JSON.parse(lastEmail));
-  } else {
-    console.log('No verification email data in localStorage');
-  }
 };
 
 // Initialize auth UI on page load
@@ -1323,7 +1223,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Make functions globally available
 window.showEmailVerificationModal = showEmailVerificationModal;
 window.closeEmailVerificationModal = closeEmailVerificationModal;
-window.handleVerificationSubmit = handleVerificationSubmit;
+window.handleCheckVerified = handleCheckVerified;
+window.dismissEmailVerificationModal = dismissEmailVerificationModal;
 window.handleResendVerificationCode = handleResendVerificationCode;
 
 // Test function to verify everything is working
@@ -1332,9 +1233,9 @@ window.testEmailVerificationSetup = function() {
   console.log('Functions available:');
   console.log('- showEmailVerificationModal:', typeof window.showEmailVerificationModal);
   console.log('- closeEmailVerificationModal:', typeof window.closeEmailVerificationModal);
-  console.log('- handleVerificationSubmit:', typeof window.handleVerificationSubmit);
+  console.log('- handleCheckVerified:', typeof window.handleCheckVerified);
   console.log('- handleResendVerificationCode:', typeof window.handleResendVerificationCode);
-  console.log('- verifyEmail:', typeof window.verifyEmail);
+  console.log('- checkEmailVerified:', typeof window.checkEmailVerified);
   console.log('- resendVerificationCode:', typeof window.resendVerificationCode);
   
   // Test showing modal

@@ -285,6 +285,15 @@
     <script src="../js/datepicker.js"></script>
     
     <script>
+        // Unconfirmed email: explain and send the user to the home page,
+        // where the confirmation window (with "Send new link") opens.
+        function redirectToVerifyEmail() {
+            utils.showNotification((window.t ? window.t('verifyEmailToPost') : 'Za objavo prevoza morate najprej potrditi svoj e-poštni naslov.'), 'warning', 6000);
+            setTimeout(function() {
+                window.location.href = '../index.html?verify=1';
+            }, 2500);
+        }
+        
         // Function to handle custom vehicle type selection
         function checkForCustomVehicle() {
             const vehicleTypeSelect = document.getElementById('vehicleType');
@@ -318,6 +327,14 @@
                     window.location.href = '../index.html';
                 } else {
                     console.log('User is authenticated:', user.email);
+                    // Only users with a confirmed email may post rides
+                    if (typeof window.isEmailVerified === 'function') {
+                        window.isEmailVerified(user).then(function(verified) {
+                            if (!verified) {
+                                redirectToVerifyEmail();
+                            }
+                        });
+                    }
                 }
             });
             
@@ -488,6 +505,12 @@
             const submitButton = document.getElementById('submitRideBtn');
             if (submitButton) {
                 submitButton.addEventListener('click', async function() {
+                    // Only users with a confirmed email may post rides
+                    if (typeof window.isEmailVerified === 'function' && !(await window.isEmailVerified())) {
+                        redirectToVerifyEmail();
+                        return;
+                    }
+                    
                     // Create loading overlay
                     let loadingOverlay = document.getElementById('loadingOverlay');
                     if (!loadingOverlay) {
