@@ -6,6 +6,12 @@
 // Translation data
 const translations = {
   sl: {
+    dimensionsHint: "Vnesite mere vozila v metrih, npr. 4,5",
+    invalidDimensions: "Vnesite veljavne dimenzije vozila v metrih (npr. 4,5). Največ: dolžina 25 m, širina 5 m, višina 6 m.",
+    minLength: "Min. dolžina",
+    minWidth: "Min. širina",
+    minHeight: "Min. višina",
+    anyValue: "poljubno",
     emailNotVerifiedTitle: "E-poštni naslov ni potrjen",
     emailNotVerifiedText: "Potrdite ga s klikom na povezavo, ki vam jo pošljemo po e-pošti. Brez potrditve ne morete objavljati prevozov.",
     sendVerificationLink: "Pošlji potrditveno povezavo",
@@ -655,6 +661,12 @@ const translations = {
   },
   
   en: {
+    dimensionsHint: "Enter the vehicle's measurements in metres, e.g. 4.5",
+    invalidDimensions: "Enter valid vehicle dimensions in metres (e.g. 4.5). Maximum: length 25 m, width 5 m, height 6 m.",
+    minLength: "Min. length",
+    minWidth: "Min. width",
+    minHeight: "Min. height",
+    anyValue: "any",
     emailNotVerifiedTitle: "Email address not confirmed",
     emailNotVerifiedText: "Confirm it by clicking the link we email you. You can't post rides until it's confirmed.",
     sendVerificationLink: "Send confirmation link",
@@ -1304,6 +1316,12 @@ const translations = {
   },
   
   sr: {
+    dimensionsHint: "Унесите мере возила у метрима, нпр. 4,5",
+    invalidDimensions: "Унесите исправне димензије возила у метрима (нпр. 4,5). Највише: дужина 25 m, ширина 5 m, висина 6 m.",
+    minLength: "Мин. дужина",
+    minWidth: "Мин. ширина",
+    minHeight: "Мин. висина",
+    anyValue: "било која",
     emailNotVerifiedTitle: "Емаил адреса није потврђена",
     emailNotVerifiedText: "Потврдите је кликом на линк који ћемо вам послати емаилом. Без потврде не можете објављивати превозе.",
     sendVerificationLink: "Пошаљи линк за потврду",
@@ -1954,6 +1972,12 @@ const translations = {
 
   // Italian translations
   it: {
+    dimensionsHint: "Inserisci le misure del veicolo in metri, ad es. 4,5",
+    invalidDimensions: "Inserisci dimensioni valide del veicolo in metri (ad es. 4,5). Massimo: lunghezza 25 m, larghezza 5 m, altezza 6 m.",
+    minLength: "Lungh. min.",
+    minWidth: "Largh. min.",
+    minHeight: "Alt. min.",
+    anyValue: "qualsiasi",
     emailNotVerifiedTitle: "Indirizzo email non confermato",
     emailNotVerifiedText: "Confermalo cliccando sul link che ti inviamo via email. Senza conferma non puoi pubblicare viaggi.",
     sendVerificationLink: "Invia link di conferma",
@@ -2625,6 +2649,12 @@ const translations = {
 
   // German translations
   de: {
+    dimensionsHint: "Geben Sie die Fahrzeugmaße in Metern ein, z. B. 4,5",
+    invalidDimensions: "Geben Sie gültige Fahrzeugmaße in Metern ein (z. B. 4,5). Maximal: Länge 25 m, Breite 5 m, Höhe 6 m.",
+    minLength: "Min. Länge",
+    minWidth: "Min. Breite",
+    minHeight: "Min. Höhe",
+    anyValue: "beliebig",
     emailNotVerifiedTitle: "E-Mail-Adresse nicht bestätigt",
     emailNotVerifiedText: "Bestätigen Sie sie über den Link, den wir Ihnen per E-Mail senden. Ohne Bestätigung können Sie keine Fahrten veröffentlichen.",
     sendVerificationLink: "Bestätigungslink senden",
@@ -3296,6 +3326,12 @@ const translations = {
 
   // Bosnian translations
   bs: {
+    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
+    minLength: "Min. dužina",
+    minWidth: "Min. širina",
+    minHeight: "Min. visina",
+    anyValue: "bilo koja",
     emailNotVerifiedTitle: "E-mail adresa nije potvrđena",
     emailNotVerifiedText: "Potvrdite je klikom na link koji ćemo vam poslati e-mailom. Bez potvrde ne možete objavljivati prevoze.",
     sendVerificationLink: "Pošalji link za potvrdu",
@@ -4145,6 +4181,12 @@ const translations = {
 
   // Croatian translations
   hr: {
+    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: duljina 25 m, širina 5 m, visina 6 m.",
+    minLength: "Min. duljina",
+    minWidth: "Min. širina",
+    minHeight: "Min. visina",
+    anyValue: "bilo koja",
     emailNotVerifiedTitle: "Adresa e-pošte nije potvrđena",
     emailNotVerifiedText: "Potvrdite je klikom na poveznicu koju ćemo vam poslati e-poštom. Bez potvrde ne možete objavljivati prevoze.",
     sendVerificationLink: "Pošalji poveznicu za potvrdu",
@@ -4886,6 +4928,12 @@ const translations = {
 
   // Montenegrin translations  
   me: {
+    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
+    minLength: "Min. dužina",
+    minWidth: "Min. širina",
+    minHeight: "Min. visina",
+    anyValue: "bilo koja",
     emailNotVerifiedTitle: "E-mail adresa nije potvrđena",
     emailNotVerifiedText: "Potvrdite je klikom na link koji ćemo vam poslati e-mailom. Bez potvrde ne možete objavljivati prevoze.",
     sendVerificationLink: "Pošalji link za potvrdu",

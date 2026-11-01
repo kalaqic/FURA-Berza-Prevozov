@@ -38,6 +38,17 @@
     
     <!-- Translation System -->
     <script src="js/translations.js"></script>
+<style>
+    .min-dimensions-filter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .min-dimensions-filter .input-group { margin-bottom: 0; }
+    .min-dimensions-filter .input-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dimension-input.input-invalid { border-color: #e74c3c !important; }
+    @media (max-width: 600px) {
+        /* phones: one field per line so labels stay readable */
+        .min-dimensions-filter { grid-template-columns: 1fr; }
+        .min-dimensions-filter .input-label { white-space: normal; }
+    }
+</style>
 </head>
 <body>
     <header>
@@ -224,14 +235,20 @@
                             </div>
                         </div>
                         <div class="form-col">
-                            <div class="input-group">
-                                <label class="input-label" data-translate="dimensions">Dimenzije</label>
-                                <select class="input-field" id="vehicleSizeFilter">
-                                    <option value="" data-translate="allDimensions">Vse dimenzije</option>
-                                    <option value="small" data-translate="smallVehicle">Majhno vozilo</option>
-                                    <option value="medium" data-translate="mediumVehicle">Srednje vozilo</option>
-                                    <option value="large" data-translate="largeVehicle">Veliko vozilo</option>
-                                </select>
+                            <!-- Minimum vehicle dimensions (all optional, in metres) -->
+                            <div class="min-dimensions-filter">
+                                <div class="input-group">
+                                    <label class="input-label" for="minLengthFilter"><span data-translate="minLength">Min. dolžina</span> (m)</label>
+                                    <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="minLengthFilter" data-translate-placeholder="anyValue" placeholder="poljubno">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="minWidthFilter"><span data-translate="minWidth">Min. širina</span> (m)</label>
+                                    <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="minWidthFilter" data-translate-placeholder="anyValue" placeholder="poljubno">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="minHeightFilter"><span data-translate="minHeight">Min. višina</span> (m)</label>
+                                    <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="minHeightFilter" data-translate-placeholder="anyValue" placeholder="poljubno">
+                                </div>
                             </div>
                         </div>
                     </div>

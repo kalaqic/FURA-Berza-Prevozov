@@ -198,9 +198,13 @@ window.showRideDetails = async function(rideId) {
       
       const translatedVehicleType = translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType || 'N/A');
       
-      if (ride.vehicleDimensions) {
-        const dimensions = ride.vehicleDimensions;
-        vehicleValue.textContent = `${translatedVehicleType} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
+      // Works for new rides (typed dimensions) and older ones (size templates)
+      const dimensions = window.getRideDimensions ? window.getRideDimensions(ride) : ride.vehicleDimensions;
+      if (dimensions) {
+        const dimsText = window.formatDimensions
+          ? window.formatDimensions(dimensions)
+          : `${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m`;
+        vehicleValue.textContent = `${translatedVehicleType} (${dimsText})`;
       } else {
         vehicleValue.textContent = translatedVehicleType;
       }
@@ -242,7 +246,7 @@ window.showRideDetails = async function(rideId) {
     }
     
     let profileContact = null;
-    const needsProfileFallback = !ride.contact?.name || !ride.contact?.email || !getUsablePhoneNumber(ride.contact?.phone);
+    const needsProfileFallback = !ride.contact?.name || !getUsablePhoneNumber(ride.contact?.phone);
 
     if (needsProfileFallback && ride.createdBy) {
       try {
@@ -256,7 +260,6 @@ window.showRideDetails = async function(rideId) {
 
           profileContact = {
             name: profileName,
-            email: profileData.email || '',
             phone: getUsablePhoneNumber(profileData.phone, profileData.phoneNumber)
           };
         }
@@ -274,8 +277,8 @@ window.showRideDetails = async function(rideId) {
         contactLabel.textContent = t('contact') + ':';
         
         if (ride.contact) {
+          // Only name and phone are shown - the email address stays hidden
           const contactName = ride.contact.name || profileContact?.name || t('notAvailable');
-          const email = ride.contact.email || profileContact?.email || ride.userEmail || t('notAvailable');
           const phone = getUsablePhoneNumber(
             ride.contact.phone,
             profileContact?.phone
@@ -283,17 +286,14 @@ window.showRideDetails = async function(rideId) {
           
           contactValue.innerHTML = `
             <p>${contactName}</p>
-            <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
             <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
           `;
         } else {
           const contactName = profileContact?.name || t('notAvailable');
-          const email = profileContact?.email || ride.userEmail || t('notAvailable');
           const phone = profileContact?.phone || t('notAvailable');
           
           contactValue.innerHTML = `
             <p>${contactName}</p>
-            <p>${email !== t('notAvailable') ? `<a href="mailto:${email}" style="color: var(--primary-color); text-decoration: none;">${email}</a>` : email}</p>
             <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
           `;
         }

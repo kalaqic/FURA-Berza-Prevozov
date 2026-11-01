@@ -125,7 +125,8 @@ function getSearchParameters() {
   
   // Get advanced search parameters (whether panel is visible or not)
   let vehicleType = '';
-  let vehicleSize = '';
+  // Minimum vehicle dimensions in metres (0 = any)
+  const minDimensions = { length: 0, width: 0, height: 0 };
   let refrigerated = false;
   let maxDistance = 100;
   let timeTolerance = 2;
@@ -136,11 +137,15 @@ function getSearchParameters() {
     console.log('Vehicle type filter:', vehicleType);
   }
   
-  const vehicleSizeSelect = document.getElementById('vehicleSizeFilter');
-  if (vehicleSizeSelect) {
-    vehicleSize = vehicleSizeSelect.value;
-    console.log('Vehicle size filter:', vehicleSize);
-  }
+  [['length', 'minLengthFilter'], ['width', 'minWidthFilter'], ['height', 'minHeightFilter']].forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const value = window.parseDimensionInput ? window.parseDimensionInput(el.value) : parseFloat(el.value);
+    minDimensions[key] = value > 0 ? value : 0;
+    // Mark a value that cannot be read (it is then ignored)
+    el.classList.toggle('input-invalid', el.value.trim() !== '' && !(value > 0));
+  });
+  console.log('Minimum dimensions filter:', minDimensions);
   
   const refrigeratedCheckbox = document.getElementById('refrigerated');
   if (refrigeratedCheckbox) {
@@ -168,7 +173,7 @@ function getSearchParameters() {
     toCity,
     dateTime,
     vehicleType,
-    vehicleSize,
+    minDimensions,
     refrigerated,
     maxDistance,
     timeTolerance
@@ -271,25 +276,10 @@ function processExactMatches(allRides, searchParams) {
     console.log('After vehicle type filter:', exactResults.length, 'rides');
   }
   
-  // Vehicle size filter - need to check if rides have this field
-  if (searchParams.vehicleSize) {
-    console.log('Filtering by vehicle size:', searchParams.vehicleSize);
-    exactResults = exactResults.filter(ride => {
-      console.log('Ride vehicle size data:', ride.vehicleSize, ride.vehicleDimensions);
-      // Check if ride has vehicleSize field, or derive from dimensions
-      if (ride.vehicleSize) {
-        return ride.vehicleSize === searchParams.vehicleSize;
-      }
-      // If no explicit size, try to derive from dimensions
-      if (ride.vehicleDimensions) {
-        const length = parseFloat(ride.vehicleDimensions.length) || 0;
-        if (searchParams.vehicleSize === 'small' && length <= 3) return true;
-        if (searchParams.vehicleSize === 'medium' && length > 3 && length <= 6) return true;
-        if (searchParams.vehicleSize === 'large' && length > 6) return true;
-      }
-      return false;
-    });
-    console.log('After vehicle size filter:', exactResults.length, 'rides');
+  // Minimum vehicle dimensions (works for new rides and older template rides)
+  if (searchParams.minDimensions && window.rideMeetsMinDimensions) {
+    exactResults = exactResults.filter(ride => window.rideMeetsMinDimensions(ride, searchParams.minDimensions));
+    console.log('After minimum dimensions filter:', exactResults.length, 'rides');
   }
   
   // Refrigerator filter
@@ -961,6 +951,12 @@ async function resetFilters() {
           const selects = advancedFilters.querySelectorAll('select');
           selects.forEach(select => select.selectedIndex = 0);
           
+          // Clear minimum dimension fields
+          advancedFilters.querySelectorAll('.dimension-input').forEach(input => {
+              input.value = '';
+              input.classList.remove('input-invalid');
+          });
+          
           // Uncheck refrigerated checkbox
           const refrigeratedCheckbox = document.getElementById('refrigerated');
           if (refrigeratedCheckbox) {
@@ -1597,6 +1593,12 @@ async function findNearbyMatches(allRides, searchParams, exactMatches) {
 
       // Skip if ride type doesn't match filter
       if (searchParams.rideType !== 'all' && ride.type !== searchParams.rideType) {
+        continue;
+      }
+
+      // Skip vehicles smaller than the minimum dimensions searched for
+      if (searchParams.minDimensions && window.rideMeetsMinDimensions &&
+          !window.rideMeetsMinDimensions(ride, searchParams.minDimensions)) {
         continue;
       }
 

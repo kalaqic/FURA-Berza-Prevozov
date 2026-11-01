@@ -186,8 +186,8 @@ async function searchRides(filters) {
         ride.vehicleType === filters.vehicleType || ride.vehicleType === 'any');
     }
     
-    if (filters.vehicleSize) {
-      results = results.filter(ride => ride.vehicleSize === filters.vehicleSize);
+    if (filters.minDimensions && window.rideMeetsMinDimensions) {
+      results = results.filter(ride => window.rideMeetsMinDimensions(ride, filters.minDimensions));
     }
     
     if (filters.refrigerated) {

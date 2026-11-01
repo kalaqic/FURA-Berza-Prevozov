@@ -28,6 +28,16 @@
     
     <!-- Translation System -->
     <script src="../js/translations.js"></script>
+<style>
+    .dimensions-hint { margin: 0 0 12px; font-size: 0.85rem; color: #64748b; }
+    .dimensions-row .form-col { min-width: 0; }
+    .dimension-input.input-invalid { border-color: #e74c3c !important; box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12); }
+    @media (max-width: 600px) {
+        /* phones: one field per line so labels and values stay readable */
+        .dimensions-row { display: flex; flex-direction: column; gap: 0; }
+        .dimensions-row .form-col { width: 100%; }
+    }
+</style>
 </head>
 <body>
     <header>
@@ -192,42 +202,31 @@
                 <input type="text" class="input-field" id="customVehicleType" data-translate-placeholder="enterVehicleType" placeholder="Vnesite vrsto vozila">
             </div>
             
-            <div class="input-group">
-                <label class="input-label" data-translate="vehicleDimensions">Dimenzije vozila</label>
-                <select class="input-field" id="vehicleSize" required onchange="handleVehicleSizeChange()">
-                    <option value="small" data-translate="smallVehicle">Male dimenzije (auto)</option>
-                    <option value="medium" data-translate="mediumVehicle">Srednje dimenzije (kombi)</option>
-                    <option value="large" data-translate="largeVehicle">Velike dimenzije (kamion)</option>
-                    <option value="manual" data-translate="manualDimensions">Ročno vnos</option>
-                </select>
-            </div>
-            
-            <div class="vehicle-dimensions-display" id="dimensionsDisplay">
-                <!-- Dimensions will be shown here -->
-            </div>
-            
-            <!-- Manual dimensions input (hidden by default) -->
-            <div class="manual-dimensions-container" id="manualDimensionsContainer" style="display: none;">
-                <div class="form-row">
+            <!-- Vehicle dimensions: typed in by the user (in metres) -->
+            <div class="form-section">
+                <h4 class="section-title" data-translate="vehicleDimensions">Dimenzije vozila</h4>
+                <p class="dimensions-hint" data-translate="dimensionsHint">Vnesite mere vozila v metrih, npr. 4,5</p>
+                <div class="form-row dimensions-row">
                     <div class="form-col">
                         <div class="input-group">
-                            <label class="input-label" data-translate="length">Dolžina (m)</label>
-                            <input type="number" class="input-field" id="manualLength" placeholder="0.00" min="0" step="0.01">
+                            <label class="input-label" for="vehicleLength"><span data-translate="length">Dolžina</span> (m)</label>
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleLength" placeholder="4,5">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
-                            <label class="input-label" data-translate="width">Širina (m)</label>
-                            <input type="number" class="input-field" id="manualWidth" placeholder="0.00" min="0" step="0.01">
+                            <label class="input-label" for="vehicleWidth"><span data-translate="width">Širina</span> (m)</label>
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleWidth" placeholder="1,8">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
-                            <label class="input-label" data-translate="height">Višina (m)</label>
-                            <input type="number" class="input-field" id="manualHeight" placeholder="0.00" min="0" step="0.01">
+                            <label class="input-label" for="vehicleHeight"><span data-translate="height">Višina</span> (m)</label>
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleHeight" placeholder="1,5">
                         </div>
                     </div>
                 </div>
+                <div class="vehicle-dimensions-display" id="dimensionsDisplay" style="display: none;"></div>
             </div>
             
             <div class="checkbox-group">
@@ -373,11 +372,8 @@
                 swapButton.addEventListener('click', swapLocations);
             }
             
-            // Initialize vehicle dimensions display
-            const vehicleSizeSelect = document.getElementById('vehicleSize');
-            if (vehicleSizeSelect) {
-                vehicleSizeSelect.addEventListener('change', updateDimensionsDisplay);
-            }
+            // Vehicle dimension fields
+            setupDimensionInputs();
             
             // Logout button
             const logoutButton = document.getElementById('logoutButton');
@@ -552,30 +548,16 @@
                     checkForCustomVehicle();
                 }
                 
-                // Set vehicle size
-                const vehicleSizeSelect = document.getElementById('vehicleSize');
-                if (vehicleSizeSelect && ride.vehicleSize) {
-                    vehicleSizeSelect.value = ride.vehicleSize;
-                    
-                    // If manual dimensions were used, populate manual inputs
-                    if (ride.vehicleSize === 'manual' && ride.vehicleDimensions) {
-                        const manualLength = document.getElementById('manualLength');
-                        const manualWidth = document.getElementById('manualWidth');
-                        const manualHeight = document.getElementById('manualHeight');
-                        
-                        if (manualLength && ride.vehicleDimensions.length) {
-                            manualLength.value = ride.vehicleDimensions.length;
-                        }
-                        if (manualWidth && ride.vehicleDimensions.width) {
-                            manualWidth.value = ride.vehicleDimensions.width;
-                        }
-                        if (manualHeight && ride.vehicleDimensions.height) {
-                            manualHeight.value = ride.vehicleDimensions.height;
-                        }
-                    }
-                    
-                    updateDimensionsDisplay();
+                // Vehicle dimensions: new rides store them directly, older rides
+                // (small / medium / large templates) get the template's numbers
+                const rideDims = window.getRideDimensions ? window.getRideDimensions(ride) : null;
+                window.__originalRideDims = rideDims;
+                if (rideDims) {
+                    document.getElementById('vehicleLength').value = window.formatDimensionNumber(rideDims.length);
+                    document.getElementById('vehicleWidth').value = window.formatDimensionNumber(rideDims.width);
+                    document.getElementById('vehicleHeight').value = window.formatDimensionNumber(rideDims.height);
                 }
+                if (window.updateDimensionsVolume) window.updateDimensionsVolume();
                 
                 // Set refrigerator checkbox
                 const refrigeratorCheckbox = document.getElementById('hasRefrigerator');
@@ -909,50 +891,35 @@ function toggleDateTimePickerMode(dateOnly) {
     }
 }
         
-        // Update dimensions display
-        function updateDimensionsDisplay() {
-            try {
-                const vehicleSizeSelect = document.getElementById('vehicleSize');
-                const dimensionsDisplay = document.getElementById('dimensionsDisplay');
-                const manualContainer = document.getElementById('manualDimensionsContainer');
-                
-                if (!vehicleSizeSelect || !dimensionsDisplay || !window.getDimensionsBySize) {
-                    console.error('Missing elements for updating dimensions display');
-                    return;
-                }
-                
-                const selectedSize = vehicleSizeSelect.value;
-                
-                // If manual is selected, hide display and show manual inputs
-                if (selectedSize === 'manual') {
-                    dimensionsDisplay.style.display = 'none';
-                    if (manualContainer) {
-                        manualContainer.style.display = 'block';
-                    }
-                    return;
+        // Live volume line under the three dimension fields + red border on invalid values
+        function setupDimensionInputs() {
+            const ids = ['vehicleLength', 'vehicleWidth', 'vehicleHeight'];
+            const display = document.getElementById('dimensionsDisplay');
+            const update = function() {
+                ids.forEach(function(id) {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const key = id.replace('vehicle', '').toLowerCase();
+                    const v = window.parseDimensionInput(el.value);
+                    const bad = el.value.trim() !== '' && (!(v > 0) || v > window.DIMENSION_LIMITS[key]);
+                    el.classList.toggle('input-invalid', bad);
+                });
+                const r = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
+                if (!display) return;
+                if (r.ok) {
+                    const volumeText = (window.t && window.t('volume')) || 'Volumen';
+                    display.innerHTML = `<div class="dimensions-info"><p>${volumeText}: ${window.formatDimensionNumber(r.dims.cubicMeters)} m³</p></div>`;
+                    display.style.display = 'block';
                 } else {
-                    dimensionsDisplay.style.display = 'block';
-                    if (manualContainer) {
-                        manualContainer.style.display = 'none';
-                    }
+                    display.style.display = 'none';
                 }
-                
-                const dimensions = window.getDimensionsBySize(selectedSize);
-                
-                dimensionsDisplay.innerHTML = `
-                    <div class="dimensions-info">
-                        <p>${(window.t && window.t('dimensions')) || 'Dimenzije'}: ${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m</p>
-                        <p>${(window.t && window.t('volume')) || 'Volumen'}: ${dimensions.cubicMeters} m³</p>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error updating dimensions display:', error);
-            }
-        }
-        
-        // Handle vehicle size change
-        window.handleVehicleSizeChange = function() {
-            updateDimensionsDisplay();
+            };
+            ids.forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', update);
+            });
+            window.updateDimensionsVolume = update;
+            update();
         }
         
         // Swap locations
@@ -1090,15 +1057,13 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 
                 // Get vehicle info
                 const vehicleTypeSelect = document.getElementById('vehicleType');
-                const vehicleSizeSelect = document.getElementById('vehicleSize');
                 const refrigeratorCheckbox = document.getElementById('hasRefrigerator');
                 
-                if (!vehicleTypeSelect || !vehicleSizeSelect || !refrigeratorCheckbox) {
+                if (!vehicleTypeSelect || !refrigeratorCheckbox) {
                     throw new Error('Vehicle fields not found');
                 }
                 
                 const vehicleType = vehicleTypeSelect.value;
-                const vehicleSize = vehicleSizeSelect.value;
                 const hasRefrigerator = refrigeratorCheckbox.checked;
                 
                 // Display name: same as create ride (selected option text, or the custom text)
@@ -1115,32 +1080,18 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     vehicleTypeDisplay = customValue;
                 }
                 
-                // Get vehicle dimensions
-                let dimensions;
-                if (vehicleSize === 'manual') {
-                    const manualLength = parseFloat(document.getElementById('manualLength').value) || 0;
-                    const manualWidth = parseFloat(document.getElementById('manualWidth').value) || 0;
-                    const manualHeight = parseFloat(document.getElementById('manualHeight').value) || 0;
-                    
-                    if (!manualLength || !manualWidth || !manualHeight) {
-                        alert((window.t ? window.t('enterAllDimensions') : 'Prosimo vnesite vse dimenzije vozila.'));
-                        loadingOverlay.style.display = 'none';
-                        return;
-                    }
-                    
-                    dimensions = {
-                        length: manualLength,
-                        width: manualWidth,
-                        height: manualHeight,
-                        cubicMeters: (manualLength * manualWidth * manualHeight).toFixed(2),
-                        displayNameKey: 'manualDimensions'
-                    };
-                } else {
-                    dimensions = window.getDimensionsBySize(vehicleSize);
+                // Vehicle dimensions typed in by the user (metres)
+                const dimResult = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
+                if (!dimResult.ok) {
+                    utils.showNotification((window.t ? window.t('invalidDimensions') : 'Vnesite veljavne dimenzije vozila v metrih (npr. 4,5).'), 'warning', 6000);
+                    loadingOverlay.style.display = 'none';
+                    if (dimResult.field) dimResult.field.focus();
+                    return;
                 }
-                
-                // Get the translated display name for vehicle size
-                const vehicleSizeDisplayName = window.t ? window.t(dimensions.displayNameKey) : dimensions.displayNameKey;
+                const dimensions = dimResult.dims;
+                // Unchanged dimensions on an older ride: keep its original size fields as they are
+                const orig = window.__originalRideDims;
+                const dimsChanged = !orig || ['length', 'width', 'height'].some(k => Math.abs(orig[k] - dimensions[k]) > 0.001);
                 
                 // Get price information
                 const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked');
@@ -1191,19 +1142,24 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                     displayTime,
                     vehicleType,
                     vehicleTypeDisplay,
-                    vehicleSize,
-                    vehicleDimensions: {
-                        length: dimensions.length,
-                        width: dimensions.width,
-                        height: dimensions.height
-                    },
-                    vehicleSizeDisplay: vehicleSizeDisplayName,
                     hasRefrigerator,
                     description,
                     price: priceInfo,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     // Don't overwrite createdBy, createdAt, contact info, and other fields
                 };
+                
+                // New dimensions -> store them as custom dimensions
+                if (dimsChanged) {
+                    updatedRideData.vehicleSize = 'custom';
+                    updatedRideData.vehicleDimensions = {
+                        length: dimensions.length,
+                        width: dimensions.width,
+                        height: dimensions.height
+                    };
+                    updatedRideData.vehicleVolume = dimensions.cubicMeters;
+                    updatedRideData.vehicleSizeDisplay = firebase.firestore.FieldValue.delete();
+                }
                 
                 // Ensure we have a ride ID before updating
                 if (!currentRide || !currentRide.id) {

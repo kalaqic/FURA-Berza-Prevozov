@@ -24,7 +24,9 @@ window.utils = {
       activeTab: document.querySelector('.tab-btn.active'),
       advancedFilters: document.getElementById('advancedFilters'),
       vehicleTypeFilter: document.getElementById('vehicleTypeFilter'),
-      vehicleSizeFilter: document.getElementById('vehicleSizeFilter'),
+      minLengthFilter: document.getElementById('minLengthFilter'),
+      minWidthFilter: document.getElementById('minWidthFilter'),
+      minHeightFilter: document.getElementById('minHeightFilter'),
       refrigeratedCheckbox: document.getElementById('refrigerated')
     };
   },

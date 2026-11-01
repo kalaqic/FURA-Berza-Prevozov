@@ -371,6 +371,7 @@
     <!-- Include JavaScript files -->
     <script src="../js/utils.js"></script>
     <script src="../js/translations.js"></script>
+    <script src="../js/vehicle-dimensions.js"></script>
     <script src="../js/modals.js"></script>
     
     <!-- Email confirmation status on the profile page -->
@@ -994,8 +995,12 @@
                   const currentLang = getCurrentLanguage();
                   const trans = translations[currentLang] || translations.sl;
                   vehicleLabel.textContent = (trans.vehicle || 'Vozilo') + ':';
-                  const dimensions = ride.vehicleDimensions;
-                  vehicleValue.textContent = `${ride.vehicleTypeDisplay} (${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m)`;
+                  // Works for new rides (typed dimensions) and older ones (size templates)
+                  const dimensions = window.getRideDimensions ? window.getRideDimensions(ride) : ride.vehicleDimensions;
+                  const vehicleName = ride.vehicleTypeDisplay || ride.vehicleType || '';
+                  vehicleValue.textContent = dimensions
+                    ? `${vehicleName} (${window.formatDimensions ? window.formatDimensions(dimensions) : `${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m`})`
+                    : vehicleName;
                 }
                 
                 // Šesti red: Hladilnik
