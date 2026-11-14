@@ -359,6 +359,12 @@
                     <div class="detail-label"></div>
                     <div class="detail-value" id="ridePriceValue"></div>
                 </div>
+                
+                <!-- Own ride: full contact info + what other users see -->
+                <div class="detail-row" id="rideContactRow">
+                    <div class="detail-label"></div>
+                    <div class="detail-value" id="rideContactValue"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')" data-translate="close">Zapri</button>
@@ -416,6 +422,7 @@
             vertical-align: middle;
         }
         .email-status-badge.verified { background: #e6f6ec; color: #1e7a3c; }
+        .contact-visibility-hint { margin-top: 8px; font-size: 0.82rem; color: #64748b; }
         .email-status-badge.verified::before { content: '✓ '; }
         .email-status-badge.not-verified::before { content: '✗ '; }
         .email-status-badge.not-verified { background: #fdecea; color: #b3261e; }
@@ -1034,6 +1041,41 @@
                   const trans = translations[currentLang] || translations.sl;
                   priceLabel.textContent = (trans.price || 'Cena') + ':';
                   priceValue.textContent = formatPrice(ride.price);
+                }
+                
+                // Deveti red: Kontakt - on the account page all info is shown
+                // (full name, company, email, phone) plus what other users see on the ride
+                const contactRow = document.getElementById('rideContactRow');
+                const contactValue = document.getElementById('rideContactValue');
+                if (contactRow && contactValue) {
+                  const tr = (k, fb) => (window.t ? window.t(k) : fb) || fb;
+                  contactRow.querySelector('.detail-label').textContent = tr('contact', 'Kontakt') + ':';
+                  
+                  let profile = {};
+                  try {
+                    const doc = await window.ensureUserProfileDocument(firebase.auth().currentUser);
+                    if (doc.exists) profile = doc.data() || {};
+                  } catch (e) {
+                    console.warn('Could not load own profile for contact info:', e);
+                  }
+                  const savedContact = ride.contact || {};
+                  const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim() || savedContact.name || '';
+                  const companyName = profile.isCompany && profile.company ? String(profile.company.companyName || '').trim() : '';
+                  const email = profile.email || savedContact.email || (firebase.auth().currentUser && firebase.auth().currentUser.email) || '';
+                  const phone = profile.phone || profile.phoneNumber || savedContact.phone || '';
+                  const firstName = String(profile.firstName || fullName.split(/\s+/)[0] || '').trim();
+                  const publicName = companyName || firstName;
+                  
+                  const esc = (v) => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+                  const lines = [];
+                  if (fullName) lines.push(`<p><strong>${esc(fullName)}</strong></p>`);
+                  if (companyName) lines.push(`<p>${esc(companyName)}</p>`);
+                  if (email) lines.push(`<p>${esc(email)}</p>`);
+                  if (phone) lines.push(`<p>${esc(phone)}</p>`);
+                  if (!lines.length) lines.push(`<p>${esc(tr('notAvailable', 'Ni na voljo'))}</p>`);
+                  const publicParts = [publicName, phone].filter(Boolean).map(esc).join(', ');
+                  lines.push(`<p class="contact-visibility-hint"><span data-translate="othersSeeContact">${esc(tr('othersSeeContact', 'Drugi uporabniki na prevozu vidijo:'))}</span> ${publicParts || esc(tr('notAvailable', 'Ni na voljo'))}</p>`);
+                  contactValue.innerHTML = lines.join('');
                 }
               }
               

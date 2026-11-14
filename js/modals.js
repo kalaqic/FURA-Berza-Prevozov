@@ -245,30 +245,23 @@ window.showRideDetails = async function(rideId) {
       }
     }
     
-    let profileContact = null;
-    const needsProfileFallback = !ride.contact?.name || !getUsablePhoneNumber(ride.contact?.phone);
-
-    if (needsProfileFallback && ride.createdBy) {
+    // Owner's profile: needed to know if the owner has a registered company
+    let ownerProfile = null;
+    if (ride.createdBy) {
       try {
         const profileDoc = ride.createdBy === currentUser.uid && typeof window.ensureUserProfileDocument === 'function'
           ? await window.ensureUserProfileDocument(currentUser)
           : await firebase.firestore().collection('users').doc(ride.createdBy).get();
-
         if (profileDoc.exists) {
-          const profileData = profileDoc.data();
-          const profileName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ').trim();
-
-          profileContact = {
-            name: profileName,
-            phone: getUsablePhoneNumber(profileData.phone, profileData.phoneNumber)
-          };
+          ownerProfile = profileDoc.data();
         }
       } catch (profileError) {
-        console.error('Error loading fallback profile contact:', profileError);
+        console.error('Error loading owner profile:', profileError);
       }
     }
 
-    // Ninth row: Contact info (if exists)
+    // Ninth row: Contact - company name (if the owner has a company) or first name only,
+    // plus phone. Surname and email address are never shown.
     if (detailRows.length >= 9) {
       const contactLabel = detailRows[8].querySelector('.detail-label');
       const contactValue = detailRows[8].querySelector('.detail-value');
@@ -276,27 +269,29 @@ window.showRideDetails = async function(rideId) {
       if (contactLabel && contactValue) {
         contactLabel.textContent = t('contact') + ':';
         
-        if (ride.contact) {
-          // Only name and phone are shown - the email address stays hidden
-          const contactName = ride.contact.name || profileContact?.name || t('notAvailable');
-          const phone = getUsablePhoneNumber(
-            ride.contact.phone,
-            profileContact?.phone
-          ) || t('notAvailable');
-          
-          contactValue.innerHTML = `
-            <p>${contactName}</p>
-            <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
-          `;
-        } else {
-          const contactName = profileContact?.name || t('notAvailable');
-          const phone = profileContact?.phone || t('notAvailable');
-          
-          contactValue.innerHTML = `
-            <p>${contactName}</p>
-            <p>${phone !== t('notAvailable') ? `<a href="tel:${phone}" style="color: var(--primary-color); text-decoration: none;">${phone}</a>` : phone}</p>
-          `;
-        }
+        const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        
+        const companyName = ownerProfile && ownerProfile.isCompany && ownerProfile.company
+          ? String(ownerProfile.company.companyName || '').trim()
+          : '';
+        // First name: from the profile, otherwise the first word of the name saved with the ride
+        const firstName = String(
+          (ownerProfile && ownerProfile.firstName) ||
+          ((ride.contact && ride.contact.name) || '').trim().split(/\s+/)[0] ||
+          ''
+        ).trim();
+        const displayName = companyName || firstName || t('notAvailable');
+        
+        const phone = getUsablePhoneNumber(
+          ride.contact && ride.contact.phone,
+          ownerProfile && ownerProfile.phone,
+          ownerProfile && ownerProfile.phoneNumber
+        ) || t('notAvailable');
+        
+        contactValue.innerHTML = `
+          <p>${escapeHtml(displayName)}</p>
+          <p>${phone !== t('notAvailable') ? `<a href="tel:${escapeHtml(phone)}" style="color: var(--primary-color); text-decoration: none;">${escapeHtml(phone)}</a>` : escapeHtml(phone)}</p>
+        `;
       }
     }
     

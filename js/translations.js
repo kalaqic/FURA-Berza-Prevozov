@@ -6,6 +6,7 @@
 // Translation data
 const translations = {
   sl: {
+    othersSeeContact: "Drugi uporabniki na prevozu vidijo:",
     dimensionsHint: "Vnesite mere vozila v metrih, npr. 4,5",
     invalidDimensions: "Vnesite veljavne dimenzije vozila v metrih (npr. 4,5). Največ: dolžina 25 m, širina 5 m, višina 6 m.",
     minLength: "Min. dolžina",
@@ -661,6 +662,7 @@ const translations = {
   },
   
   en: {
+    othersSeeContact: "Other users see on the ride:",
     dimensionsHint: "Enter the vehicle's measurements in metres, e.g. 4.5",
     invalidDimensions: "Enter valid vehicle dimensions in metres (e.g. 4.5). Maximum: length 25 m, width 5 m, height 6 m.",
     minLength: "Min. length",
@@ -1316,6 +1318,7 @@ const translations = {
   },
   
   sr: {
+    othersSeeContact: "Други корисници на превозу виде:",
     dimensionsHint: "Унесите мере возила у метрима, нпр. 4,5",
     invalidDimensions: "Унесите исправне димензије возила у метрима (нпр. 4,5). Највише: дужина 25 m, ширина 5 m, висина 6 m.",
     minLength: "Мин. дужина",
@@ -1972,6 +1975,7 @@ const translations = {
 
   // Italian translations
   it: {
+    othersSeeContact: "Gli altri utenti vedono sul viaggio:",
     dimensionsHint: "Inserisci le misure del veicolo in metri, ad es. 4,5",
     invalidDimensions: "Inserisci dimensioni valide del veicolo in metri (ad es. 4,5). Massimo: lunghezza 25 m, larghezza 5 m, altezza 6 m.",
     minLength: "Lungh. min.",
@@ -2649,6 +2653,7 @@ const translations = {
 
   // German translations
   de: {
+    othersSeeContact: "Andere Nutzer sehen bei der Fahrt:",
     dimensionsHint: "Geben Sie die Fahrzeugmaße in Metern ein, z. B. 4,5",
     invalidDimensions: "Geben Sie gültige Fahrzeugmaße in Metern ein (z. B. 4,5). Maximal: Länge 25 m, Breite 5 m, Höhe 6 m.",
     minLength: "Min. Länge",
@@ -3326,6 +3331,7 @@ const translations = {
 
   // Bosnian translations
   bs: {
+    othersSeeContact: "Drugi korisnici na prevozu vide:",
     dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. dužina",
@@ -4181,6 +4187,7 @@ const translations = {
 
   // Croatian translations
   hr: {
+    othersSeeContact: "Drugi korisnici na prevozu vide:",
     dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: duljina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. duljina",
@@ -4928,6 +4935,7 @@ const translations = {
 
   // Montenegrin translations  
   me: {
+    othersSeeContact: "Drugi korisnici na prevozu vide:",
     dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. dužina",
