@@ -284,7 +284,7 @@
             
             <div class="input-group">
                 <label class="input-label" data-translate="description">Opis</label>
-                <textarea class="input-field" rows="4" id="rideDescription" data-translate-placeholder="enterAdditionalInfo" placeholder="Vnesite dodatne informacije o prevozu" required></textarea>
+                <textarea class="input-field" rows="4" id="rideDescription" data-translate-placeholder="enterAdditionalInfo" placeholder="Vnesite dodatne informacije o prevozu"></textarea>
             </div>
             
             <button class="btn btn-primary search-btn" id="saveChangesBtn" data-translate="saveChanges">Shrani spremembe</button>
@@ -1026,7 +1026,7 @@ function toggleDateTimePickerMode(dateOnly) {
                 const description = descriptionField.value.trim();
                 
                 // Validation
-                if (!fromCountry || !toCountry || !fromCity || !toCity || !description) {
+                if (!fromCountry || !toCountry || !fromCity || !toCity) { // description and date are optional (same as when creating a ride)
                     utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Prosimo izpolnite vsa obvezna polja!'), 'warning');
                     loadingOverlay.style.display = 'none';
                     return;
