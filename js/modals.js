@@ -179,10 +179,13 @@ window.showRideDetails = async function(rideId) {
     if (dateLabel && dateValue) {
       dateLabel.textContent = t('dateAndTime') + ':';
       
-      let dateDisplay = ride.formattedDate || 'N/A';
+      let dateDisplay = ride.formattedDate || ride.displayDate || '';
       const timeDisplay = ride.formattedTime || ride.time || '';
       
-      if (timeDisplay) {
+      if (!ride.date && !dateDisplay) {
+        // Date is optional
+        dateValue.textContent = t('dateNotSpecified');
+      } else if (timeDisplay) {
         dateValue.textContent = `${dateDisplay} ${t('at')} ${timeDisplay}`;
       } else {
         dateValue.textContent = `${dateDisplay} (${translateFlexibleTime()})`;
@@ -196,18 +199,9 @@ window.showRideDetails = async function(rideId) {
     if (vehicleLabel && vehicleValue) {
       vehicleLabel.textContent = t('vehicleInfo') + ':';
       
-      const translatedVehicleType = translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType || 'N/A');
-      
-      // Works for new rides (typed dimensions) and older ones (size templates)
-      const dimensions = window.getRideDimensions ? window.getRideDimensions(ride) : ride.vehicleDimensions;
-      if (dimensions) {
-        const dimsText = window.formatDimensions
-          ? window.formatDimensions(dimensions)
-          : `${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m`;
-        vehicleValue.textContent = `${translatedVehicleType} (${dimsText})`;
-      } else {
-        vehicleValue.textContent = translatedVehicleType;
-      }
+      // "Tovornjak (6,2 m × 2,4 m × 2,6 m)" or "... (Dimenzije niso navedene)"
+      vehicleValue.textContent = window.formatRideVehicleText(ride);
+      modal._ride = ride; // lets the text be re-translated on language change
     }
     
     // Sixth row: Refrigerator
@@ -341,6 +335,7 @@ window.showRideDetails = async function(rideId) {
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
+
   } catch (error) {
     console.error('Error showing ride details:', error);
     utils.showNotification((window.t ? window.t('errorShowingDetails') : 'Napaka pri prikazu podrobnosti') + ': ' + error.message, 'error');

@@ -161,6 +161,8 @@ async function searchRides(filters) {
       
       if (dateTimeInfo) {
         results = results.filter(ride => {
+          // Rides without a date can go any day
+          if (!ride.date) return true;
           // Match the date part
           if (ride.date !== dateTimeInfo.date) {
             return false;
@@ -183,7 +185,8 @@ async function searchRides(filters) {
     
     if (filters.vehicleType) {
       results = results.filter(ride => 
-        ride.vehicleType === filters.vehicleType || ride.vehicleType === 'any');
+        (window.getRideVehicleCategory ? window.getRideVehicleCategory(ride) === filters.vehicleType : ride.vehicleType === filters.vehicleType) ||
+        ride.vehicleType === 'any');
     }
     
     if (filters.minDimensions && window.rideMeetsMinDimensions) {

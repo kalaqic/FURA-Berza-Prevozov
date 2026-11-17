@@ -35,6 +35,11 @@
         .dimensions-row .form-col { width: 100%; }
     }
 </style>
+<style>
+    .date-optional-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; font-size: 0.85rem; color: #64748b; }
+    .clear-date-btn { background: none; border: none; padding: 2px 4px; color: #e74c3c; text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
+    .clear-date-btn:hover { color: #c0392b; }
+</style>
 </head>
 <body>
     <header>
@@ -174,6 +179,10 @@
                         <span class="checkmark"></span>
                     </label>
                 </div>
+                <div class="date-optional-row">
+                    <span class="date-optional-hint" data-translate="dateOptionalHint">Datum je neobvezen</span>
+                    <button type="button" class="clear-date-btn" id="clearDateBtn" data-translate="clearDate" style="display: none;">Odstrani datum</button>
+                </div>
             </div>
             
             <div class="input-group">
@@ -181,7 +190,7 @@
                 <select class="input-field" id="vehicleType" onchange="checkForCustomVehicle()">
                     <option value="car-transporter" data-translate="avtotransporter">Avtotransporter</option>
                     <option value="car-tow" data-translate="avtovleka">Avtovleka</option>
-                    <option value="furgon" data-translate="furgon">Furgon</option>
+                    <option value="furgon" data-translate="furgon">Tovornjak</option>
                     <option value="van" data-translate="kombi">Kombi</option>
                     <option value="truck" data-translate="vlačilec">Vlačilec</option>
                     <option value="custom" data-translate="customVehicle">Drugo...</option>
@@ -299,7 +308,7 @@
                 });
                 const r = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
                 if (!display) return;
-                if (r.ok) {
+                if (r.ok && r.dims) {
                     const volumeText = (window.t && window.t('volume')) || 'Volumen';
                     display.innerHTML = `<div class="dimensions-info"><p>${volumeText}: ${window.formatDimensionNumber(r.dims.cubicMeters)} m³</p></div>`;
                     display.style.display = 'block';
@@ -313,6 +322,29 @@
             });
             window.updateDimensionsVolume = update;
             update();
+        }
+        
+        // Date is optional: show "Odstrani datum" while a date is picked
+        function setupClearDate() {
+            const clearBtn = document.getElementById('clearDateBtn');
+            const pickerBtn = document.getElementById('dateTimePicker');
+            const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+            if (!clearBtn || !pickerBtn) return;
+            const refresh = function() {
+                const hasDate = /\d{1,2}\.\d{1,2}\.\d{4}/.test(pickerBtn.innerText);
+                clearBtn.style.display = hasDate ? 'inline-block' : 'none';
+            };
+            pickerBtn.addEventListener('dateSelected', refresh);
+            if (dateOnlyCheckbox) dateOnlyCheckbox.addEventListener('change', function() { setTimeout(refresh, 50); });
+            clearBtn.addEventListener('click', function() {
+                if (window.datePicker) window.datePicker.clear();
+                pickerBtn.setAttribute('data-selected-date', '');
+                const textEl = pickerBtn.querySelector('.date-text');
+                const dateOnly = dateOnlyCheckbox && dateOnlyCheckbox.checked;
+                if (textEl) textEl.textContent = window.t ? window.t(dateOnly ? 'date' : 'dateTime') : (dateOnly ? 'Datum' : 'Datum in ura');
+                refresh();
+            });
+            refresh();
         }
         
         // Unconfirmed email: explain and send the user to the home page,
@@ -412,6 +444,9 @@
             
             // Vehicle dimension fields
             setupDimensionInputs();
+            
+            // Optional date: "Odstrani datum" link
+            setupClearDate();
             
             // Toggle options for ride type
             const toggleOptions = document.querySelectorAll('.toggle-option');
@@ -617,7 +652,7 @@
                         }
                         
                         // Validation
-                        if (!fromCountry || !toCountry || !fromCity || !toCity || !date) {
+                        if (!fromCountry || !toCountry || !fromCity || !toCity) { // date is optional
                             // Hide loading overlay
                             loadingOverlay.style.display = 'none';
                             utils.showNotification((window.t ? window.t('fillAllRequiredFields') : 'Prosimo izpolnite vsa obvezna polja!'), 'warning');
@@ -628,7 +663,7 @@
                         const dimResult = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
                         if (!dimResult.ok) {
                             loadingOverlay.style.display = 'none';
-                            utils.showNotification((window.t ? window.t('invalidDimensions') : 'Vnesite veljavne dimenzije vozila v metrih (npr. 4,5).'), 'warning', 6000);
+                            utils.showNotification((dimResult.reason === 'incomplete' ? (window.t ? window.t('incompleteDimensions') : 'Vnesite vse tri dimenzije ali pustite vsa polja prazna.') : (window.t ? window.t('invalidDimensions') : 'Vnesite veljavne dimenzije vozila v metrih (npr. 4,5).')), 'warning', 6000);
                             if (dimResult.field) dimResult.field.focus();
                             return;
                         }
@@ -699,13 +734,14 @@
                             vehicleType,
                             vehicleTypeDisplay,
                             customVehicleType: vehicleType === 'custom' ? vehicleTypeDisplay : null,
-                            vehicleSize: 'custom',
-                            vehicleDimensions: {
+                            // Dimensions are optional: 'none' + null when not given
+                            vehicleSize: dimensions ? 'custom' : 'none',
+                            vehicleDimensions: dimensions ? {
                                 length: dimensions.length,
                                 width: dimensions.width,
                                 height: dimensions.height
-                            },
-                            vehicleVolume: dimensions.cubicMeters,
+                            } : null,
+                            vehicleVolume: dimensions ? dimensions.cubicMeters : null,
                             hasRefrigerator,
                             description,
                             price: priceInfo,

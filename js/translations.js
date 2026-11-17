@@ -6,8 +6,13 @@
 // Translation data
 const translations = {
   sl: {
+    dateNotSpecified: "Datum ni določen",
+    dimensionsNotSpecified: "Dimenzije niso navedene",
+    incompleteDimensions: "Vnesite vse tri dimenzije ali pustite vsa polja prazna.",
+    dateOptionalHint: "Datum je neobvezen",
+    clearDate: "Odstrani datum",
     othersSeeContact: "Drugi uporabniki na prevozu vidijo:",
-    dimensionsHint: "Vnesite mere vozila v metrih, npr. 4,5",
+    dimensionsHint: "Neobvezno. Vnesite mere vozila v metrih, npr. 4,5",
     invalidDimensions: "Vnesite veljavne dimenzije vozila v metrih (npr. 4,5). Največ: dolžina 25 m, širina 5 m, višina 6 m.",
     minLength: "Min. dolžina",
     minWidth: "Min. širina",
@@ -204,7 +209,7 @@ const translations = {
     details: "Podrobnosti",
     yes: "Da",
     no: "Ne",
-    noDate: "Ni datuma",
+    noDate: "Datum ni določen",
     contact: "Kontakt",
     close: "Zapri",
     editRide: "Uredi furo",
@@ -240,7 +245,7 @@ const translations = {
     // Vehicle Types
     avtotransporter: "Avtotransporter",
     avtovleka: "Avtovleka", 
-    furgon: "Furgon",
+    furgon: "Tovornjak",
     kombi: "Kombi",
     vlačilec: "Vlačilec",
     truck: "Tovornjak",
@@ -662,8 +667,13 @@ const translations = {
   },
   
   en: {
+    dateNotSpecified: "Date not specified",
+    dimensionsNotSpecified: "Dimensions not specified",
+    incompleteDimensions: "Enter all three dimensions or leave all fields empty.",
+    dateOptionalHint: "Date is optional",
+    clearDate: "Remove date",
     othersSeeContact: "Other users see on the ride:",
-    dimensionsHint: "Enter the vehicle's measurements in metres, e.g. 4.5",
+    dimensionsHint: "Optional. Enter the vehicle's measurements in metres, e.g. 4.5",
     invalidDimensions: "Enter valid vehicle dimensions in metres (e.g. 4.5). Maximum: length 25 m, width 5 m, height 6 m.",
     minLength: "Min. length",
     minWidth: "Min. width",
@@ -848,7 +858,7 @@ const translations = {
     details: "Details",
     yes: "Yes",
     no: "No",
-    noDate: "No date",
+    noDate: "Date not specified",
     contact: "Contact",
     close: "Close",
     editRide: "Edit Ride",
@@ -881,7 +891,7 @@ const translations = {
     // Vehicle Types
     avtotransporter: "Car Transporter",
     avtovleka: "Tow Truck",
-    furgon: "Van",
+    furgon: "Truck",
     kombi: "Minivan",
     vlačilec: "Tractor",
     truck: "Truck",
@@ -1318,8 +1328,13 @@ const translations = {
   },
   
   sr: {
+    dateNotSpecified: "Датум није наведен",
+    dimensionsNotSpecified: "Димензије нису наведене",
+    incompleteDimensions: "Унесите све три димензије или оставите сва поља празна.",
+    dateOptionalHint: "Датум није обавезан",
+    clearDate: "Уклони датум",
     othersSeeContact: "Други корисници на превозу виде:",
-    dimensionsHint: "Унесите мере возила у метрима, нпр. 4,5",
+    dimensionsHint: "Необавезно. Унесите мере возила у метрима, нпр. 4,5",
     invalidDimensions: "Унесите исправне димензије возила у метрима (нпр. 4,5). Највише: дужина 25 m, ширина 5 m, висина 6 m.",
     minLength: "Мин. дужина",
     minWidth: "Мин. ширина",
@@ -1504,7 +1519,7 @@ const translations = {
     details: "Детаљи",
     yes: "Да",
     no: "Не",
-    noDate: "Нема датума",
+    noDate: "Датум није наведен",
     contact: "Контакт",
     close: "Затвори",
     editRide: "Уреди вожњу",
@@ -1537,7 +1552,7 @@ const translations = {
     // Vehicle Types
     avtotransporter: "Ауто транспортер",
     avtovleka: "Шлеп возило",
-    furgon: "Фургон",
+    furgon: "Камион",
     kombi: "Комби",
     vlačilec: "Влачилац",
     truck: "Камион",
@@ -1975,8 +1990,13 @@ const translations = {
 
   // Italian translations
   it: {
+    dateNotSpecified: "Data non specificata",
+    dimensionsNotSpecified: "Dimensioni non specificate",
+    incompleteDimensions: "Inserisci tutte e tre le dimensioni oppure lascia tutti i campi vuoti.",
+    dateOptionalHint: "La data è facoltativa",
+    clearDate: "Rimuovi data",
     othersSeeContact: "Gli altri utenti vedono sul viaggio:",
-    dimensionsHint: "Inserisci le misure del veicolo in metri, ad es. 4,5",
+    dimensionsHint: "Facoltativo. Inserisci le misure del veicolo in metri, ad es. 4,5",
     invalidDimensions: "Inserisci dimensioni valide del veicolo in metri (ad es. 4,5). Massimo: lunghezza 25 m, larghezza 5 m, altezza 6 m.",
     minLength: "Lungh. min.",
     minWidth: "Largh. min.",
@@ -2105,7 +2125,7 @@ const translations = {
     // Vehicle Types
     avtotransporter: "Bisarca",
     avtovleka: "Carro attrezzi",
-    furgon: "Furgone",
+    furgon: "Camion",
     kombi: "Van",
     vlačilec: "Trattore",
     truck: "Camion",
@@ -2187,7 +2207,7 @@ const translations = {
     details: "Dettagli",
     yes: "Sì",
     no: "No",
-    noDate: "Nessuna data",
+    noDate: "Data non specificata",
     contact: "Contatto",
     close: "Chiudi",
     editRide: "Modifica viaggio",
@@ -2653,8 +2673,13 @@ const translations = {
 
   // German translations
   de: {
+    dateNotSpecified: "Datum nicht angegeben",
+    dimensionsNotSpecified: "Maße nicht angegeben",
+    incompleteDimensions: "Geben Sie alle drei Maße ein oder lassen Sie alle Felder leer.",
+    dateOptionalHint: "Datum ist optional",
+    clearDate: "Datum entfernen",
     othersSeeContact: "Andere Nutzer sehen bei der Fahrt:",
-    dimensionsHint: "Geben Sie die Fahrzeugmaße in Metern ein, z. B. 4,5",
+    dimensionsHint: "Optional. Geben Sie die Fahrzeugmaße in Metern ein, z. B. 4,5",
     invalidDimensions: "Geben Sie gültige Fahrzeugmaße in Metern ein (z. B. 4,5). Maximal: Länge 25 m, Breite 5 m, Höhe 6 m.",
     minLength: "Min. Länge",
     minWidth: "Min. Breite",
@@ -2783,7 +2808,7 @@ const translations = {
     // Vehicle Types
     avtotransporter: "Autotransporter",
     avtovleka: "Abschleppwagen",
-    furgon: "Lieferwagen",
+    furgon: "LKW",
     kombi: "Van",
     vlačilec: "Zugmaschine",
     truck: "LKW",
@@ -2865,7 +2890,7 @@ const translations = {
     details: "Details",
     yes: "Ja",
     no: "Nein",
-    noDate: "Kein Datum",
+    noDate: "Datum nicht angegeben",
     contact: "Kontakt",
     close: "Schließen",
     editRide: "Fahrt bearbeiten",
@@ -3331,8 +3356,13 @@ const translations = {
 
   // Bosnian translations
   bs: {
+    dateNotSpecified: "Datum nije naveden",
+    dimensionsNotSpecified: "Dimenzije nisu navedene",
+    incompleteDimensions: "Unesite sve tri dimenzije ili ostavite sva polja prazna.",
+    dateOptionalHint: "Datum nije obavezan",
+    clearDate: "Ukloni datum",
     othersSeeContact: "Drugi korisnici na prevozu vide:",
-    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    dimensionsHint: "Neobavezno. Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. dužina",
     minWidth: "Min. širina",
@@ -3973,7 +4003,7 @@ const translations = {
     city: "Grad",
     avtotransporter: "Autotransporter",
     avtovleka: "Šlep služba",
-    furgon: "Furgon",
+    furgon: "Kamion",
     kombi: "Kombi",
     allDimensions: "Sve dimenzije",
     maxDistance: "Najviše km udaljeno",
@@ -4158,7 +4188,7 @@ const translations = {
     notAvailable: "Nije dostupno",
     nearbyResultsHeader: "Prevozi u blizini ({count}) - od/do gradova blizu {fromCity} ili {toCity}:",
     noResultsSuggestion: "Pokušajte sa drugim filterima ili provjerite kasnije.",
-    noDate: "Nema datuma",
+    noDate: "Datum nije naveden",
     distanceTooltip: "{distance} km od tražene lokacije {searchCity}",
     errorFilteringRides: "Greška pri filtriranju prevoza",
     errorResettingFilters: "Greška pri resetovanju filtera",
@@ -4187,8 +4217,13 @@ const translations = {
 
   // Croatian translations
   hr: {
+    dateNotSpecified: "Datum nije naveden",
+    dimensionsNotSpecified: "Dimenzije nisu navedene",
+    incompleteDimensions: "Unesite sve tri dimenzije ili ostavite sva polja prazna.",
+    dateOptionalHint: "Datum nije obavezan",
+    clearDate: "Ukloni datum",
     othersSeeContact: "Drugi korisnici na prevozu vide:",
-    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    dimensionsHint: "Neobvezno. Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: duljina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. duljina",
     minWidth: "Min. širina",
@@ -4700,7 +4735,7 @@ const translations = {
     advancedSearch: "Napredno pretraživanje",
     avtotransporter: "Autotransporter",
     avtovleka: "Vučna služba",
-    furgon: "Furgon",
+    furgon: "Kamion",
     kombi: "Kombi",
     allDimensions: "Sve dimenzije",
     maxDistance: "Najviše km udaljeno",
@@ -4906,7 +4941,7 @@ const translations = {
     notAvailable: "Nije dostupno",
     nearbyResultsHeader: "Prevozi u blizini ({count}) - od/do gradova blizu {fromCity} ili {toCity}:",
     noResultsSuggestion: "Pokušajte s drugim filtrima ili provjerite kasnije.",
-    noDate: "Nema datuma",
+    noDate: "Datum nije naveden",
     distanceTooltip: "{distance} km od tražene lokacije {searchCity}",
     errorFilteringRides: "Pogreška pri filtriranju prevoza",
     errorResettingFilters: "Pogreška pri poništavanju filtara",
@@ -4935,8 +4970,13 @@ const translations = {
 
   // Montenegrin translations  
   me: {
+    dateNotSpecified: "Datum nije naveden",
+    dimensionsNotSpecified: "Dimenzije nisu navedene",
+    incompleteDimensions: "Unesite sve tri dimenzije ili ostavite sva polja prazna.",
+    dateOptionalHint: "Datum nije obavezan",
+    clearDate: "Ukloni datum",
     othersSeeContact: "Drugi korisnici na prevozu vide:",
-    dimensionsHint: "Unesite mjere vozila u metrima, npr. 4,5",
+    dimensionsHint: "Neobavezno. Unesite mjere vozila u metrima, npr. 4,5",
     invalidDimensions: "Unesite ispravne dimenzije vozila u metrima (npr. 4,5). Najviše: dužina 25 m, širina 5 m, visina 6 m.",
     minLength: "Min. dužina",
     minWidth: "Min. širina",
@@ -5252,7 +5292,7 @@ const translations = {
     advancedSearch: "Napredna pretraga",
     avtotransporter: "Autotransporter",
     avtovleka: "Šlep služba",
-    furgon: "Furgon",
+    furgon: "Kamion",
     kombi: "Kombi",
     allDimensions: "Sve dimenzije",
     maxDistance: "Najviše km udaljeno",
@@ -5574,7 +5614,7 @@ const translations = {
     notAvailable: "Nije dostupno",
     nearbyResultsHeader: "Prevozi u blizini ({count}) - od/do gradova blizu {fromCity} ili {toCity}:",
     noResultsSuggestion: "Pokušajte sa drugim filterima ili provjerite kasnije.",
-    noDate: "Nema datuma",
+    noDate: "Datum nije naveden",
     distanceTooltip: "{distance} km od tražene lokacije {searchCity}",
     errorFilteringRides: "Greška pri filtriranju prevoza",
     errorResettingFilters: "Greška pri resetovanju filtera",
@@ -6062,7 +6102,9 @@ function retranslateRideDetailsModal() {
         label.textContent = t(labels[index]) + ':';
         
         // Special handling for values that need translation
-        if (index === 4 && value) { // Vehicle type
+        if (index === 4 && value && modal._ride && window.formatRideVehicleText) { // Vehicle type + dimensions
+          value.textContent = window.formatRideVehicleText(modal._ride);
+        } else if (index === 4 && value) { // Vehicle type
           const currentText = value.textContent;
           if (currentText && !currentText.includes('×')) {
             // Only vehicle type, no dimensions
@@ -6182,3 +6224,86 @@ if (document.readyState === 'loading') {
   // DOM is already ready
   updateUI();
 }
+
+// ---------------------------------------------------------------------------
+// Vehicle type of a ride: one place that decides the name, icon and the
+// category used by the search filter (rides store vehicleType + the name in the
+// language it was posted in, so we go by vehicleType where possible).
+// ---------------------------------------------------------------------------
+const LEGACY_LORRY_NAMES = ['tovornjak', 'truck', 'camion', 'lkw', 'kamion', 'камион'];
+
+// Category: car-transporter | car-tow | furgon (Tovornjak) | van | truck (Vlačilec) | custom
+function getRideVehicleCategory(ride) {
+  if (!ride) return 'custom';
+  const type = String(ride.vehicleType || '').trim();
+  const display = String(ride.vehicleTypeDisplay || '').trim().toLowerCase();
+  if (type === 'truck') {
+    // Very old rides used "truck" for Tovornjak; newer ones use it for Vlačilec
+    return LEGACY_LORRY_NAMES.includes(display) ? 'furgon' : 'truck';
+  }
+  if (['car-transporter', 'car-tow', 'furgon', 'van'].includes(type)) return type;
+  return 'custom';
+}
+
+// Name shown for the ride's vehicle in the current language
+function getRideVehicleLabel(ride) {
+  if (!ride) return '';
+  const keyByCategory = { 'car-transporter': 'avtotransporter', 'car-tow': 'avtovleka', 'furgon': 'furgon', 'van': 'kombi', 'truck': 'vlačilec' };
+  const category = getRideVehicleCategory(ride);
+  if (keyByCategory[category]) return t(keyByCategory[category]);
+  const type = String(ride.vehicleType || '');
+  if (type === 'car' || type === 'any') return t(type);
+  return ride.customVehicleType || ride.vehicleTypeDisplay || translateVehicleType(type) || '';
+}
+
+// Icon for the ride's vehicle
+function getRideVehicleIcon(ride) {
+  const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+  const file = {
+    'car-transporter': 'avtotransporter.png', 'car-tow': 'avtovleka.png', 'furgon': 'tovornjak.png',
+    'van': 'furgon - van.png', 'truck': 'vlacilec.png'
+  }[getRideVehicleCategory(ride)];
+  if (file) return `${prefix}assets/vechicles/${file}`;
+  const type = String((ride && ride.vehicleType) || '');
+  if (type === 'car') return `${prefix}assets/vechicles/avto.png`;
+  if (type === 'any') return `${prefix}assets/vechicles/poljubno-vozilo.png`;
+  return `${prefix}assets/vechicles/other.png`;
+}
+
+// "Tovornjak (6,2 m × 2,4 m × 2,6 m)" or "Tovornjak (Dimenzije niso navedene)"
+function formatRideVehicleText(ride) {
+  const label = getRideVehicleLabel(ride);
+  const dims = window.getRideDimensions ? window.getRideDimensions(ride) : null;
+  const dimsText = dims && window.formatDimensions ? window.formatDimensions(dims) : t('dimensionsNotSpecified');
+  return `${label} (${dimsText})`;
+}
+
+// ---------------------------------------------------------------------------
+// Country flags (assets/flags/1x1 and 4x3, named by ISO country code)
+// ---------------------------------------------------------------------------
+const COUNTRY_FLAG_CODES = {
+  'Slovenija': 'si', 'Hrvatska': 'hr', 'Srbija': 'rs', 'Bosna i Hercegovina': 'ba', 'Albanija': 'al',
+  'Avstrija': 'at', 'Belgija': 'be', 'Bolgarija': 'bg', 'Češka': 'cz', 'Črna gora': 'me', 'Danska': 'dk',
+  'Estonija': 'ee', 'Finska': 'fi', 'Francija': 'fr', 'Grčija': 'gr', 'Irska': 'ie', 'Italija': 'it',
+  'Latvija': 'lv', 'Litva': 'lt', 'Luksemburg': 'lu', 'Madžarska': 'hu', 'Malta': 'mt', 'Nemčija': 'de',
+  'Nizozemska': 'nl', 'Poljska': 'pl', 'Portugalska': 'pt', 'Romunija': 'ro', 'Severna Makedonija': 'mk',
+  'Slovaška': 'sk', 'Španija': 'es', 'Švedska': 'se', 'Švica': 'ch', 'Ukrajina': 'ua', 'Združeno kraljestvo': 'gb'
+};
+
+function getCountryFlagCode(countryName) {
+  return COUNTRY_FLAG_CODES[String(countryName || '').trim()] || null;
+}
+
+function getCountryFlagUrl(countryName, shape = '1x1') {
+  const code = getCountryFlagCode(countryName);
+  if (!code) return null;
+  const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+  return `${prefix}assets/flags/${shape}/${code}.svg`;
+}
+
+window.getRideVehicleCategory = getRideVehicleCategory;
+window.getRideVehicleLabel = getRideVehicleLabel;
+window.getRideVehicleIcon = getRideVehicleIcon;
+window.formatRideVehicleText = formatRideVehicleText;
+window.getCountryFlagCode = getCountryFlagCode;
+window.getCountryFlagUrl = getCountryFlagUrl;

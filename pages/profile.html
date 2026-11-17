@@ -365,7 +365,6 @@
                     <div class="detail-label"></div>
                     <div class="detail-value" id="rideContactValue"></div>
                 </div>
-            </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="closeModal('rideDetailsModal')" data-translate="close">Zapri</button>
                 <button class="btn btn-accent" id="deleteRideBtn" data-translate="deleteRide">Izbriši furo</button>
@@ -852,7 +851,7 @@
                         </div>
                         <div class="ride-details">
                             <div class="ride-vehicle">
-                                ${translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)}
+                                ${window.getRideVehicleLabel ? window.getRideVehicleLabel(ride) : translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)}
                             </div>
                             <div class="ride-actions">
                                 <button class="btn btn-sm btn-outline view-ride-btn" data-ride-id="${ride.id}">${trans.details || 'Podrobnosti'}</button>
@@ -991,7 +990,9 @@
                   const flexibleText = trans.flexible || 'Prilagodljivo';
                   const atText = trans.at || 'ob';
                   const timeDisplay = ride.formattedTime ? `${atText} ${ride.formattedTime}` : `(${flexibleText})`;
-                  dateValue.textContent = `${ride.formattedDate} ${timeDisplay}`;
+                  dateValue.textContent = (ride.date || ride.formattedDate)
+                    ? `${ride.formattedDate || ride.displayDate} ${timeDisplay}`
+                    : (trans.dateNotSpecified || 'Datum ni določen');
                 }
                 
                 // Peti red: Vozilo
@@ -1002,12 +1003,9 @@
                   const currentLang = getCurrentLanguage();
                   const trans = translations[currentLang] || translations.sl;
                   vehicleLabel.textContent = (trans.vehicle || 'Vozilo') + ':';
-                  // Works for new rides (typed dimensions) and older ones (size templates)
-                  const dimensions = window.getRideDimensions ? window.getRideDimensions(ride) : ride.vehicleDimensions;
-                  const vehicleName = ride.vehicleTypeDisplay || ride.vehicleType || '';
-                  vehicleValue.textContent = dimensions
-                    ? `${vehicleName} (${window.formatDimensions ? window.formatDimensions(dimensions) : `${dimensions.length}m × ${dimensions.width}m × ${dimensions.height}m`})`
-                    : vehicleName;
+                  // "Tovornjak (6,2 m × 2,4 m × 2,6 m)" or "... (Dimenzije niso navedene)"
+                  vehicleValue.textContent = window.formatRideVehicleText(ride);
+                  modal._ride = ride;
                 }
                 
                 // Šesti red: Hladilnik

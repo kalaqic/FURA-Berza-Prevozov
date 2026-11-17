@@ -260,7 +260,8 @@ function processExactMatches(allRides, searchParams) {
   if (searchParams.dateTime) {
     const dateInfo = parseSearchDateTime(searchParams.dateTime);
     if (dateInfo && dateInfo.date) {
-      exactResults = exactResults.filter(ride => ride.date === dateInfo.date);
+      // Rides without a date can go any day, so they stay in the results
+      exactResults = exactResults.filter(ride => !ride.date || ride.date === dateInfo.date);
       console.log('After date filter:', exactResults.length, 'rides');
     }
   }
@@ -270,8 +271,8 @@ function processExactMatches(allRides, searchParams) {
     console.log('Filtering by vehicle type:', searchParams.vehicleType);
     exactResults = exactResults.filter(ride => {
       console.log('Ride vehicle type:', ride.vehicleType, 'vehicleTypeDisplay:', ride.vehicleTypeDisplay);
-      return ride.vehicleType === searchParams.vehicleType || 
-             (ride.vehicleTypeDisplay && ride.vehicleTypeDisplay.toLowerCase().includes(searchParams.vehicleType.toLowerCase()));
+      // Same categories as on the create-ride page, whatever language the ride was posted in
+      return window.getRideVehicleCategory(ride) === searchParams.vehicleType;
     });
     console.log('After vehicle type filter:', exactResults.length, 'rides');
   }
@@ -443,14 +444,15 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
     dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
   }
   
-  const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
-  const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
+  const vehicleTypeDisplay = (window.getRideVehicleLabel ? window.getRideVehicleLabel(ride) : translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)) || 'N/A';
+  const vehicleIconPath = (window.getRideVehicleIcon ? window.getRideVehicleIcon(ride) : getVehicleIcon(ride.vehicleType || ride.vehicleTypeDisplay));
   
   // Prepare location text with distance badges for nearby rides
   // fromCountry is already translated, no need to translate again
   // toCountry is already translated, no need to translate again
-  let fromLocationText = `${fromCity}${fromCountry ? ', ' + fromCountry : ''}`;
-  let toLocationText = `${toCity}${toCountry ? ', ' + toCountry : ''}`;
+  // Distance badges for nearby rides (shown after the city name)
+  let fromLocationText = '';
+  let toLocationText = '';
   
   if (isNearby || ride.isNearby) {
     const maxDistance = 200; // Same as in findNearbyMatches
@@ -536,8 +538,8 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
   
   // Populate the row
   tableRow.innerHTML = `
-    <td>${fromLocationText}</td>
-    <td>${toLocationText}</td>
+    <td>${buildPlaceCell(fromCity, ride.originalFromCountry || ride.fromCountry, fromLocationText)}</td>
+    <td>${buildPlaceCell(toCity, ride.originalToCountry || ride.toCountry, toLocationText)}</td>
     <td>${dateOnly}</td>
     <td>${timeDisplay}</td>
     <td>
@@ -553,6 +555,31 @@ function addRideToTable(ride, resultsTable, isNearby = false) {
   return tableRow;
 }
 
+
+// ---------------------------------------------------------------------------
+// Location cell on the home screen: map-pin flag + city + country
+//   [pin] Ljubljana
+//         SLOVENIJA
+// ---------------------------------------------------------------------------
+function escapeCellText(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function buildPlaceCell(city, countryRaw, extraHtml = '') {
+  const countryName = countryRaw ? translateCountry(countryRaw) : '';
+  const flagUrl = window.getCountryFlagUrl ? window.getCountryFlagUrl(countryRaw, '1x1') : null;
+  const pin = flagUrl
+    ? `<span class="flag-pin" title="${escapeCellText(countryName)}" aria-hidden="true"><span class="flag-pin-face" style="background-image: url('${flagUrl}')"></span></span>`
+    : `<span class="flag-pin flag-pin-empty" aria-hidden="true"></span>`;
+  return `
+    <div class="route-place">
+      ${pin}
+      <span class="route-place-text">
+        <span class="route-city">${escapeCellText(city || 'N/A')}${extraHtml || ''}</span>
+        ${countryName ? `<span class="route-country">${escapeCellText(countryName)}</span>` : ''}
+      </span>
+    </div>`;
+}
 
 // Helper function to get all rides from Firestore
 async function getAllRidesFromFirestore() {
@@ -1143,8 +1170,8 @@ function updateSearchResults(results, shouldStore = true) {
       ? `<span class="ride-type-badge offering">${translateRideType('offering')}</span>`
       : `<span class="ride-type-badge looking">${translateRideType('looking')}</span>`;
     
-    // Format date and time for display
-    let displayDate = '';
+    // Format date and time for display (date is optional)
+    let displayDate = window.t ? window.t('dateNotSpecified') : 'Datum ni določen';
     let displayTime = translateFlexibleTime(); // Default to "Adjustable"
     
     // Extract only date part (no time) for the date column
@@ -1172,12 +1199,12 @@ function updateSearchResults(results, shouldStore = true) {
     const toLocation = `${ride.toCity}${ride.toCountry ? ', ' + ride.toCountry : ''}`;
     
     // Translate vehicle type
-    const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
-    const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
+    const vehicleTypeDisplay = (window.getRideVehicleLabel ? window.getRideVehicleLabel(ride) : translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)) || 'N/A';
+    const vehicleIconPath = (window.getRideVehicleIcon ? window.getRideVehicleIcon(ride) : getVehicleIcon(ride.vehicleType || ride.vehicleTypeDisplay));
     
     row.innerHTML = `
-      <td>${fromLocation}</td>
-      <td>${toLocation}</td>
+      <td>${buildPlaceCell(ride.fromCity, ride.originalFromCountry || ride.fromCountry)}</td>
+      <td>${buildPlaceCell(ride.toCity, ride.originalToCountry || ride.toCountry)}</td>
       <td>${displayDate}</td>
       <td>${displayTime}</td>
       <td>
@@ -1385,13 +1412,13 @@ function createRideRow(ride) {
     // If displayDate contains time, extract just the date part  
     dateOnly = ride.displayDate.split(' ')[0] || ride.displayDate;
   }
-  const vehicleTypeDisplay = translateVehicleType(ride.originalVehicleTypeDisplay || ride.originalVehicleType || ride.vehicleTypeDisplay || ride.vehicleType) || 'N/A';
-  const vehicleIconPath = getVehicleIcon(ride.originalVehicleType || ride.vehicleType || ride.vehicleTypeDisplay);
+  const vehicleTypeDisplay = (window.getRideVehicleLabel ? window.getRideVehicleLabel(ride) : translateVehicleType(ride.vehicleTypeDisplay || ride.vehicleType)) || 'N/A';
+  const vehicleIconPath = (window.getRideVehicleIcon ? window.getRideVehicleIcon(ride) : getVehicleIcon(ride.vehicleType || ride.vehicleTypeDisplay));
   
   // Populate the row
   row.innerHTML = `
-    <td>${fromCity}${fromCountry ? ', ' + fromCountry : ''}</td>
-    <td>${toCity}${toCountry ? ', ' + toCountry : ''}</td>
+    <td>${buildPlaceCell(fromCity, ride.originalFromCountry || ride.fromCountry)}</td>
+    <td>${buildPlaceCell(toCity, ride.originalToCountry || ride.toCountry)}</td>
     <td>${dateOnly}</td>
     <td>${timeDisplay}</td>
     <td>
@@ -1582,8 +1609,9 @@ async function findNearbyMatches(allRides, searchParams, exactMatches) {
 
     const nearbyMatches = [];
     const exactIds = new Set(exactMatches.map(ride => ride.id));
-    const maxDistance = 200; // Max distance in km for nearby cities
-    const maxDistanceForSameCityMatches = 200; // Max distance for the other city in same-city matches
+    // Distance chosen in "Največ km stran" (50 / 100 / 150 / 200 km, default 100)
+    const maxDistance = parseInt(searchParams.maxDistance, 10) || 100; // Max distance in km for nearby cities
+    const maxDistanceForSameCityMatches = maxDistance; // Max distance for the other city in same-city matches
 
     for (const ride of allRides) {
       // Skip exact matches and rides without required data
@@ -1859,36 +1887,15 @@ function updateSearchButtonState() {
 
 // Parse search date time (utility function)
 function parseSearchDateTime(dateTimeString) {
+  // Accepts "15.12.2026", "15.12.2026 10:00" and "15.12.2026 ob 10:00" (any language word)
+  // (this copy is the one browsers use - it overrides the earlier function of the same name)
   try {
-    if (dateTimeString.includes(' ob ')) {
-      const parts = dateTimeString.split(' ob ');
-      const dateParts = parts[0].split('.');
-      
-      if (dateParts.length === 3) {
-        const day = dateParts[0].padStart(2, '0');
-        const month = dateParts[1].padStart(2, '0');
-        const year = dateParts[2];
-        
-        return {
-          date: `${year}-${month}-${day}`,
-          time: parts[1]
-        };
-      }
-    } else {
-      const dateParts = dateTimeString.split('.');
-      if (dateParts.length === 3) {
-        const day = dateParts[0].padStart(2, '0');
-        const month = dateParts[1].padStart(2, '0');
-        const year = dateParts[2];
-        
-        return {
-          date: `${year}-${month}-${day}`,
-          time: null
-        };
-      }
-    }
-    
-    return null;
+    const match = String(dateTimeString || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\D+?(\d{1,2}):(\d{2}))?/);
+    if (!match) return null;
+    return {
+      date: `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`,
+      time: match[4] ? `${match[4].padStart(2, '0')}:${match[5]}` : null
+    };
   } catch (error) {
     console.warn('Error parsing date time:', error);
     return null;

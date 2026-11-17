@@ -38,6 +38,11 @@
         .dimensions-row .form-col { width: 100%; }
     }
 </style>
+<style>
+    .date-optional-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; font-size: 0.85rem; color: #64748b; }
+    .clear-date-btn { background: none; border: none; padding: 2px 4px; color: #e74c3c; text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
+    .clear-date-btn:hover { color: #c0392b; }
+</style>
 </head>
 <body>
     <header>
@@ -182,6 +187,10 @@
                         <span class="checkmark"></span>
                     </label>
                 </div>
+                <div class="date-optional-row">
+                    <span class="date-optional-hint" data-translate="dateOptionalHint">Datum je neobvezen</span>
+                    <button type="button" class="clear-date-btn" id="clearDateBtn" data-translate="clearDate" style="display: none;">Odstrani datum</button>
+                </div>
             </div>
             
             <div class="input-group">
@@ -189,7 +198,7 @@
                 <select class="input-field" id="vehicleType" required onchange="checkForCustomVehicle()">
                     <option value="car-transporter" data-translate="avtotransporter">Avtotransporter</option>
                     <option value="car-tow" data-translate="avtovleka">Avtovleka</option>
-                    <option value="furgon" data-translate="furgon">Furgon</option>
+                    <option value="furgon" data-translate="furgon">Tovornjak</option>
                     <option value="van" data-translate="kombi">Kombi</option>
                     <option value="truck" data-translate="vlačilec">Vlačilec</option>
                     <option value="custom" data-translate="customVehicle">Drugo...</option>
@@ -375,6 +384,18 @@
             // Vehicle dimension fields
             setupDimensionInputs();
             
+            // Optional date: "Odstrani datum" link
+            const clearDateBtn = document.getElementById('clearDateBtn');
+            window.refreshClearDateBtn = function() {
+                if (clearDateBtn) clearDateBtn.style.display = (dateTimePicker && dateTimePicker.selectedDates && dateTimePicker.selectedDates.length) ? 'inline-block' : 'none';
+            };
+            if (clearDateBtn) clearDateBtn.addEventListener('click', function() {
+                if (dateTimePicker) dateTimePicker.clear();
+                const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
+                updateDateTimeButtonText('', dateOnlyCheckbox && dateOnlyCheckbox.checked);
+                window.refreshClearDateBtn();
+            });
+            
             // Logout button
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
@@ -511,7 +532,8 @@
                     try {
                         const dateOnlyCheckbox = document.getElementById('dateOnlyCheckbox');
                         if (dateOnlyCheckbox) {
-                            dateOnlyCheckbox.checked = !hasTime;
+                            // A ride without any date keeps "Brez ure" unticked
+                            dateOnlyCheckbox.checked = !!parsed.dateObj && !hasTime;
                         }
                         
                         if (parsed.dateObj) {
@@ -522,6 +544,7 @@
                         } else {
                             toggleDateTimePickerMode(!hasTime);
                         }
+                        if (window.refreshClearDateBtn) window.refreshClearDateBtn();
                     } catch (e) {
                         console.error('Error setting date picker value:', e);
                     }
@@ -529,13 +552,18 @@
                 
                 // Set vehicle type
                 const vehicleTypeSelect = document.getElementById('vehicleType');
+                if (vehicleTypeSelect && ride.vehicleType && window.getRideVehicleCategory) {
+                    // Very old rides used "truck" for Tovornjak - select the matching option
+                    const category = window.getRideVehicleCategory(ride);
+                    if (category === 'furgon' && ride.vehicleType === 'truck') ride.vehicleType = 'furgon';
+                }
                 if (vehicleTypeSelect && ride.vehicleType) {
                     const exists = Array.from(vehicleTypeSelect.options).some(o => o.value === ride.vehicleType);
                     if (!exists) {
                         // Older rides used other types (car, any, ...) - keep them selectable so nothing is lost
                         const legacyOption = document.createElement('option');
                         legacyOption.value = ride.vehicleType;
-                        legacyOption.textContent = (window.translateVehicleType && window.translateVehicleType(ride.vehicleType)) ||
+                        legacyOption.textContent = (window.getRideVehicleLabel && window.getRideVehicleLabel(ride)) ||
                             ride.vehicleTypeDisplay || ride.vehicleType;
                         vehicleTypeSelect.insertBefore(legacyOption, vehicleTypeSelect.querySelector('option[value="custom"]'));
                     }
@@ -768,6 +796,7 @@
                     minDate: "today",
                     onOpen: ensureCalendarVisible,
                     onChange: function(selectedDates, dateStr, instance) {
+                        if (window.refreshClearDateBtn) setTimeout(window.refreshClearDateBtn, 0);
                         // Ažuriraj tekst dugmeta
                         if (selectedDates.length > 0) {
                             const date = selectedDates[0];
@@ -840,6 +869,7 @@ function toggleDateTimePickerMode(dateOnly) {
             minDate: "today",
             onOpen: ensureCalendarVisible,
             onChange: function(selectedDates, dateStr, instance) {
+                        if (window.refreshClearDateBtn) setTimeout(window.refreshClearDateBtn, 0);
                 // Update button text
                 if (selectedDates.length > 0) {
                     const date = selectedDates[0];
@@ -906,7 +936,7 @@ function toggleDateTimePickerMode(dateOnly) {
                 });
                 const r = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
                 if (!display) return;
-                if (r.ok) {
+                if (r.ok && r.dims) {
                     const volumeText = (window.t && window.t('volume')) || 'Volumen';
                     display.innerHTML = `<div class="dimensions-info"><p>${volumeText}: ${window.formatDimensionNumber(r.dims.cubicMeters)} m³</p></div>`;
                     display.style.display = 'block';
@@ -1050,9 +1080,12 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
         displayTime = '';
     }
 } else {
-    alert((window.t ? window.t('selectDatePrompt') : 'Prosimo izberite datum!'));
-    loadingOverlay.style.display = 'none';
-    return;
+    // No date picked: the date is optional, save the ride without one
+    date = '';
+    time = '';
+    formattedDate = '';
+    displayDate = '';
+    displayTime = '';
 }
                 
                 // Get vehicle info
@@ -1083,7 +1116,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 // Vehicle dimensions typed in by the user (metres)
                 const dimResult = window.readDimensionInputs('vehicleLength', 'vehicleWidth', 'vehicleHeight');
                 if (!dimResult.ok) {
-                    utils.showNotification((window.t ? window.t('invalidDimensions') : 'Vnesite veljavne dimenzije vozila v metrih (npr. 4,5).'), 'warning', 6000);
+                    utils.showNotification((dimResult.reason === 'incomplete' ? (window.t ? window.t('incompleteDimensions') : 'Vnesite vse tri dimenzije ali pustite vsa polja prazna.') : (window.t ? window.t('invalidDimensions') : 'Vnesite veljavne dimenzije vozila v metrih (npr. 4,5).')), 'warning', 6000);
                     loadingOverlay.style.display = 'none';
                     if (dimResult.field) dimResult.field.focus();
                     return;
@@ -1091,7 +1124,8 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 const dimensions = dimResult.dims;
                 // Unchanged dimensions on an older ride: keep its original size fields as they are
                 const orig = window.__originalRideDims;
-                const dimsChanged = !orig || ['length', 'width', 'height'].some(k => Math.abs(orig[k] - dimensions[k]) > 0.001);
+                const dimsChanged = (!orig !== !dimensions) ||
+                    (orig && dimensions && ['length', 'width', 'height'].some(k => Math.abs(orig[k] - dimensions[k]) > 0.001));
                 
                 // Get price information
                 const selectedPriceOption = document.querySelector('input[name="priceOption"]:checked');
@@ -1150,7 +1184,7 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                 };
                 
                 // New dimensions -> store them as custom dimensions
-                if (dimsChanged) {
+                if (dimsChanged && dimensions) {
                     updatedRideData.vehicleSize = 'custom';
                     updatedRideData.vehicleDimensions = {
                         length: dimensions.length,
@@ -1158,6 +1192,12 @@ if (dateTimePicker && dateTimePicker.selectedDates.length > 0) {
                         height: dimensions.height
                     };
                     updatedRideData.vehicleVolume = dimensions.cubicMeters;
+                    updatedRideData.vehicleSizeDisplay = firebase.firestore.FieldValue.delete();
+                } else if (dimsChanged && !dimensions) {
+                    // All three fields emptied: dimensions not specified
+                    updatedRideData.vehicleSize = 'none';
+                    updatedRideData.vehicleDimensions = null;
+                    updatedRideData.vehicleVolume = null;
                     updatedRideData.vehicleSizeDisplay = firebase.firestore.FieldValue.delete();
                 }
                 

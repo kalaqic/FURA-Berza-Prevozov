@@ -623,3 +623,100 @@ td.vehicle-icon {
 .distance-badge:hover {
     background-color: #138496;
 }
+/* ---------------------------------------------------------------------------
+   Home screen ride list: country flags as little map pins
+   --------------------------------------------------------------------------- */
+.route-place {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    min-width: 0;
+}
+
+.route-place-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.route-city {
+    font-weight: 600;
+    color: #1e293b;
+    overflow-wrap: break-word;
+}
+
+.route-country {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-top: 2px;
+}
+
+/* Teardrop map pin with the flag inside */
+.flag-pin {
+    position: relative;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+    background: #e2e8f0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.flag-pin-face {
+    position: absolute;
+    inset: -20%;
+    background-size: cover;
+    background-position: center;
+    transform: rotate(45deg);
+}
+
+/* Soft shine, like a real pin */
+.flag-pin::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 55%);
+    pointer-events: none;
+}
+
+.flag-pin-empty {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Pins hop up a little when the ride is hovered */
+.results-table tbody tr:hover .flag-pin {
+    transform: rotate(-45deg) translate(2px, -2px);
+    box-shadow: 0 5px 10px rgba(15, 23, 42, 0.25);
+}
+
+@media (max-width: 768px) {
+    .results-table td:nth-child(1),
+    .results-table td:nth-child(2) {
+        padding-left: 10px;
+        padding-right: 6px;
+    }
+    .route-place {
+        gap: 8px;
+    }
+    .route-city {
+        font-size: 13px;
+    }
+    .flag-pin {
+        width: 20px;
+        height: 20px;
+        border-width: 1.5px;
+    }
+    .route-country {
+        font-size: 10px;
+        letter-spacing: 0.3px;
+    }
+}

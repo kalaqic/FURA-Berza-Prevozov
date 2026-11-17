@@ -77,17 +77,32 @@ function parseDimensionInput(value) {
   return parseFloat(cleaned);
 }
 
-// Read and validate the three inputs. Returns { ok, dims } or { ok:false, field }.
+// Read and validate the three inputs (dimensions are optional).
+//  - all three empty          -> { ok: true, dims: null }
+//  - all three valid          -> { ok: true, dims: { length, width, height, cubicMeters } }
+//  - some empty, some filled  -> { ok: false, reason: 'incomplete', field }
+//  - a value that is invalid  -> { ok: false, reason: 'invalid', field }
 function readDimensionInputs(lengthId, widthId, heightId) {
   const ids = { length: lengthId, width: widthId, height: heightId };
-  const dims = {};
+  const els = {};
+  const filled = [];
   for (const key of ['length', 'width', 'height']) {
-    const el = document.getElementById(ids[key]);
-    const val = parseDimensionInput(el ? el.value : '');
+    els[key] = document.getElementById(ids[key]);
+    if (els[key] && String(els[key].value).trim() !== '') filled.push(key);
+  }
+  if (filled.length === 0) return { ok: true, dims: null };
+
+  const dims = {};
+  for (const key of filled) {
+    const val = parseDimensionInput(els[key].value);
     if (!(val > 0) || val > DIMENSION_LIMITS[key]) {
-      return { ok: false, field: el };
+      return { ok: false, reason: 'invalid', field: els[key] };
     }
     dims[key] = Math.round(val * 100) / 100;
+  }
+  if (filled.length < 3) {
+    const emptyKey = ['length', 'width', 'height'].find(k => !filled.includes(k));
+    return { ok: false, reason: 'incomplete', field: els[emptyKey] };
   }
   dims.cubicMeters = Math.round(dims.length * dims.width * dims.height * 100) / 100;
   return { ok: true, dims };
