@@ -28,6 +28,7 @@
 <style>
     .dimensions-hint { margin: 0 0 12px; font-size: 0.85rem; color: #64748b; }
     .dimensions-row .form-col { min-width: 0; }
+    .dimension-input::placeholder { color: #a0aec0; font-style: italic; opacity: 1; }
     .dimension-input.input-invalid { border-color: #e74c3c !important; box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12); }
     @media (max-width: 600px) {
         /* phones: one field per line so labels and values stay readable */
@@ -206,24 +207,24 @@
             <!-- Vehicle dimensions: typed in by the user (in metres) -->
             <div class="form-section">
                 <h4 class="section-title" data-translate="vehicleDimensions">Dimenzije vozila</h4>
-                <p class="dimensions-hint" data-translate="dimensionsHint">Vnesite mere vozila v metrih, npr. 4,5</p>
+                <p class="dimensions-hint" data-translate="dimensionsHint">Neobvezno, v metrih. Sivo napisane številke so le primer in se ne shranijo. Če polja pustite prazna, bo pri furi pisalo »Dimenzije niso navedene«.</p>
                 <div class="form-row dimensions-row">
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" for="vehicleLength"><span data-translate="length">Dolžina</span> (m)</label>
-                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleLength" placeholder="4,5">
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleLength" data-translate-placeholder="exampleLength" placeholder="npr. 4,5">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" for="vehicleWidth"><span data-translate="width">Širina</span> (m)</label>
-                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleWidth" placeholder="1,8">
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleWidth" data-translate-placeholder="exampleWidth" placeholder="npr. 1,8">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="input-group">
                             <label class="input-label" for="vehicleHeight"><span data-translate="height">Višina</span> (m)</label>
-                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleHeight" placeholder="1,5">
+                            <input type="text" inputmode="decimal" autocomplete="off" class="input-field dimension-input" id="vehicleHeight" data-translate-placeholder="exampleHeight" placeholder="npr. 1,5">
                         </div>
                     </div>
                 </div>
